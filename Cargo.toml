@@ -8,18 +8,16 @@ anyhow = { workspace = true }
 thiserror = { workspace = true }
 core = { workspace = true }
 algorithm = { workspace = true }
-macros = { workspace = true, optional = true }
 
 [features]
 default = []
-derive = ["macros"]
+derive = ["core/derive"]
 
 [workspace]
 resolver = "2"
 members = [
     "./crates/core",
     "./crates/algorithm",
-    "./crates/macros",
 ]
 exclude = []
 
@@ -31,4 +29,3 @@ regex = "1.10.4"
 regex-macro = "0.2.0"
 core = { path = "./crates/core" }
 algorithm = { path = "./crates/algorithm" }
-macros = { path = "./crates/macros" }

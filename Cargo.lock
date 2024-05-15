@@ -25,7 +25,6 @@ dependencies = [
  "anyhow",
  "core",
  "itertools",
- "macros",
  "serde",
  "serde_json",
  "thiserror",
@@ -42,8 +41,20 @@ name = "core"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "core_derive",
  "regex",
  "serde",
+ "thiserror",
+]
+
+[[package]]
+name = "core_derive"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "proc-macro2",
+ "quote",
+ "syn",
  "thiserror",
 ]
 
@@ -69,17 +80,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49f1f14873335454500d59611f1cf4a4b0f786f9ac11f4312a78e4cf2566695b"
 
 [[package]]
-name = "macros"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "proc-macro2",
- "quote",
- "syn",
- "thiserror",
-]
-
-[[package]]
 name = "memchr"
 version = "2.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -92,7 +92,6 @@ dependencies = [
  "algorithm",
  "anyhow",
  "core",
- "macros",
  "thiserror",
 ]
 

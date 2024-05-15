@@ -43,7 +43,6 @@ mod test {
 
     use core::cfg::{TokenSet, Syntax, Rule, RuleElem};
     use core::Parser;
-    use macros::*;
 
     use super::LR1;
 
