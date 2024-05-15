@@ -1,0 +1,34 @@
+[package]
+name = "parsergen"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+core = { workspace = true }
+algorithm = { workspace = true }
+macros = { workspace = true, optional = true }
+
+[features]
+default = []
+derive = ["macros"]
+
+[workspace]
+resolver = "2"
+members = [
+    "./crates/core",
+    "./crates/algorithm",
+    "./crates/macros",
+]
+exclude = []
+
+[workspace.dependencies]
+anyhow = "1.0.82"
+thiserror = "1.0.58"
+serde = "1.0.197"
+regex = "1.10.4"
+regex-macro = "0.2.0"
+core = { path = "./crates/core" }
+algorithm = { path = "./crates/algorithm" }
+macros = { path = "./crates/macros" }
