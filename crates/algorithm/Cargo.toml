@@ -1,0 +1,7 @@
+[package]
+name = "algorithm"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lr1 = { package = "algorithm_lr1", path = "../algorithm_lr1" }

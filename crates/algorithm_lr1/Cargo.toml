@@ -1,0 +1,11 @@
+[package]
+name = "algorithm_lr1"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+itertools = "0.12.1"
+core = { path = "../core", features = ["derive"] }
