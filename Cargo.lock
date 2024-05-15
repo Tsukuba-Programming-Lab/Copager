@@ -26,7 +26,6 @@ dependencies = [
  "core",
  "itertools",
  "serde",
- "serde_json",
  "thiserror",
 ]
 
@@ -92,6 +91,8 @@ dependencies = [
  "algorithm",
  "anyhow",
  "core",
+ "serde",
+ "serde_json",
  "thiserror",
 ]
 

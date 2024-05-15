@@ -39,14 +39,12 @@ where
 
 #[cfg(test)]
 mod test {
-    use serde::{Serialize, Deserialize};
-
     use core::cfg::{TokenSet, Syntax, Rule, RuleElem};
     use core::Parser;
 
     use super::LR1;
 
-    #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize, TokenSet)]
+    #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, TokenSet)]
     enum TestTokenSet {
         #[token(regex = r"\+")]
         Plus,
@@ -66,7 +64,7 @@ mod test {
         _Whitespace,
     }
 
-    #[derive(Debug, Clone, Copy, Serialize, Deserialize, Syntax)]
+    #[derive(Debug, Clone, Copy, Syntax)]
     enum TestSyntax {
         #[rule("<expr> ::= <expr> Plus <term>")]
         ExprPlus,
@@ -123,16 +121,5 @@ mod test {
         for input in inputs {
             assert!(parser.parse(input).is_err(), "{}", input);
         }
-    }
-
-    #[test]
-    fn check_serde() {
-        type TestParser<'a> = Parser::<'a, LR1<'a, TestTokenSet, TestSyntax>>;
-
-        let parser = TestParser::new().unwrap();
-        let serialized = serde_json::to_string(&parser).unwrap();
-        let deserialized: TestParser = serde_json::from_str(&serialized).unwrap();
-
-        deserialized.parse("10 * (20 - 30)").unwrap();
     }
 }
