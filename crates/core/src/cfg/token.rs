@@ -1,10 +1,11 @@
+use std::fmt::Debug;
 use std::hash::Hash;
 
 use regex::Regex;
 
 pub trait TokenSet<'a>
 where
-    Self: Copy + Clone + Hash + Eq,
+    Self: Debug + Copy + Clone + Hash + Eq,
 {
     fn ignore_str() -> &'a str;
     fn enum_iter() -> impl Iterator<Item = Self>;

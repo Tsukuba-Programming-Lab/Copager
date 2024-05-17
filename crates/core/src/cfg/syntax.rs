@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fmt::Debug;
 use std::hash::Hash;
 use std::marker::PhantomData;
 
@@ -6,7 +7,7 @@ use super::token::TokenSet;
 
 pub trait Syntax<'a>
 where
-    Self: Clone + Copy + Sized,
+    Self: Debug + Clone + Copy + Sized,
 {
     type TokenSet: TokenSet<'a>;
 
