@@ -1,5 +1,5 @@
 use crate::cfg::{TokenSet, Syntax};
-use super::lex::LexIterator;
+use crate::lex::Token;
 
 pub trait ParserImpl<'a>
 where
@@ -12,6 +12,6 @@ where
     fn setup() -> anyhow::Result<Self>;
     fn parse<'b>(
         &self,
-        lexer: impl LexIterator<'a, 'b, Self::TokenSet>
+        lexer: impl Iterator<Item = Token<'a, 'b, Self::TokenSet>>,
     ) -> anyhow::Result<Self::Output>;
 }

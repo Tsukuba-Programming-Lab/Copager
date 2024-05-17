@@ -1,5 +1,5 @@
 use core::cfg::{TokenSet, Syntax};
-use core::lex::LexIterator;
+use core::lex::Token;
 
 use super::builder::{LRAction, LR1Configure};
 
@@ -19,7 +19,7 @@ where
 
     pub fn run<'c>(
         &self,
-        lexer: &mut impl LexIterator<'a, 'c, T>,
+        lexer: &mut impl Iterator<Item = Token<'a, 'c, T>>,
     ) -> anyhow::Result<()> {
         let mut stack = vec![0];
         loop {
@@ -46,12 +46,13 @@ where
                         stack.push(self.0.goto_table[stack[stack.len() - 1]][*goto]);
                     }
                     LRAction::None => {
-                        let pos = lexer.pos();
-                        let pos = match action.1 {
-                            Some(raw) => (pos.0, pos.1 - (raw.len() as u32)),
-                            None => pos,
-                        };
-                        return Err(anyhow::anyhow!("Error at {:?}", pos).into());
+                        // let pos = lexer.pos();
+                        // let pos = match action.1 {
+                        //     Some(raw) => (pos.0, pos.1 - (raw.len() as u32)),
+                        //     None => pos,
+                        // };
+                        // return Err(anyhow::anyhow!("Error at {:?}", pos).into());
+                        return Err(anyhow::anyhow!("Error",).into());
                     }
                     LRAction::Accept => return Ok(()),
                 }

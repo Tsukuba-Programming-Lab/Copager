@@ -31,30 +31,15 @@ impl<'a, 'b, T: TokenSet<'a>> Token<'a, 'b, T> {
     }
 }
 
-pub struct Lexer;
+pub(crate) struct Lexer;
 
 impl Lexer {
-    pub fn new<'a, 'b, T>(input: &'b str) -> anyhow::Result<impl LexIterator<'a, 'b, T>>
+    pub fn new<'a, 'b, T>(input: &'b str) -> anyhow::Result<impl Iterator<Item = Token<'a, 'b, T>>>
     where
         T: TokenSet<'a> + 'a,
     {
-        let regex_map = T::try_into()?;
-
-        let regex_set = regex_map.iter().map(|(_, token)| T::to_regex(&token)).collect::<Vec<_>>();
-        let regex_set = RegexSet::new(regex_set)?;
-
-        let regex_istr = Regex::new(T::ignore_str())?;
-
-        Ok(LexDriver::<'a, 'b, T>::new(regex_set, regex_map, regex_istr, input))
+        LexDriver::<'a, 'b, T>::try_from(input)
     }
-}
-
-pub trait LexIterator<'a, 'b, T: TokenSet<'a> + 'a>
-where
-    Self: Iterator<Item = Token<'a, 'b, T>>,
-{
-    fn pos(&self) -> (u32, u32);
-    fn remain(&self) -> Option<&'b str>;
 }
 
 struct LexDriver<'a, 'b, T: TokenSet<'a>> {
@@ -71,34 +56,26 @@ struct LexDriver<'a, 'b, T: TokenSet<'a>> {
     tokenset: PhantomData<&'a T>,
 }
 
-impl<'a, 'b, T: TokenSet<'a>> LexDriver<'a, 'b, T> {
-    fn new(
-        regex_set: RegexSet,
-        regex_map: Vec<(Regex, T)>,
-        regex_istr: Regex,
-        input: &'b str,
-    ) -> Self {
-        LexDriver {
+impl<'a, 'b, T: TokenSet<'a>> TryFrom<&'b str> for LexDriver<'a, 'b, T> {
+    type Error = anyhow::Error;
+
+    fn try_from(input: &'b str) -> anyhow::Result<Self> {
+        let regex_map = T::try_into()?;
+        let regex_set = regex_map
+            .iter()
+            .map(|(_, token)| T::to_regex(&token))
+            .collect::<Vec<_>>();
+        let regex_set = RegexSet::new(regex_set)?;
+        let regex_istr = Regex::new(T::ignore_str())?;
+
+        Ok(LexDriver {
             regex_set,
             regex_map,
             regex_istr,
             input,
             pos: (0, 0),
             tokenset: PhantomData,
-        }
-    }
-}
-
-impl<'a, 'b, T: TokenSet<'a> + 'a> LexIterator<'a, 'b, T> for LexDriver<'a, 'b, T> {
-    fn pos(&self) -> (u32, u32) {
-        self.pos
-    }
-
-    fn remain(&self) -> Option<&'b str> {
-        match self.input {
-            "" => None,
-            s => Some(s),
-        }
+        })
     }
 }
 

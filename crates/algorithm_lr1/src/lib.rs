@@ -4,7 +4,7 @@ mod driver;
 use serde::{Serialize, Deserialize};
 
 use core::cfg::{TokenSet, Syntax};
-use core::lex::LexIterator;
+use core::lex::Token;
 use core::parse::ParserImpl;
 
 use builder::LR1Configure;
@@ -31,7 +31,7 @@ where
 
     fn parse<'b>(
         &self,
-        mut lexer: impl LexIterator<'a, 'b, T>,
+        mut lexer: impl Iterator<Item = Token<'a, 'b, T>>,
     ) -> anyhow::Result<Self::Output> {
         LR1Driver::new(&self.0).run(&mut lexer)
     }
