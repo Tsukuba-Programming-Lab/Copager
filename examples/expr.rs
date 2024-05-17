@@ -2,6 +2,7 @@ use std::io::stdin;
 
 use parsergen::algorithm::LR1;
 use parsergen::cfg::*;
+use parsergen::error::ParseError;
 use parsergen::Parser;
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, TokenSet)]
@@ -52,7 +53,12 @@ fn main() -> anyhow::Result<()> {
 
     match ExprParser::new()?.parse(&input) {
         Ok(_) => println!("Accepted"),
-        Err(e) => println!("Rejected: {}", e),
+        Err(e) => {
+            if let Some(e) = e.downcast_ref::<ParseError>() {
+                e.pretty_print();
+            }
+            println!("Rejected : {}", e);
+        }
     };
 
     Ok(())

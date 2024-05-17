@@ -1,2 +1,2 @@
-pub use core::*;
-pub use algorithm;
+pub use pgen_core::*;
+pub use pgen_algorithm as algorithm;

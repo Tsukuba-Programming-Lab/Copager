@@ -1,11 +1,12 @@
+mod error;
 mod builder;
 mod driver;
 
 use serde::{Serialize, Deserialize};
 
-use core::cfg::{TokenSet, Syntax};
-use core::lex::LexIterator;
-use core::parse::ParserImpl;
+use pgen_core::cfg::{TokenSet, Syntax};
+use pgen_core::lex::Token;
+use pgen_core::parse::ParserImpl;
 
 use builder::LR1Configure;
 use driver::LR1Driver;
@@ -31,7 +32,7 @@ where
 
     fn parse<'b>(
         &self,
-        mut lexer: impl LexIterator<'a, 'b, T>,
+        mut lexer: impl Iterator<Item = Token<'a, 'b, T>>,
     ) -> anyhow::Result<Self::Output> {
         LR1Driver::new(&self.0).run(&mut lexer)
     }
@@ -39,8 +40,8 @@ where
 
 #[cfg(test)]
 mod test {
-    use core::cfg::{TokenSet, Syntax, Rule, RuleElem};
-    use core::Parser;
+    use pgen_core::cfg::{TokenSet, Syntax, Rule, RuleElem};
+    use pgen_core::Parser;
 
     use super::LR1;
 
