@@ -1,7 +1,8 @@
 use pgen_core::cfg::{TokenSet, Syntax};
 use pgen_core::lex::Token;
 
-use super::builder::{LRAction, LR1Configure};
+use crate::error::ParseError;
+use crate::builder::{LRAction, LR1Configure};
 
 pub(super) struct LR1Driver<'a, 'b, T, S> (&'b LR1Configure<'a, T, S>)
 where
@@ -29,32 +30,31 @@ where
                 let action = match input {
                     Some(token) => (
                         self.0.action_table[top].get(&token.kind).unwrap(),
-                        Some(token.as_str()),
+                        Some(token),
                     ),
                     None => (
                         &self.0.eof_action_table[top],
                         None
                     ),
                 };
-                match action.0 {
-                    LRAction::Shift(new_state) => {
+                match action {
+                    (LRAction::Shift(new_state), _) => {
                         stack.push(*new_state);
                         break;
                     }
-                    LRAction::Reduce(_, goto, elems_cnt) => {
+                    (LRAction::Reduce(_, goto, elems_cnt), _) => {
                         stack.truncate(stack.len() - elems_cnt);
                         stack.push(self.0.goto_table[stack[stack.len() - 1]][*goto]);
                     }
-                    LRAction::None => {
-                        // let pos = lexer.pos();
-                        // let pos = match action.1 {
-                        //     Some(raw) => (pos.0, pos.1 - (raw.len() as u32)),
-                        //     None => pos,
-                        // };
-                        // return Err(anyhow::anyhow!("Error at {:?}", pos).into());
-                        return Err(anyhow::anyhow!("Error",).into());
+                    (LRAction::Accept, _) => {
+                        return Ok(());
                     }
-                    LRAction::Accept => return Ok(()),
+                    (LRAction::None, Some(token)) => {
+                        return Err(ParseError::new_unexpected_token(token).into());
+                    }
+                    (LRAction::None, None) => {
+                        return Err(ParseError::UnexpectedEOF.into());
+                    }
                 }
             }
         }
