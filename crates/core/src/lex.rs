@@ -7,27 +7,24 @@ use crate::cfg::TokenSet;
 #[derive(Debug, Copy, Clone)]
 pub struct Token<'a, 'b, T: TokenSet<'a>> {
     pub kind: T,
-    pub pos: (u32, u32),
-    orig_txt: &'b str,
+    pub src: &'b str,
+    pub range: (usize, usize),
     tokenset: PhantomData<&'a T>,
 }
 
 impl<'a, 'b, T: TokenSet<'a>> Token<'a, 'b, T> {
-    pub fn new(kind: T, orig_txt: &'b str, pos: (u32, u32)) -> Self {
+    pub fn new(kind: T, src: &'b str, range: (usize, usize)) -> Self {
         Token {
             kind,
-            pos,
-            orig_txt,
+            src,
+            range,
             tokenset: PhantomData,
         }
     }
 
     pub fn as_str(&self) -> &'b str {
-        self.orig_txt
-    }
-
-    pub fn to_string(&self) -> String {
-        self.orig_txt.to_string()
+        let (l, r) = self.range;
+        &self.src[l..r]
     }
 }
 
@@ -50,7 +47,7 @@ struct LexDriver<'a, 'b, T: TokenSet<'a>> {
 
     // State
     input: &'b str,
-    pos: (u32, u32),
+    pos: usize,
 
     // PhantomData
     tokenset: PhantomData<&'a T>,
@@ -73,7 +70,7 @@ impl<'a, 'b, T: TokenSet<'a>> TryFrom<&'b str> for LexDriver<'a, 'b, T> {
             regex_map,
             regex_istr,
             input,
-            pos: (0, 0),
+            pos: 0,
             tokenset: PhantomData,
         })
     }
@@ -83,47 +80,31 @@ impl<'a, 'b, T: TokenSet<'a> + 'a> Iterator for LexDriver<'a, 'b, T> {
     type Item = Token<'a, 'b, T>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        // Skip spaces
-        if let Some(acc_s) = self.regex_istr.find(self.input) {
-            self.update_state(acc_s.as_str());
-        }
+        // Skip Spaces
+        let remain = match self.regex_istr.find(&self.input[self.pos..]) {
+            Some(acc_s) => {
+                self.pos += acc_s.len();
+                &self.input[self.pos..]
+            }
+            None => &self.input[self.pos..]
+        };
 
         // Find the token
         let mut matches = self
             .regex_set
-            .matches(self.input)
+            .matches(remain)
             .into_iter()
             .map(|idx| &self.regex_map[idx])
-            .map(|(regex, token)| (*token, regex.find(self.input).unwrap().as_str()))
+            .map(|(regex, token)| (*token, regex.find(remain).unwrap().as_str()))
             .collect::<Vec<(T, &str)>>();
         matches.sort_by(|(_, a), (_, b)| a.len().cmp(&b.len()));
 
         // Update myself
         let (token, acc_s) = matches.first()?;
-        let pos = self.pos;
-        self.update_state(acc_s);
+        let range = (self.pos, self.pos + acc_s.len());
+        self.pos += acc_s.len();
 
-        Some(Token::new(*token, acc_s, pos))
-    }
-}
-
-impl<'a, 'b, T: TokenSet<'a>> LexDriver<'a, 'b, T> {
-    fn update_state(&mut self, acc_s: &str) {
-        let (mut rows, mut cols) = self.pos;
-        for c in acc_s.chars() {
-            match c {
-                '\n' => {
-                    rows += 1;
-                    cols = 0;
-                }
-                _ => {
-                    cols += 1;
-                }
-            }
-        }
-
-        self.input = &self.input[acc_s.len()..];
-        self.pos = (rows, cols);
+        Some(Token::new(*token, &self.input, range))
     }
 }
 
@@ -158,22 +139,24 @@ mod test {
     }
 
     fn check<'a, 'b>(
-        expected: &Vec<(TestToken, &'b str, (u32, u32))>,
+        expected: &Vec<(TestToken, &'b str, (usize, usize))>,
         input: &'b str,
     ) -> bool {
         Lexer::new::<TestToken>(input)
             .unwrap()
             .into_iter()
             .zip(expected.iter())
-            .all(|(a, b)| a.kind == b.0 && a.pos == b.2 && a.orig_txt == b.1)
+            .all(|(a, b)| {
+                a.kind == b.0 && a.range == b.2 && a.as_str() == b.1
+            })
     }
 
     #[test]
     fn input_ok_1() {
         let expected = vec![
-            (TestToken::Num, "10", (0, 0)),
-            (TestToken::Plus, "+", (0, 2)),
-            (TestToken::Num, "20", (0, 3)),
+            (TestToken::Num, "10", (0, 2)),
+            (TestToken::Plus, "+", (2, 3)),
+            (TestToken::Num, "20", (3, 5)),
         ];
         let input = "10+20";
         assert!(check(&expected, input));
@@ -182,9 +165,9 @@ mod test {
     #[test]
     fn input_ok_2() {
         let expected = vec![
-            (TestToken::Num, "10", (0, 12)),
-            (TestToken::Plus, "+", (0, 15)),
-            (TestToken::Num, "20", (1, 6)),
+            (TestToken::Num, "10", (12, 14)),
+            (TestToken::Plus, "+", (15, 16)),
+            (TestToken::Num, "20", (23, 25)),
         ];
         let input = "            10 +\n      20     ";
         assert!(check(&expected, input));
@@ -193,9 +176,9 @@ mod test {
     #[test]
     fn input_ok_3() {
         let expected = vec![
-            (TestToken::Num, "10", (0, 12)),
-            (TestToken::Plus, "+", (0, 15)),
-            (TestToken::Num, "20", (1, 6)),
+            (TestToken::Num, "10", (12, 14)),
+            (TestToken::Plus, "+", (15, 16)),
+            (TestToken::Num, "20", (23, 25)),
         ];
         let input = "            10 +\n      20ffff30 - 40 * 50";
         assert!(check(&expected, input));
