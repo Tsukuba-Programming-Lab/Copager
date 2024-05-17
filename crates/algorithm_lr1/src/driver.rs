@@ -1,5 +1,5 @@
-use core::cfg::{TokenSet, Syntax};
-use core::lex::Token;
+use pgen_core::cfg::{TokenSet, Syntax};
+use pgen_core::lex::Token;
 
 use super::builder::{LRAction, LR1Configure};
 

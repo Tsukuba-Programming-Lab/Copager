@@ -1,4 +1,4 @@
-use core::cfg::*;
+use parsergen::cfg::*;
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, TokenSet)]
 enum TestTokenSet {

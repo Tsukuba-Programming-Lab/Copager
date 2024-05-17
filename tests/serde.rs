@@ -1,8 +1,8 @@
 use serde::{Serialize, Deserialize};
 
-use core::cfg::*;
-use core::Parser;
-use algorithm::LR1;
+use parsergen::algorithm::LR1;
+use parsergen::cfg::*;
+use parsergen::Parser;
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize, TokenSet)]
 enum TestTokenSet {

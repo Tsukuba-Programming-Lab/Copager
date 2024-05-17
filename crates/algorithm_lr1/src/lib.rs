@@ -3,9 +3,9 @@ mod driver;
 
 use serde::{Serialize, Deserialize};
 
-use core::cfg::{TokenSet, Syntax};
-use core::lex::Token;
-use core::parse::ParserImpl;
+use pgen_core::cfg::{TokenSet, Syntax};
+use pgen_core::lex::Token;
+use pgen_core::parse::ParserImpl;
 
 use builder::LR1Configure;
 use driver::LR1Driver;
@@ -39,8 +39,8 @@ where
 
 #[cfg(test)]
 mod test {
-    use core::cfg::{TokenSet, Syntax, Rule, RuleElem};
-    use core::Parser;
+    use pgen_core::cfg::{TokenSet, Syntax, Rule, RuleElem};
+    use pgen_core::Parser;
 
     use super::LR1;
 

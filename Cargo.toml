@@ -6,8 +6,8 @@ edition = "2021"
 [dependencies]
 anyhow = { workspace = true }
 thiserror = { workspace = true }
-core = { workspace = true }
-algorithm = { workspace = true }
+pgen_core = { workspace = true }
+pgen_algorithm = { workspace = true }
 
 [dev-dependencies]
 serde = { workspace = true }
@@ -15,7 +15,7 @@ serde_json = "1.0.117"
 
 [features]
 default = []
-derive = ["core/derive"]
+derive = ["pgen_core/derive"]
 
 [workspace]
 resolver = "2"
@@ -31,5 +31,5 @@ thiserror = "1.0.58"
 serde = "1.0.197"
 regex = "1.10.4"
 regex-macro = "0.2.0"
-core = { path = "./crates/core" }
-algorithm = { path = "./crates/algorithm" }
+pgen_core = { package = "core", path = "./crates/core" }
+pgen_algorithm = { package = "algorithm", path = "./crates/algorithm" }
