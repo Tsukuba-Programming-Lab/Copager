@@ -1,7 +1,7 @@
 pub mod cfg;
 pub mod error;
 pub mod parse;
-pub mod lex;    // TODO : private
+pub mod lex;
 
 use std::marker::PhantomData;
 
