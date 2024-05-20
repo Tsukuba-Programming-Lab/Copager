@@ -1,5 +1,6 @@
 use pgen_core::cfg::{TokenSet, Syntax};
 use pgen_core::lex::Token;
+use pgen_core::parse::{SExp, SExpBuilder};
 
 use crate::error::ParseError;
 use crate::builder::{LRAction, LR1Configure};
@@ -21,8 +22,9 @@ where
     pub fn run<'c>(
         &self,
         lexer: &mut impl Iterator<Item = Token<'a, 'c, T>>,
-    ) -> anyhow::Result<()> {
+    ) -> anyhow::Result<SExp<'a, 'c, T, S>> {
         let mut stack = vec![0];
+        let mut builder = SExpBuilder::new();
         loop {
             let input = lexer.next();
             loop {
@@ -38,16 +40,18 @@ where
                     ),
                 };
                 match action {
-                    (LRAction::Shift(new_state), _) => {
+                    (LRAction::Shift(new_state), Some(token)) => {
                         stack.push(*new_state);
+                        builder.push(token);
                         break;
                     }
-                    (LRAction::Reduce(_, goto, elems_cnt), _) => {
+                    (LRAction::Reduce(tag, goto, elems_cnt), _) => {
                         stack.truncate(stack.len() - elems_cnt);
                         stack.push(self.0.goto_table[stack[stack.len() - 1]][*goto]);
+                        builder.wrap(*tag, *elems_cnt);
                     }
                     (LRAction::Accept, _) => {
-                        return Ok(());
+                        return builder.build();
                     }
                     (LRAction::None, Some(token)) => {
                         return Err(ParseError::new_unexpected_token(token).into());
@@ -55,6 +59,7 @@ where
                     (LRAction::None, None) => {
                         return Err(ParseError::UnexpectedEOF.into());
                     }
+                    _ => unreachable!(),
                 }
             }
         }
