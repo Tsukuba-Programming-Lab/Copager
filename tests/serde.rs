@@ -1,8 +1,8 @@
 use serde::{Serialize, Deserialize};
 
-use core::cfg::*;
-use core::Parser;
-use algorithm::LR1;
+use parsergen::algorithm::LR1;
+use parsergen::cfg::*;
+use parsergen::Parser;
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize, TokenSet)]
 enum TestTokenSet {
@@ -27,19 +27,14 @@ enum TestTokenSet {
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, Syntax)]
 enum TestSyntax {
     #[rule("<expr> ::= <expr> Plus <term>")]
-    ExprPlus,
     #[rule("<expr> ::= <expr> Minus <term>")]
-    ExprMinus,
     #[rule("<expr> ::= <term>")]
-    ExprTerm,
+    Expr,
     #[rule("<term> ::= <term> Mul <num>")]
-    TermMul,
     #[rule("<term> ::= <term> Div <num>")]
-    TermDiv,
     #[rule("<term> ::= <num>")]
-    TermNum,
+    Term,
     #[rule("<num> ::= BracketL <expr> BracketR")]
-    NestedNum,
     #[rule("<num> ::= Num")]
     Num,
 }

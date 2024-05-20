@@ -2,6 +2,7 @@ use std::io::stdin;
 
 use parsergen::algorithm::LR1;
 use parsergen::cfg::*;
+use parsergen::error::ParseError;
 use parsergen::Parser;
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, TokenSet)]
@@ -27,19 +28,14 @@ enum ExprTokenSet {
 #[derive(Debug, Clone, Copy, Syntax)]
 enum ExprSyntax {
     #[rule("<expr> ::= <expr> Plus <term>")]
-    ExprPlus,
     #[rule("<expr> ::= <expr> Minus <term>")]
-    ExprMinus,
     #[rule("<expr> ::= <term>")]
-    ExprTerm,
+    Expr,
     #[rule("<term> ::= <term> Mul <num>")]
-    TermMul,
     #[rule("<term> ::= <term> Div <num>")]
-    TermDiv,
     #[rule("<term> ::= <num>")]
-    TermNum,
+    Term,
     #[rule("<num> ::= BracketL <expr> BracketR")]
-    NestedNum,
     #[rule("<num> ::= Num")]
     Num,
 }
@@ -51,8 +47,13 @@ fn main() -> anyhow::Result<()> {
     stdin().read_line(&mut input)?;
 
     match ExprParser::new()?.parse(&input) {
-        Ok(_) => println!("Accepted"),
-        Err(e) => println!("Rejected: {}", e),
+        Ok(sexp) => println!("Accepted : {}", sexp),
+        Err(e) => {
+            if let Some(e) = e.downcast_ref::<ParseError>() {
+                e.pretty_print();
+            }
+            println!("Rejected : {}", e);
+        }
     };
 
     Ok(())

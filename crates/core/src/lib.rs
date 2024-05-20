@@ -1,14 +1,14 @@
 pub mod cfg;
 pub mod error;
 pub mod parse;
-pub mod lex;    // TODO : private
+pub mod lex;
 
 use std::marker::PhantomData;
 
 use serde::{Serialize, Deserialize};
 
 use lex::Lexer;
-use parse::ParserImpl;
+use parse::{ParserImpl, SExp};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Parser<'a, Algorithm>
@@ -31,7 +31,10 @@ where
         })
     }
 
-    pub fn parse<'b>(&self, input: &'b str) -> anyhow::Result<Algorithm::Output> {
+    pub fn parse<'b>(
+        &self,
+        input: &'b str,
+    ) -> anyhow::Result<SExp<'a, 'b, Algorithm::TokenSet, Algorithm::Syntax>> {
         let lexer = Lexer::new::<Algorithm::TokenSet>(input)?;
         self.r#impl.parse(lexer)
     }

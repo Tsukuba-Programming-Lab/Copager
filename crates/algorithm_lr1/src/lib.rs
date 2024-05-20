@@ -1,11 +1,12 @@
+mod error;
 mod builder;
 mod driver;
 
 use serde::{Serialize, Deserialize};
 
-use core::cfg::{TokenSet, Syntax};
-use core::lex::LexIterator;
-use core::parse::ParserImpl;
+use pgen_core::cfg::{TokenSet, Syntax};
+use pgen_core::lex::Token;
+use pgen_core::parse::{ParserImpl, SExp};
 
 use builder::LR1Configure;
 use driver::LR1Driver;
@@ -23,7 +24,6 @@ where
 {
     type TokenSet = T;
     type Syntax = S;
-    type Output = ();
 
     fn setup() -> anyhow::Result<Self> {
         Ok(LR1(LR1Configure::setup()?))
@@ -31,16 +31,16 @@ where
 
     fn parse<'b>(
         &self,
-        mut lexer: impl LexIterator<'a, 'b, T>,
-    ) -> anyhow::Result<Self::Output> {
+        mut lexer: impl Iterator<Item = Token<'a, 'b, T>>,
+    ) -> anyhow::Result<SExp<'a, 'b, T, S>> {
         LR1Driver::new(&self.0).run(&mut lexer)
     }
 }
 
 #[cfg(test)]
 mod test {
-    use core::cfg::{TokenSet, Syntax, Rule, RuleElem};
-    use core::Parser;
+    use pgen_core::cfg::{TokenSet, Syntax, Rule, RuleElem};
+    use pgen_core::Parser;
 
     use super::LR1;
 
@@ -67,19 +67,14 @@ mod test {
     #[derive(Debug, Clone, Copy, Syntax)]
     enum TestSyntax {
         #[rule("<expr> ::= <expr> Plus <term>")]
-        ExprPlus,
         #[rule("<expr> ::= <expr> Minus <term>")]
-        ExprMinus,
         #[rule("<expr> ::= <term>")]
-        ExprTerm,
+        Expr,
         #[rule("<term> ::= <term> Mul <num>")]
-        TermMul,
         #[rule("<term> ::= <term> Div <num>")]
-        TermDiv,
         #[rule("<term> ::= <num>")]
-        TermNum,
+        Term,
         #[rule("<num> ::= BracketL <expr> BracketR")]
-        NestedNum,
         #[rule("<num> ::= Num")]
         Num,
     }

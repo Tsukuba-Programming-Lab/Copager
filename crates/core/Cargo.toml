@@ -1,6 +1,6 @@
 [package]
 name = "core"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 [dependencies]
@@ -8,8 +8,8 @@ anyhow = { workspace = true }
 thiserror = { workspace = true }
 serde = { workspace = true, features = ["derive"]}
 regex = { workspace = true }
-derive = { package = "core_derive", path = "../core_derive", optional = true }
+pgen_core_derive = { package = "core_derive", path = "../core_derive", optional = true }
 
 [features]
 default = []
-derive = ["dep:derive"]
+derive = ["dep:pgen_core_derive"]
