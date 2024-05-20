@@ -37,11 +37,7 @@ where
 {
     pub fn setup() -> anyhow::Result<Self> {
         // 1. Pre-process
-        let rules = S::try_into()?
-            .into_iter()
-            .map(|(rule, _)| rule)
-            .collect::<Vec<_>>();
-        let ruleset = RuleSet::from(rules);
+        let ruleset = S::into_ruleset();
         let first_set = ruleset.first_set();
 
         // 2. Generate dummy nonterm

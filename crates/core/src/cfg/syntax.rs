@@ -14,10 +14,12 @@ where
     fn enum_iter() -> impl Iterator<Item = Self>;
     fn to_rule(&self) -> Rule<'a, Self::TokenSet>;
 
-    fn try_into() -> anyhow::Result<Vec<(Rule<'a, Self::TokenSet>, Self)>> {
-        Self::enum_iter()
-            .map(|elem| Ok((Self::to_rule(&elem), elem)))
-            .collect::<anyhow::Result<Vec<_>>>()
+    fn into_ruleset() -> RuleSet<'a, Self::TokenSet> {
+        let rules = Self::enum_iter()
+            .map(|elem| Self::to_rule(&elem))
+            .collect::<Vec<_>>();
+
+        RuleSet::from(rules)
     }
 }
 
@@ -228,7 +230,7 @@ impl<'a, T: TokenSet<'a>> RuleSet<'a, T> {
 mod test {
     use std::collections::HashMap;
 
-    use super::{TokenSet, Syntax, Rule, RuleElem, RuleSet};
+    use super::{TokenSet, Syntax, Rule, RuleElem};
 
     #[derive(Clone, Copy, Hash, PartialEq, Eq, Debug)]
     enum TestToken {
@@ -399,12 +401,7 @@ mod test {
 
     #[test]
     fn first_set() {
-        let rules = <TestSyntax as Syntax>::try_into()
-            .unwrap()
-            .into_iter()
-            .map(|(rule, _)| rule)
-            .collect::<Vec<_>>();
-        let ruleset = RuleSet::from(rules);
+        let ruleset = <TestSyntax as Syntax>::into_ruleset();
         let first_set = ruleset.first_set();
 
         check(
