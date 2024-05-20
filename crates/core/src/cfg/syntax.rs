@@ -11,12 +11,12 @@ where
 {
     type TokenSet: TokenSet<'a>;
 
-    fn enum_iter() -> impl Iterator<Item = Self>;
-    fn to_rule(&self) -> Rule<'a, Self::TokenSet>;
+    fn into_iter() -> impl Iterator<Item = Self>;
+    fn into_rule(&self) -> Rule<'a, Self::TokenSet>;
 
     fn into_ruleset() -> RuleSet<'a, Self::TokenSet> {
-        let rules = Self::enum_iter()
-            .map(|elem| Self::to_rule(&elem))
+        let rules = Self::into_iter()
+            .map(|elem| Self::into_rule(&elem))
             .collect::<Vec<_>>();
 
         RuleSet::from(rules)
@@ -291,7 +291,7 @@ mod test {
     impl<'a> Syntax<'a> for TestSyntax {
         type TokenSet = TestToken;
 
-        fn enum_iter() -> impl Iterator<Item = Self> {
+        fn into_iter() -> impl Iterator<Item = Self> {
             Box::new(
                 vec![
                     TestSyntax::ExprPlus,
@@ -307,7 +307,7 @@ mod test {
             )
         }
 
-        fn to_rule(&self) -> Rule<'a, Self::TokenSet> {
+        fn into_rule(&self) -> Rule<'a, Self::TokenSet> {
             let expr_plus = Rule::from((
                 RuleElem::new_nonterm("expr"),
                 vec![

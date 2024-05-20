@@ -31,13 +31,13 @@ pub fn syntax_proc_macro_impl(ast: DeriveInput) -> TokenStream {
         impl<'a> Syntax<'a> for #enum_name {
             type TokenSet = #enum_assoc_type;
 
-            fn enum_iter() -> impl Iterator<Item = Self> {
+            fn into_iter() -> impl Iterator<Item = Self> {
                 vec![
                     #( #enum_variants, )*
                 ].into_iter()
             }
 
-            fn to_rule(&self) -> Rule<'a, Self::TokenSet> {
+            fn into_rule(&self) -> Rule<'a, Self::TokenSet> {
                 match self {
                     #( #enum_rule_table, )*
                     _ => unimplemented!(),

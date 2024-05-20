@@ -81,7 +81,7 @@ where
         }
 
         // 5. Setup tables
-        let rule_table: Vec<S> = S::enum_iter().collect();
+        let rule_table: Vec<S> = S::into_iter().collect();
         for lritem_set in &dfa.0 {
             for (token, next) in &lritem_set.next {
                 match &token {

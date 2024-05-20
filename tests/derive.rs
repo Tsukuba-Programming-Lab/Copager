@@ -43,5 +43,5 @@ enum TestSyntax {
 #[test]
 fn check_compile() {
     let _ = TestTokenSet::to_regex(&self::TestTokenSet::Plus);
-    let _ = TestSyntax::to_rule(&self::TestSyntax::ExprPlus);
+    let _ = TestSyntax::into_rule(&self::TestSyntax::ExprPlus);
 }
