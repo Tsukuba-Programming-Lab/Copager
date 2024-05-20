@@ -6,7 +6,7 @@ use serde::{Serialize, Deserialize};
 
 use pgen_core::cfg::{TokenSet, Syntax};
 use pgen_core::lex::Token;
-use pgen_core::parse::ParserImpl;
+use pgen_core::parse::{ParserImpl, SExp};
 
 use builder::LR1Configure;
 use driver::LR1Driver;
@@ -24,7 +24,6 @@ where
 {
     type TokenSet = T;
     type Syntax = S;
-    type Output = ();
 
     fn setup() -> anyhow::Result<Self> {
         Ok(LR1(LR1Configure::setup()?))
@@ -33,7 +32,7 @@ where
     fn parse<'b>(
         &self,
         mut lexer: impl Iterator<Item = Token<'a, 'b, T>>,
-    ) -> anyhow::Result<Self::Output> {
+    ) -> anyhow::Result<SExp<'a, 'b, T, S>> {
         LR1Driver::new(&self.0).run(&mut lexer)
     }
 }

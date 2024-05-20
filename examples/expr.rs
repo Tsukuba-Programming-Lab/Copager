@@ -47,7 +47,7 @@ fn main() -> anyhow::Result<()> {
     stdin().read_line(&mut input)?;
 
     match ExprParser::new()?.parse(&input) {
-        Ok(_) => println!("Accepted"),
+        Ok(sexp) => println!("Accepted : {}", sexp),
         Err(e) => {
             if let Some(e) = e.downcast_ref::<ParseError>() {
                 e.pretty_print();
