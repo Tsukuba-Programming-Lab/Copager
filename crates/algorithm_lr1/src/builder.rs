@@ -72,7 +72,7 @@ where
         let mut goto_table: Vec<Vec<usize>> = Vec::with_capacity(dfa.0.len());
         for _ in 0..dfa.0.len() {
             action_table.push(HashMap::from_iter(
-                T::enum_iter()
+                T::into_iter()
                     .map(|token| (token, LRAction::None))
                     .collect::<Vec<(T, LRAction<S>)>>(),
             ));

@@ -244,7 +244,7 @@ mod test {
     }
 
     impl TokenSet<'_> for TestToken {
-        fn enum_iter() -> impl Iterator<Item = Self> {
+        fn into_iter() -> impl Iterator<Item = Self> {
             Box::new(
                 vec![
                     TestToken::Num,
@@ -259,7 +259,7 @@ mod test {
             )
         }
 
-        fn to_regex(&self) -> &'static str {
+        fn into_regex_str(&self) -> &'static str {
             match self {
                 TestToken::Num => r"^[1-9][0-9]*",
                 TestToken::Plus => r"^\+",

@@ -36,13 +36,13 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
                 #enum_ignored
             }
 
-            fn enum_iter() -> impl Iterator<Item = Self> {
+            fn into_iter() -> impl Iterator<Item = Self> {
                 vec![
                     #( #enum_variants, )*
                 ].into_iter()
             }
 
-            fn to_regex(&self) -> &'static str {
+            fn into_regex_str(&self) -> &'static str {
                 match self {
                     #( #enum_regex_table, )*
                     _ => unimplemented!(),
