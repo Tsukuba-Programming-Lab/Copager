@@ -28,19 +28,14 @@ enum ExprTokenSet {
 #[derive(Debug, Clone, Copy, Syntax)]
 enum ExprSyntax {
     #[rule("<expr> ::= <expr> Plus <term>")]
-    ExprPlus,
     #[rule("<expr> ::= <expr> Minus <term>")]
-    ExprMinus,
     #[rule("<expr> ::= <term>")]
-    ExprTerm,
+    Expr,
     #[rule("<term> ::= <term> Mul <num>")]
-    TermMul,
     #[rule("<term> ::= <term> Div <num>")]
-    TermDiv,
     #[rule("<term> ::= <num>")]
-    TermNum,
+    Term,
     #[rule("<num> ::= BracketL <expr> BracketR")]
-    NestedNum,
     #[rule("<num> ::= Num")]
     Num,
 }

@@ -23,25 +23,20 @@ enum TestTokenSet {
 #[derive(Debug, Clone, Copy, Syntax)]
 enum TestSyntax {
     #[rule("<expr> ::= <expr> Plus <term>")]
-    ExprPlus,
     #[rule("<expr> ::= <expr> Minus <term>")]
-    ExprMinus,
     #[rule("<expr> ::= <term>")]
-    ExprTerm,
+    Expr,
     #[rule("<term> ::= <term> Mul <num>")]
-    TermMul,
     #[rule("<term> ::= <term> Div <num>")]
-    TermDiv,
     #[rule("<term> ::= <num>")]
-    TermNum,
+    Term,
     #[rule("<num> ::= BracketL <expr> BracketR")]
-    NestedNum,
     #[rule("<num> ::= Num")]
     Num,
 }
 
 #[test]
 fn check_compile() {
-    let _ = TestTokenSet::to_regex(&self::TestTokenSet::Plus);
-    let _ = TestSyntax::to_rule(&self::TestSyntax::ExprPlus);
+    let _ = TestTokenSet::into_regex(&self::TestTokenSet::Plus);
+    let _ = TestSyntax::into_rules(&self::TestSyntax::Expr);
 }

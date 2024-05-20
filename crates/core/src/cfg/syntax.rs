@@ -7,17 +7,26 @@ use super::token::TokenSet;
 
 pub trait Syntax<'a>
 where
-    Self: Debug + Clone + Copy + Sized,
+    Self: Debug + Clone + Copy,
 {
     type TokenSet: TokenSet<'a>;
 
-    fn enum_iter() -> impl Iterator<Item = Self>;
-    fn to_rule(&self) -> Rule<'a, Self::TokenSet>;
+    fn into_iter() -> impl Iterator<Item = Self>;
+    fn into_rules(&self) -> Vec<Rule<'a, Self::TokenSet>>;
 
-    fn try_into() -> anyhow::Result<Vec<(Rule<'a, Self::TokenSet>, Self)>> {
-        Self::enum_iter()
-            .map(|elem| Ok((Self::to_rule(&elem), elem)))
-            .collect::<anyhow::Result<Vec<_>>>()
+    fn into_ruleset() -> RuleSet<'a, Self::TokenSet> {
+        let rules = Self::into_iter()
+            .enumerate()
+            .flat_map(|(idx, elem)| {
+                let mut rules = Self::into_rules(&elem);
+                for rule in &mut rules {
+                    rule.id = idx;
+                }
+                rules
+            })
+            .collect::<Vec<_>>();
+
+        RuleSet::from(rules)
     }
 }
 
@@ -108,15 +117,11 @@ pub struct RuleSet<'a, T: TokenSet<'a>> {
 }
 
 impl<'a, T: TokenSet<'a>> From<Vec<Rule<'a, T>>> for RuleSet<'a, T> {
-    fn from(mut rules: Vec<Rule<'a, T>>) -> Self {
+    fn from(rules: Vec<Rule<'a, T>>) -> Self {
         let top = match &rules[0].lhs {
             RuleElem::NonTerm(s) => s.clone(),
             _ => unreachable!(),
         };
-
-        for (idx, rule) in rules.iter_mut().enumerate() {
-            rule.id = idx;
-        }
 
         RuleSet {
             top,
@@ -228,7 +233,7 @@ impl<'a, T: TokenSet<'a>> RuleSet<'a, T> {
 mod test {
     use std::collections::HashMap;
 
-    use super::{TokenSet, Syntax, Rule, RuleElem, RuleSet};
+    use super::{TokenSet, Syntax, Rule, RuleElem};
 
     #[derive(Clone, Copy, Hash, PartialEq, Eq, Debug)]
     enum TestToken {
@@ -242,7 +247,7 @@ mod test {
     }
 
     impl TokenSet<'_> for TestToken {
-        fn enum_iter() -> impl Iterator<Item = Self> {
+        fn into_iter() -> impl Iterator<Item = Self> {
             Box::new(
                 vec![
                     TestToken::Num,
@@ -257,7 +262,7 @@ mod test {
             )
         }
 
-        fn to_regex(&self) -> &'static str {
+        fn into_regex_str(&self) -> &'static str {
             match self {
                 TestToken::Num => r"^[1-9][0-9]*",
                 TestToken::Plus => r"^\+",
@@ -289,7 +294,7 @@ mod test {
     impl<'a> Syntax<'a> for TestSyntax {
         type TokenSet = TestToken;
 
-        fn enum_iter() -> impl Iterator<Item = Self> {
+        fn into_iter() -> impl Iterator<Item = Self> {
             Box::new(
                 vec![
                     TestSyntax::ExprPlus,
@@ -305,7 +310,7 @@ mod test {
             )
         }
 
-        fn to_rule(&self) -> Rule<'a, Self::TokenSet> {
+        fn into_rules(&self) -> Vec<Rule<'a, Self::TokenSet>> {
             let expr_plus = Rule::from((
                 RuleElem::new_nonterm("expr"),
                 vec![
@@ -364,14 +369,14 @@ mod test {
             let fact_2_num = Rule::from((RuleElem::new_nonterm("fact"), vec![]));
 
             match self {
-                TestSyntax::ExprPlus => expr_plus,
-                TestSyntax::ExprMinus => expr_minus,
-                TestSyntax::Expr2Term => expr_2_term,
-                TestSyntax::TermMul => term_mul,
-                TestSyntax::TermDiv => term_div,
-                TestSyntax::Term2Fact => term_2_fact,
-                TestSyntax::Fact2Expr => fact_2_expr,
-                TestSyntax::Fact2Num => fact_2_num,
+                TestSyntax::ExprPlus => vec![expr_plus],
+                TestSyntax::ExprMinus => vec![expr_minus],
+                TestSyntax::Expr2Term => vec![expr_2_term],
+                TestSyntax::TermMul => vec![term_mul],
+                TestSyntax::TermDiv => vec![term_div],
+                TestSyntax::Term2Fact => vec![term_2_fact],
+                TestSyntax::Fact2Expr => vec![fact_2_expr],
+                TestSyntax::Fact2Num => vec![fact_2_num],
             }
         }
     }
@@ -399,12 +404,7 @@ mod test {
 
     #[test]
     fn first_set() {
-        let rules = <TestSyntax as Syntax>::try_into()
-            .unwrap()
-            .into_iter()
-            .map(|(rule, _)| rule)
-            .collect::<Vec<_>>();
-        let ruleset = RuleSet::from(rules);
+        let ruleset = <TestSyntax as Syntax>::into_ruleset();
         let first_set = ruleset.first_set();
 
         check(

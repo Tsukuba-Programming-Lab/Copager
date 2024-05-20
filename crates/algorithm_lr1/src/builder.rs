@@ -37,11 +37,8 @@ where
 {
     pub fn setup() -> anyhow::Result<Self> {
         // 1. Pre-process
-        let rules = S::try_into()?
-            .into_iter()
-            .map(|(rule, _)| rule)
-            .collect::<Vec<_>>();
-        let ruleset = RuleSet::from(rules);
+        let rules = S::into_iter().collect::<Vec<_>>();
+        let ruleset = S::into_ruleset();
         let first_set = ruleset.first_set();
 
         // 2. Generate dummy nonterm
@@ -76,7 +73,7 @@ where
         let mut goto_table: Vec<Vec<usize>> = Vec::with_capacity(dfa.0.len());
         for _ in 0..dfa.0.len() {
             action_table.push(HashMap::from_iter(
-                T::enum_iter()
+                T::into_iter()
                     .map(|token| (token, LRAction::None))
                     .collect::<Vec<(T, LRAction<S>)>>(),
             ));
@@ -85,7 +82,6 @@ where
         }
 
         // 5. Setup tables
-        let rule_table: Vec<S> = S::enum_iter().collect();
         for lritem_set in &dfa.0 {
             for (token, next) in &lritem_set.next {
                 match &token {
@@ -113,7 +109,7 @@ where
                             let id = lritem_set.id as usize;
                             let label = action_table[id].get_mut(&t.0).unwrap();
                             *label = LRAction::Reduce(
-                                rule_table[item.rule.id as usize],
+                                rules[item.rule.id as usize],
                                 *nonterm_table.get(lhs).unwrap(),
                                 item.rule.rhs.len(),
                             );
@@ -124,7 +120,7 @@ where
                                 LRAction::Accept
                             } else {
                                 LRAction::Reduce(
-                                    rule_table[item.rule.id as usize],
+                                    rules[item.rule.id as usize],
                                     *nonterm_table.get(lhs).unwrap(),
                                     item.rule.rhs.len(),
                                 )

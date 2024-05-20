@@ -41,9 +41,9 @@ impl Lexer {
 
 struct LexDriver<'a, 'b, T: TokenSet<'a>> {
     // Regex
+    regex_istr: Regex,
     regex_set: RegexSet,
     regex_map: Vec<(Regex, T)>,
-    regex_istr: Regex,
 
     // State
     input: &'b str,
@@ -57,18 +57,16 @@ impl<'a, 'b, T: TokenSet<'a>> TryFrom<&'b str> for LexDriver<'a, 'b, T> {
     type Error = anyhow::Error;
 
     fn try_from(input: &'b str) -> anyhow::Result<Self> {
-        let regex_map = T::try_into()?;
-        let regex_set = regex_map
-            .iter()
-            .map(|(_, token)| T::to_regex(&token))
-            .collect::<Vec<_>>();
-        let regex_set = RegexSet::new(regex_set)?;
         let regex_istr = Regex::new(T::ignore_str())?;
+        let regex_set = T::try_into_regexset()?;
+        let regex_map = T::into_iter()
+            .map(|token| Ok((token.into_regex()?, token)))
+            .collect::<anyhow::Result<Vec<_>>>()?;
 
         Ok(LexDriver {
+            regex_istr,
             regex_set,
             regex_map,
-            regex_istr,
             input,
             pos: 0,
             tokenset: PhantomData,
@@ -126,11 +124,11 @@ mod test {
             r"^[ \t\n]+"
         }
 
-        fn enum_iter() -> Box<dyn Iterator<Item = Self>> {
-            Box::new(vec![TestToken::Num, TestToken::Plus].into_iter())
+        fn into_iter() -> impl Iterator<Item = Self> {
+            vec![TestToken::Num, TestToken::Plus].into_iter()
         }
 
-        fn to_regex(&self) -> &'static str {
+        fn into_regex_str(&self) -> &'static str {
             match self {
                 TestToken::Num => r"^[1-9][0-9]*",
                 TestToken::Plus => r"^\+",
