@@ -37,7 +37,7 @@ pub fn syntax_proc_macro_impl(ast: DeriveInput) -> TokenStream {
                 ].into_iter()
             }
 
-            fn into_rule(&self) -> Rule<'a, Self::TokenSet> {
+            fn into_rules(&self) -> Vec<Rule<'a, Self::TokenSet>> {
                 match self {
                     #( #enum_rule_table, )*
                     _ => unimplemented!(),
@@ -50,23 +50,23 @@ pub fn syntax_proc_macro_impl(ast: DeriveInput) -> TokenStream {
 struct VariantInfo<'a> {
     parent_ident: &'a Ident,
     self_ident: &'a Ident,
-    rule: Option<TokenStream>,
+    rules: Vec<TokenStream>,
 }
 
 impl<'a> VariantInfo<'a> {
     fn parse(parent_ident: &'a Ident, variant: &'a Variant) -> VariantInfo<'a> {
         let self_ident = &variant.ident;
 
-        let mut rule = None;
+        let mut rules = vec![];
         for attr in &variant.attrs {
             let attr = attr.parse_args::<LitStr>().unwrap().value();
-            rule = Some(Self::parse_rule(&attr));
+            rules.push(Self::parse_rule(&attr));
         }
 
         VariantInfo {
             parent_ident,
             self_ident,
-            rule,
+            rules,
         }
     }
 
@@ -102,9 +102,11 @@ impl<'a> VariantInfo<'a> {
 
     fn gen_ident_with_rule(&self) -> TokenStream {
         let ident = self.gen_ident();
-        match &self.rule {
-            Some(rule) => quote! { #ident => #rule },
-            None => quote! { unimplemented!() },
+        if self.rules.is_empty() {
+            quote! { #ident => unimplemented!() }
+        } else {
+            let rules = &self.rules;
+            quote! { #ident => vec![#(#rules),*] }
         }
     }
 }

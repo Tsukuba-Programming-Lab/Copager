@@ -37,6 +37,7 @@ where
 {
     pub fn setup() -> anyhow::Result<Self> {
         // 1. Pre-process
+        let rules = S::into_iter().collect::<Vec<_>>();
         let ruleset = S::into_ruleset();
         let first_set = ruleset.first_set();
 
@@ -81,7 +82,6 @@ where
         }
 
         // 5. Setup tables
-        let rule_table: Vec<S> = S::into_iter().collect();
         for lritem_set in &dfa.0 {
             for (token, next) in &lritem_set.next {
                 match &token {
@@ -109,7 +109,7 @@ where
                             let id = lritem_set.id as usize;
                             let label = action_table[id].get_mut(&t.0).unwrap();
                             *label = LRAction::Reduce(
-                                rule_table[item.rule.id as usize],
+                                rules[item.rule.id as usize],
                                 *nonterm_table.get(lhs).unwrap(),
                                 item.rule.rhs.len(),
                             );
@@ -120,7 +120,7 @@ where
                                 LRAction::Accept
                             } else {
                                 LRAction::Reduce(
-                                    rule_table[item.rule.id as usize],
+                                    rules[item.rule.id as usize],
                                     *nonterm_table.get(lhs).unwrap(),
                                     item.rule.rhs.len(),
                                 )
