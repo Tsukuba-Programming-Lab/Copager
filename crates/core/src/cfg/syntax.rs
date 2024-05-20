@@ -7,7 +7,7 @@ use super::token::TokenSet;
 
 pub trait Syntax<'a>
 where
-    Self: Debug + Clone + Copy + Sized,
+    Self: Debug + Clone + Copy,
 {
     type TokenSet: TokenSet<'a>;
 
