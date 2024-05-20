@@ -13,14 +13,14 @@ dependencies = [
 
 [[package]]
 name = "algorithm"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "algorithm_lr1",
 ]
 
 [[package]]
 name = "algorithm_lr1"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "core",
@@ -37,7 +37,7 @@ checksum = "25bdb32cbbdce2b519a9cd7df3a678443100e265d5e25ca763b7572a5104f5f3"
 
 [[package]]
 name = "core"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "core_derive",
@@ -48,7 +48,7 @@ dependencies = [
 
 [[package]]
 name = "core_derive"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "proc-macro2",
@@ -86,7 +86,7 @@ checksum = "6c8640c5d730cb13ebd907d8d04b52f55ac9a2eec55b440c8892f40d56c76c1d"
 
 [[package]]
 name = "parsergen"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "algorithm",
  "anyhow",
