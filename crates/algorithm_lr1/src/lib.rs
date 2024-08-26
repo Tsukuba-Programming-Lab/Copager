@@ -4,9 +4,9 @@ mod driver;
 
 use serde::{Serialize, Deserialize};
 
-use pgen_core::cfg::{TokenSet, Syntax};
-use pgen_core::lex::Token;
-use pgen_core::parse::{ParserImpl, SExp};
+use copager_core::cfg::{TokenSet, Syntax};
+use copager_core::lex::Token;
+use copager_core::parse::{ParserImpl, SExp};
 
 use builder::LR1Configure;
 use driver::LR1Driver;
@@ -39,8 +39,8 @@ where
 
 #[cfg(test)]
 mod test {
-    use pgen_core::cfg::{TokenSet, Syntax, Rule, RuleElem};
-    use pgen_core::Parser;
+    use copager_core::cfg::{TokenSet, Syntax, Rule, RuleElem};
+    use copager_core::Parser;
 
     use super::LR1;
 

@@ -1,11 +1,11 @@
 [package]
-name = "algorithm_lr1"
+name = "copager_algorithm_lr1"
 version = "0.1.1"
 edition = "2021"
 
 [dependencies]
 anyhow = { workspace = true }
 thiserror = { workspace = true }
-serde = { workspace = true, features = ["derive"] }
+serde = { workspace = true }
 itertools = "0.12.1"
-pgen_core = { package = "core", path = "../core", features = ["derive"] }
+copager_core = { path = "../core", features = ["derive"] }

@@ -12,42 +12,53 @@ dependencies = [
 ]
 
 [[package]]
-name = "algorithm"
-version = "0.1.1"
-dependencies = [
- "algorithm_lr1",
-]
-
-[[package]]
-name = "algorithm_lr1"
-version = "0.1.1"
-dependencies = [
- "anyhow",
- "core",
- "itertools",
- "serde",
- "thiserror",
-]
-
-[[package]]
 name = "anyhow"
 version = "1.0.83"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "25bdb32cbbdce2b519a9cd7df3a678443100e265d5e25ca763b7572a5104f5f3"
 
 [[package]]
-name = "core"
+name = "copager"
 version = "0.1.1"
 dependencies = [
  "anyhow",
- "core_derive",
+ "copager_algorithm",
+ "copager_core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "copager_algorithm"
+version = "0.1.1"
+dependencies = [
+ "copager_algorithm_lr1",
+]
+
+[[package]]
+name = "copager_algorithm_lr1"
+version = "0.1.1"
+dependencies = [
+ "anyhow",
+ "copager_core",
+ "itertools",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
+name = "copager_core"
+version = "0.1.1"
+dependencies = [
+ "anyhow",
+ "copager_core_derive",
  "regex",
  "serde",
  "thiserror",
 ]
 
 [[package]]
-name = "core_derive"
+name = "copager_core_derive"
 version = "0.1.1"
 dependencies = [
  "anyhow",
@@ -83,18 +94,6 @@ name = "memchr"
 version = "2.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6c8640c5d730cb13ebd907d8d04b52f55ac9a2eec55b440c8892f40d56c76c1d"
-
-[[package]]
-name = "parsergen"
-version = "0.1.1"
-dependencies = [
- "algorithm",
- "anyhow",
- "core",
- "serde",
- "serde_json",
- "thiserror",
-]
 
 [[package]]
 name = "proc-macro2"

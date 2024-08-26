@@ -1,9 +1,9 @@
 use std::io::stdin;
 
-use parsergen::algorithm::LR1;
-use parsergen::cfg::*;
-use parsergen::error::ParseError;
-use parsergen::Parser;
+use copager::algorithm::LR1;
+use copager::cfg::*;
+use copager::error::ParseError;
+use copager::Parser;
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, TokenSet)]
 enum ExprTokenSet {

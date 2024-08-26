@@ -1,2 +1,2 @@
-pub use pgen_core::*;
-pub use pgen_algorithm as algorithm;
+pub use copager_core::*;
+pub use copager_algorithm as algorithm;

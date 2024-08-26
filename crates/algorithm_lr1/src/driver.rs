@@ -1,6 +1,6 @@
-use pgen_core::cfg::{TokenSet, Syntax};
-use pgen_core::lex::Token;
-use pgen_core::parse::{SExp, SExpBuilder};
+use copager_core::cfg::{TokenSet, Syntax};
+use copager_core::lex::Token;
+use copager_core::parse::{SExp, SExpBuilder};
 
 use crate::error::ParseError;
 use crate::builder::{LRAction, LR1Configure};

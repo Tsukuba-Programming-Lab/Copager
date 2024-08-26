@@ -5,7 +5,7 @@ use std::marker::PhantomData;
 use serde::{Serialize, Deserialize};
 use itertools::Itertools;
 
-use pgen_core::cfg::{TokenSet, Syntax, Rule, RuleElem, RuleSet};
+use copager_core::cfg::{TokenSet, Syntax, Rule, RuleElem, RuleSet};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub(super) enum LRAction<S> {

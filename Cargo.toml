@@ -1,21 +1,20 @@
 [package]
-name = "parsergen"
+name = "copager"
 version = "0.1.1"
 edition = "2021"
 
 [dependencies]
-anyhow = { workspace = true }
-thiserror = { workspace = true }
-pgen_core = { workspace = true }
-pgen_algorithm = { workspace = true }
+copager_core = { path = "./crates/core" }
+copager_algorithm = { path = "./crates/algorithm" }
 
 [dev-dependencies]
+anyhow = { workspace = true }
 serde = { workspace = true }
 serde_json = "1.0.117"
 
 [features]
 default = []
-derive = ["pgen_core/derive"]
+derive = ["copager_core/derive"]
 
 [workspace]
 resolver = "2"
@@ -28,8 +27,6 @@ exclude = []
 [workspace.dependencies]
 anyhow = "1.0.82"
 thiserror = "1.0.58"
-serde = "1.0.197"
+serde = { version = "1.0.197", features = ["derive"] }
 regex = "1.10.4"
 regex-macro = "0.2.0"
-pgen_core = { package = "core", path = "./crates/core" }
-pgen_algorithm = { package = "algorithm", path = "./crates/algorithm" }

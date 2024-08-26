@@ -1,5 +1,5 @@
 [package]
-name = "core"
+name = "copager_core"
 version = "0.1.1"
 edition = "2021"
 
@@ -8,8 +8,8 @@ anyhow = { workspace = true }
 thiserror = { workspace = true }
 serde = { workspace = true, features = ["derive"]}
 regex = { workspace = true }
-pgen_core_derive = { package = "core_derive", path = "../core_derive", optional = true }
+copager_core_derive = { path = "../core_derive", optional = true }
 
 [features]
 default = []
-derive = ["dep:pgen_core_derive"]
+derive = ["dep:copager_core_derive"]

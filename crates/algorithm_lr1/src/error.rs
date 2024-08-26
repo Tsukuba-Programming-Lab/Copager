@@ -1,8 +1,8 @@
 use thiserror::Error;
 
-use pgen_core::error::ParseError as SuperParseError;
-use pgen_core::cfg::TokenSet;
-use pgen_core::lex::Token;
+use copager_core::error::ParseError as SuperParseError;
+use copager_core::cfg::TokenSet;
+use copager_core::lex::Token;
 
 #[derive(Debug, Error)]
 pub enum ParseError {
