@@ -6,7 +6,7 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
     let data_enum = if let Data::Enum(data_enum) = ast.data {
         data_enum
     } else {
-        panic!("\"Tokenset\" proc-macro is only implemented for enum.")
+        panic!("\"TokenKind\" proc-macro is only implemented for enum.")
     };
 
     let parsed_variantes = data_enum
@@ -31,7 +31,14 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
         .map(|variant| variant.gen_ident_with_regex());
 
     quote! {
-        impl TokenSet<'_> for #enum_name {
+        impl TokenKind<'_> for #enum_name {
+            fn as_str(&self) -> &'static str {
+                match self {
+                    #( #enum_regex_table, )*
+                    _ => unimplemented!(),
+                }
+            }
+
             fn ignore_str() -> &'static str {
                 #enum_ignored
             }
@@ -40,13 +47,6 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
                 vec![
                     #( #enum_variants, )*
                 ].into_iter()
-            }
-
-            fn into_regex_str(&self) -> &'static str {
-                match self {
-                    #( #enum_regex_table, )*
-                    _ => unimplemented!(),
-                }
             }
         }
     }
@@ -68,8 +68,8 @@ impl<'a> VariantInfo<'a> {
         let mut ignored = false;
         for attr in &variant.attrs {
             let _ = attr.parse_nested_meta(|meta| {
-                // #[...(regex = "...")]
-                if meta.path.is_ident("regex") {
+                // #[...(text = "...")]
+                if meta.path.is_ident("text") {
                     let raw_regex = meta.value()?.parse::<LitStr>()?.value();
                     regex = Some(format!("^{}", raw_regex));
                     return Ok(());

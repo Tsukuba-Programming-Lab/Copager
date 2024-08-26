@@ -2,11 +2,11 @@ use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{Data, DeriveInput, Variant, Ident, LitStr};
 
-pub fn syntax_proc_macro_impl(ast: DeriveInput) -> TokenStream {
+pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
     let data_enum = if let Data::Enum(data_enum) = ast.data {
         data_enum
     } else {
-        panic!("\"Syntax\" proc-macro is only implemented for enum.")
+        panic!("\"RuleKind\" proc-macro is only implemented for enum.")
     };
 
     let parsed_variantes = data_enum
@@ -17,7 +17,7 @@ pub fn syntax_proc_macro_impl(ast: DeriveInput) -> TokenStream {
 
     let enum_name = &ast.ident;
     let enum_assoc_type = format!("{}", enum_name)
-        .replace("Syntax", "TokenSet")
+        .replace("Rule", "Token")
         .parse::<TokenStream>()
         .unwrap();
     let enum_variants = parsed_variantes
@@ -29,19 +29,19 @@ pub fn syntax_proc_macro_impl(ast: DeriveInput) -> TokenStream {
 
     quote! {
         impl<'a> Syntax<'a> for #enum_name {
-            type TokenSet = #enum_assoc_type;
+            type TokenKind = #enum_assoc_type;
+
+            fn into_rules(&self) -> Vec<Rule<'a, Self::TokenKind>> {
+                match self {
+                    #( #enum_rule_table, )*
+                    _ => unimplemented!(),
+                }
+            }
 
             fn into_iter() -> impl Iterator<Item = Self> {
                 vec![
                     #( #enum_variants, )*
                 ].into_iter()
-            }
-
-            fn into_rules(&self) -> Vec<Rule<'a, Self::TokenSet>> {
-                match self {
-                    #( #enum_rule_table, )*
-                    _ => unimplemented!(),
-                }
             }
         }
     }

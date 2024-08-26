@@ -1,11 +1,12 @@
 [package]
-name = "copager_core"
+name = "copager_lex_regex"
 version = "0.1.1"
 edition = "2021"
 
 [dependencies]
 anyhow = { workspace = true }
 thiserror = { workspace = true }
-serde = { workspace = true }
+regex = "1.10.4"
+regex-macro = "0.2.0"
 copager_cfg = { path = "../cfg" }
 copager_lex = { path = "../lex" }

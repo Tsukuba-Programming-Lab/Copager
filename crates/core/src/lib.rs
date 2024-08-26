@@ -1,14 +1,10 @@
-pub mod cfg;
 pub mod error;
-pub mod parse;
-pub mod lex;
 
 use std::marker::PhantomData;
 
 use serde::{Serialize, Deserialize};
 
-use lex::Lexer;
-use parse::{ParserImpl, SExp};
+use copager_lex::Lexer;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Parser<'a, Algorithm>

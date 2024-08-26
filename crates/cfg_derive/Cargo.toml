@@ -1,5 +1,5 @@
 [package]
-name = "copager_core_derive"
+name = "copager_cfg_derive"
 version = "0.1.1"
 edition = "2021"
 
