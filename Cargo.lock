@@ -22,8 +22,6 @@ name = "copager"
 version = "0.1.1"
 dependencies = [
  "anyhow",
- "copager_algorithm",
- "copager_algorithm_lr1",
  "copager_cfg",
  "copager_cfg_derive",
  "copager_core",
@@ -31,26 +29,10 @@ dependencies = [
  "copager_ir_sexp",
  "copager_lex",
  "copager_lex_regex",
+ "copager_parse",
+ "copager_parse_lr1",
  "serde",
  "serde_json",
-]
-
-[[package]]
-name = "copager_algorithm"
-version = "0.1.1"
-dependencies = [
- "copager_algorithm_lr1",
-]
-
-[[package]]
-name = "copager_algorithm_lr1"
-version = "0.1.1"
-dependencies = [
- "anyhow",
- "copager_core",
- "itertools",
- "serde",
- "thiserror",
 ]
 
 [[package]]
@@ -120,6 +102,24 @@ dependencies = [
  "copager_lex",
  "regex",
  "regex-macro",
+ "thiserror",
+]
+
+[[package]]
+name = "copager_parse"
+version = "0.1.1"
+dependencies = [
+ "copager_parse_lr1",
+]
+
+[[package]]
+name = "copager_parse_lr1"
+version = "0.1.1"
+dependencies = [
+ "anyhow",
+ "copager_core",
+ "itertools",
+ "serde",
  "thiserror",
 ]
 

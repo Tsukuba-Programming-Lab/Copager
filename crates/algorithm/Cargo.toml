@@ -1,7 +1,0 @@
-[package]
-name = "copager_algorithm"
-version = "0.1.1"
-edition = "2021"
-
-[dependencies]
-lr1 = { package = "copager_algorithm_lr1", path = "../algorithm_lr1" }
