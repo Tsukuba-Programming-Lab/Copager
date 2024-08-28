@@ -1,53 +1,77 @@
-use std::marker::PhantomData;
-
 use regex::{Regex, RegexSet};
 
-use copager_cfg::token::Token;
-use copager_cfg::TokenKind;
-use copager_lex::LexIterator;
+use copager_cfg::token::{TokenTag, Token};
+use copager_lex::{LexSource, LexIterator};
+use copager_utils::cache::Cacheable;
 
-struct RegexLexer<'a, 'b, T: TokenKind<'a>> {
-    // Regex
+struct RegexLexer<'cache, 'input, T: TokenTag> {
+    // regex
+    regex_istr: &'cache Regex,
+    regex_set: &'cache RegexSet,
+    regex_map: &'cache Vec<(Regex, T)>,
+
+    // state
+    input: &'input str,
+    pos: usize,
+}
+
+struct RegexLexerCache<T: TokenTag> {
     regex_istr: Regex,
     regex_set: RegexSet,
     regex_map: Vec<(Regex, T)>,
-
-    // State
-    input: &'b str,
-    pos: usize,
-
-    // PhantomData
-    _phantom: PhantomData<&'a T>,
 }
 
-impl<'a, 'b, T: TokenKind<'a>> TryFrom<&'b str> for RegexLexer<'a, 'b, T> {
-    type Error = anyhow::Error;
+impl<'cache, 'input, T, S> Cacheable<'cache, S> for RegexLexer<'cache, 'input, T>
+where
+    T: TokenTag,
+    S: LexSource<T>,
+{
+    type Cache = RegexLexerCache<T>;
 
-    fn try_from(input: &'b str) -> anyhow::Result<Self> {
-        let regex_istr = Regex::new(T::ignore_str())?;
-        let regex_set = T::into_iter()
-            .map(|token| T::as_str(&token))
+    fn new(source: S) -> anyhow::Result<Self::Cache> {
+        let regex_istr = Regex::new(source.ignore_token())?;
+        let regex_set = source.iter()
+            .map(|token| token.as_str())
             .collect::<Vec<_>>();
         let regex_set = RegexSet::new(regex_set)?;
-        let regex_map = T::into_iter()
+        let regex_map = source.iter()
             .map(|token| Ok((Regex::new(token.as_str())?, token)))
             .collect::<anyhow::Result<Vec<_>>>()?;
 
-        Ok(RegexLexer {
+        Ok(RegexLexerCache {
             regex_istr,
             regex_set,
             regex_map,
-            input,
-            pos: 0,
-            _phantom: PhantomData,
         })
+    }
+
+    fn restore(cache: &'cache Self::Cache) -> Self {
+        RegexLexer {
+            regex_istr: &cache.regex_istr,
+            regex_set: &cache.regex_set,
+            regex_map: &cache.regex_map,
+            input: "",
+            pos: 0,
+        }
     }
 }
 
-impl<'a, 'b, T: TokenKind<'a> + 'a> LexIterator<'a, 'b> for RegexLexer<'a, 'b, T> {
-    type TokenKind = T;
+impl<'cache, 'input, T, S> LexIterator<'cache, 'input, T, S> for RegexLexer<'cache, 'input, T>
+where
+    T: TokenTag,
+    S: LexSource<T>,
+{
+    fn init(&self, input: &'input str) -> Self {
+        RegexLexer {
+            regex_istr: self.regex_istr,
+            regex_set: self.regex_set,
+            regex_map: self.regex_map,
+            input: input,
+            pos: 0,
+        }
+    }
 
-    fn next(&mut self) -> Option<Token<'a, 'b, T>> {
+    fn next(&mut self) -> Option<Token<'input, T>> {
         // Skip Spaces
         let remain = match self.regex_istr.find(&self.input[self.pos..]) {
             Some(acc_s) => {

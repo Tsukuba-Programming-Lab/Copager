@@ -10,3 +10,4 @@ regex = "1.10.4"
 regex-macro = "0.2.0"
 copager_cfg = { path = "../cfg" }
 copager_lex = { path = "../lex" }
+copager_utils = { path = "../utils" }

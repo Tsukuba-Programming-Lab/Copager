@@ -1,36 +1,59 @@
 use std::marker::PhantomData;
 
-use copager_cfg::token::Token;
-use copager_cfg::TokenKind;
+use copager_cfg::token::{TokenTag, Token};
+use copager_utils::cache::Cacheable;
 
-pub struct Lexer<'a, 'b, T, I>
+pub struct Lexer<'cache, 'input, T, S, I>
 where
-    T: TokenKind<'a>,
-    I: LexIterator<'a, 'b>,
+    T: TokenTag,
+    S: LexSource<T>,
+    I: LexIterator<'cache, 'input, T, S>,
 {
-    _phantom_t: PhantomData<&'a T>,
-    _phantom_b: PhantomData<&'b str>,
-    _phantom_itr: PhantomData<I>,
+    cache: I::Cache,
+    _phantom_s: PhantomData<S>,
+    _phantom_t: PhantomData<&'input T>,
 }
 
-impl<'a, 'b, T, I> Lexer<'a, 'b, T, I>
+impl<'cache, 'input, T, S, I> Lexer<'cache, 'input, T, S, I>
 where
-    T: TokenKind<'a>,
-    I: LexIterator<'a, 'b>,
+    T: TokenTag,
+    S: LexSource<T>,
+    I: LexIterator<'cache, 'input, T, S>,
 {
-    pub fn new(input: &'b str) -> anyhow::Result<impl LexIterator<'a, 'b>>
+    pub fn new() -> anyhow::Result<Self>
     where
-        T: TokenKind<'a> + 'a,
+        S: Default,
     {
-        I::try_from(input)
+        Self::try_from(S::default())
+    }
+
+    pub fn try_from(source: S) -> anyhow::Result<Self> {
+        Ok(Lexer {
+            cache: I::new(source)?,
+            _phantom_s: PhantomData,
+            _phantom_t: PhantomData,
+        })
+    }
+
+    pub fn iter(&'cache self, input: &'input str) -> I {
+        I::restore(&self.cache).init(input)
     }
 }
 
-pub trait LexIterator<'a, 'b>
+pub trait LexSource<T>
 where
-    Self: Sized + TryFrom<&'b str, Error = anyhow::Error>,
+    T: TokenTag,
 {
-    type TokenKind: TokenKind<'a>;
+    fn ignore_token(&self) -> &str;
+    fn iter(&self) -> impl Iterator<Item = T>;
+}
 
-    fn next(&mut self) -> Option<Token<'a, 'b, Self::TokenKind>>;
+pub trait LexIterator<'cache, 'input, T, S>
+where
+    Self: Sized + Cacheable<'cache, S>,
+    T: TokenTag,
+    S: LexSource<T>,
+{
+    fn init(&self, input: &'input str) -> Self;
+    fn next(&mut self) -> Option<Token<'input, T>>;
 }

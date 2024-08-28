@@ -7,3 +7,4 @@ edition = "2021"
 anyhow = { workspace = true }
 thiserror = { workspace = true }
 copager_cfg = { path = "../cfg" }
+copager_utils = { path = "../utils" }
