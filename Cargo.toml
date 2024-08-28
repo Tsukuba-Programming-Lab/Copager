@@ -13,6 +13,7 @@ copager_parse = { path = "./crates/parse" }
 copager_parse_lr1 = { path = "./crates/parse_lr1" }
 copager_ir = { path = "./crates/ir" }
 copager_ir_sexp = { path = "./crates/ir_sexp" }
+copager_utils = { path = "./crates/utils" }
 
 [dev-dependencies]
 anyhow = { workspace = true }
@@ -34,6 +35,7 @@ members = [
     "./crates/parse_lr1",
     "./crates/ir",
     "./crates/ir_sexp",
+    "./crates/utils",
 ]
 exclude = []
 

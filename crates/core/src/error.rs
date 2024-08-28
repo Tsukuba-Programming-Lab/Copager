@@ -4,8 +4,7 @@ use std::fmt::Display;
 
 use thiserror::Error;
 
-use copager_cfg::token::Token;
-use copager_cfg::TokenKind;
+use copager_cfg::token::{TokenTag, Token};
 
 #[derive(Debug, Error)]
 pub struct ParseError {
@@ -32,7 +31,7 @@ impl ParseError {
         }
     }
 
-    pub fn with<'a, T: TokenKind<'a>>(self, token: Token<'a, '_, T>) -> ParseError {
+    pub fn with<'input, T: TokenTag>(self, token: Token<'input, T>) -> ParseError {
         let mut sum = 0;
         let (mut rows, mut cols) = (1, 1);
         for c in token.src.chars() {

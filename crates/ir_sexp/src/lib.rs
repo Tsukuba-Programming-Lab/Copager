@@ -1,26 +1,26 @@
 use std::fmt::{Debug, Display};
 
-use copager_cfg::token::Token;
-use copager_cfg::{RuleKind, TokenKind};
+use copager_cfg::token::{TokenTag, Token};
+use copager_cfg::RuleKind;
 use copager_ir::{IR, IRBuilder};
 
 #[derive(Debug)]
-pub enum SExp<'a, 'b, T, S>
+pub enum SExp<'input, T, S>
 where
-    T: TokenKind<'a> + 'a,
-    S: RuleKind<'a, TokenKind = T>,
+    T: TokenTag,
+    S: RuleKind<T>,
 {
     List {
         tag: S,
-        elems: Vec<SExp<'a, 'b, T, S>>,
+        elems: Vec<SExp<'input, T, S>>,
     },
-    Atom(Token<'a, 'b, T>),
+    Atom(Token<'input, T>),
 }
 
-impl<'a, T, S> Display for SExp<'a, '_, T, S>
+impl<T, S> Display for SExp<'_, T, S>
 where
-    T: TokenKind<'a> + 'a,
-    S: RuleKind<'a, TokenKind = T> + Debug,
+    T: TokenTag,
+    S: RuleKind<T> + Debug,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -36,37 +36,35 @@ where
     }
 }
 
-impl<'a, 'b, T, R> IR<'a, T, R> for SExp<'a, 'b, T, R>
+impl<'input, T, R> IR<T, R> for SExp<'input, T, R>
 where
-    T: TokenKind<'a> + 'a,
-    R: RuleKind<'a, TokenKind = T>,
+    T: TokenTag,
+    R: RuleKind<T>,
 {
-    type Builder = SExpBuilder<'a, 'b, T, R>;
+    type Builder = SExpBuilder<'input, T, R>;
 }
 
 #[derive(Debug)]
-pub struct SExpBuilder<'a, 'b, T, R>
+pub struct SExpBuilder<'input, T, R>
 where
-    T: TokenKind<'a> + 'a,
-    R: RuleKind<'a, TokenKind = T>,
+    T: TokenTag,
+    R: RuleKind<T>,
 {
-    stack: Vec<SExp<'a, 'b, T, R>>,
+    stack: Vec<SExp<'input, T, R>>,
 }
 
-impl <'a, 'b, T, R> IRBuilder<'a> for SExpBuilder<'a, 'b, T, R>
+impl <'input, T, R> IRBuilder<T, R> for SExpBuilder<'input, T, R>
 where
-    T: TokenKind<'a> + 'a,
-    R: RuleKind<'a, TokenKind = T>,
+    T: TokenTag,
+    R: RuleKind<T>,
 {
-    type TokenKind = T;
-    type RuleKind = R;
-    type Output = SExp<'a, 'b, T, R>;
+    type Output = SExp<'input, T, R>;
 
-    fn new() -> SExpBuilder<'a, 'b, T, R> {
+    fn new() -> SExpBuilder<'input, T, R> {
         SExpBuilder { stack: vec![] }
     }
 
-    fn build(mut self) -> anyhow::Result<SExp<'a, 'b, T, R>> {
+    fn build(mut self) -> anyhow::Result<SExp<'input, T, R>> {
         if self.stack.len() == 1 {
             Ok(self.stack.pop().unwrap())
         } else {
@@ -75,12 +73,12 @@ where
     }
 }
 
-impl<'a, 'b, T, R> SExpBuilder<'a, 'b, T, R>
+impl<'input, T, R> SExpBuilder<'input, T, R>
 where
-    T: TokenKind<'a> + 'a,
-    R: RuleKind<'a, TokenKind = T>,
+    T: TokenTag,
+    R: RuleKind<T>,
 {
-    pub fn push(&mut self, token: Token<'a, 'b, T>) {
+    pub fn push(&mut self, token: Token<'input, T>) {
         self.stack.push(SExp::Atom(token));
     }
 

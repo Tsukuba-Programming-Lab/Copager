@@ -1,17 +1,20 @@
-use copager_cfg::{RuleKind, TokenKind};
+use copager_cfg::token::TokenTag;
+use copager_cfg::RuleKind;
 
-pub trait IR<'a, T, R>
+pub trait IR<T, R>
 where
-    T: TokenKind<'a>,
-    R: RuleKind<'a, TokenKind = T>,
+    T: TokenTag,
+    R: RuleKind<T>,
 {
-    type Builder: IRBuilder<'a>;
+    type Builder: IRBuilder<T, R>;
 }
 
-pub trait IRBuilder<'a> {
-    type TokenKind: TokenKind<'a>;
-    type RuleKind: RuleKind<'a, TokenKind = Self::TokenKind>;
-    type Output: IR<'a, Self::TokenKind, Self::RuleKind>;
+pub trait IRBuilder<T, R>
+where
+    T: TokenTag,
+    R: RuleKind<T>,
+{
+    type Output: IR<T, R>;
 
     fn new() -> Self;
     fn build(self) -> anyhow::Result<Self::Output>;
