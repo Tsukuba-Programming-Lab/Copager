@@ -3,27 +3,19 @@ pub mod token;
 
 use std::hash::Hash;
 
+use token::TokenTag;
 use rule::{Rule, RuleSet};
 
-pub trait TokenKind<'a>
-where
-    Self: Copy + Clone + Hash + Eq,
-{
-    fn as_str(&self) -> &'a str;
-    fn ignore_str() -> &'a str;
-    fn into_iter() -> impl Iterator<Item = Self>;
-}
-
-pub trait RuleKind<'a>
+pub trait RuleKind<T>
 where
     Self: Clone + Hash + Eq,
+    T: TokenTag,
 {
-    type TokenKind: crate::TokenKind<'a>;
 
-    fn into_rules(&self) -> Vec<Rule<'a, Self::TokenKind>>;
+    fn into_rules(&self) -> Vec<Rule<T>>;
     fn into_iter() -> impl Iterator<Item = Self>;
 
-    fn into_ruleset() -> RuleSet<'a, Self::TokenKind> {
+    fn into_ruleset() -> RuleSet<T> {
         Self::into_iter()
             .enumerate()
             .flat_map(|(idx, elem)| {

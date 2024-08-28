@@ -1,26 +1,25 @@
-use std::marker::PhantomData;
+use std::hash::Hash;
 
-use crate::TokenKind;
-
-#[derive(Debug, Copy, Clone)]
-pub struct Token<'a, 'b, T: TokenKind<'a>> {
-    pub kind: T,
-    pub src: &'b str,
-    pub range: (usize, usize),
-    _phantom: PhantomData<&'a ()>,
+pub trait TokenTag
+where
+    Self: Copy + Clone + Hash + Eq,
+{
+    fn as_str<'a, 'b>(&'a self) -> &'b str;
 }
 
-impl<'a, 'b, T: TokenKind<'a>> Token<'a, 'b, T> {
-    pub fn new(kind: T, src: &'b str, range: (usize, usize)) -> Self {
-        Token {
-            kind,
-            src,
-            range,
-            _phantom: PhantomData,
-        }
+#[derive(Debug, Copy, Clone)]
+pub struct Token<'input, T: TokenTag> {
+    pub kind: T,
+    pub src: &'input str,
+    pub range: (usize, usize),
+}
+
+impl<'input, T: TokenTag> Token<'input, T> {
+    pub fn new(kind: T, src: &'input str, range: (usize, usize)) -> Self {
+        Token { kind, src, range }
     }
 
-    pub fn as_str(&self) -> &'b str {
+    pub fn as_str(&self) -> &'input str {
         let (l, r) = self.range;
         &self.src[l..r]
     }
