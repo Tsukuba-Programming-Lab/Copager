@@ -1,0 +1,8 @@
+[package]
+name = "copager_utils"
+version = "0.1.1"
+edition = "2021"
+
+[dependencies]
+anyhow = { workspace = true }
+thiserror = { workspace = true }
