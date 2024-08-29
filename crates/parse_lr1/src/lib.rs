@@ -33,8 +33,10 @@ where
 impl<'cache, 'input, Sl, Il, Sp> Cacheable<'cache, (Sl, Sp)> for LR1<'cache, 'input, Sl, Il, Sp>
 where
     Sl: LexSource,
+    Sl::Tag: Serialize + for<'de> Deserialize<'de>,
     Il: LexIterator<'input, Sl::Tag>,
     Sp: ParseSource<Sl::Tag>,
+    Sp::Tag: Serialize + for<'de> Deserialize<'de>,
 {
     type Cache = LR1Configure<Sl, Sp>;
 
@@ -43,12 +45,7 @@ where
     }
 
     fn restore(tables: &'cache Self::Cache) -> Self {
-        LR1 {
-            tables,
-            lexer: None,
-            stack: None,
-            _phantom: PhantomData,
-        }
+        Self::from(tables)
     }
 }
 
@@ -59,7 +56,12 @@ where
     Sp: ParseSource<Sl::Tag>,
 {
     fn from(tables: &'cache LR1Configure<Sl, Sp>) -> Self {
-        Self::restore(tables)
+        LR1 {
+            tables,
+            lexer: None,
+            stack: None,
+            _phantom: PhantomData,
+        }
     }
 }
 

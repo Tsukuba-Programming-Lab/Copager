@@ -2,13 +2,11 @@ use std::collections::HashMap;
 use std::fmt::Debug;
 use std::hash::Hash;
 
-use serde::{Serialize, Deserialize};
-
 use crate::token::TokenTag;
 
 pub trait RuleTag
 where
-    Self: Debug + Copy + Clone + Hash + Eq + Serialize + for<'de> Deserialize<'de>,
+    Self: Debug + Copy + Clone + Hash + Eq,
 {
     type TokenTag: TokenTag;
 

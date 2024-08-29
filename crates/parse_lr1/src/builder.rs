@@ -2,6 +2,7 @@ use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 
 use itertools::Itertools;
+use serde::ser::SerializeStruct;
 use serde::{Serialize, Deserialize};
 
 use copager_cfg::token::TokenTag;
@@ -17,7 +18,7 @@ pub enum LRAction<R> {
     None,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug)]
 pub struct LR1Configure<Sl, Sp>
 where
     Sl: LexSource,
@@ -26,6 +27,58 @@ where
     pub action_table: Vec<HashMap<Sl::Tag, LRAction<Sp::Tag>>>,
     pub eof_action_table: Vec<LRAction<Sp::Tag>>,
     pub goto_table: Vec<Vec<usize>>,
+}
+
+impl<Sl, Sp> Serialize for LR1Configure<Sl, Sp>
+where
+    Sl: LexSource,
+    Sl::Tag: Serialize,
+    Sp: ParseSource<Sl::Tag>,
+    Sp::Tag: Serialize,
+{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::ser::Serializer,
+    {
+        let mut state = serializer.serialize_struct("LR1Configure", 3)?;
+        state.serialize_field("action_table", &self.action_table)?;
+        state.serialize_field("eof_action_table", &self.eof_action_table)?;
+        state.serialize_field("goto_table", &self.goto_table)?;
+        state.end()
+    }
+}
+
+impl<'de, Sl, Sp> Deserialize<'de> for LR1Configure<Sl, Sp>
+where
+    Sl: LexSource,
+    Sl::Tag: for<'de_o> Deserialize<'de_o>,
+    Sp: ParseSource<Sl::Tag>,
+    Sp::Tag: for<'de_o> Deserialize<'de_o>,
+{
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::de::Deserializer<'de>,
+    {
+        #[derive(Deserialize)]
+        struct LR1ConfigureHelper<Sl, Sp>
+        where
+            Sl: LexSource,
+            Sl::Tag: for<'de_h> Deserialize<'de_h>,
+            Sp: ParseSource<Sl::Tag>,
+            Sp::Tag: for<'de_h> Deserialize<'de_h>,
+        {
+            action_table: Vec<HashMap<Sl::Tag, LRAction<Sp::Tag>>>,
+            eof_action_table: Vec<LRAction<Sp::Tag>>,
+            goto_table: Vec<Vec<usize>>,
+        }
+
+        let helper = LR1ConfigureHelper::<Sl, Sp>::deserialize(deserializer)?;
+        Ok(LR1Configure {
+            action_table: helper.action_table,
+            eof_action_table: helper.eof_action_table,
+            goto_table: helper.goto_table,
+        })
+    }
 }
 
 impl<Sl, Sp> LR1Configure<Sl, Sp>
