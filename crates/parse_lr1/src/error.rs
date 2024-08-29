@@ -1,8 +1,7 @@
 use thiserror::Error;
 
 use copager_core::error::ParseError as SuperParseError;
-use copager_core::cfg::TokenSet;
-use copager_core::lex::Token;
+use copager_cfg::token::{TokenTag, Token};
 
 #[derive(Debug, Error)]
 pub enum ParseError {
@@ -15,10 +14,7 @@ pub enum ParseError {
 }
 
 impl ParseError {
-    pub fn new_unexpected_token<'a, T>(expected: Token<'a, '_, T>) -> SuperParseError
-    where
-        T: TokenSet<'a>,
-    {
+    pub fn new_unexpected_token<T: TokenTag>(expected: Token<T>) -> SuperParseError {
         let err = ParseError::UnexpectedToken {
             actual: format!("{:?}", expected.kind),
         };

@@ -1,48 +1,44 @@
 use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
-use std::marker::PhantomData;
 
-use serde::{Serialize, Deserialize};
 use itertools::Itertools;
 
-use copager_core::cfg::{TokenSet, Syntax, Rule, RuleElem, RuleSet};
+use copager_cfg::token::TokenTag;
+use copager_cfg::rule::{Rule, RuleElem, RuleSet};
+use copager_lex::LexSource;
+use copager_parse::ParseSource;
 
-#[derive(Debug, Serialize, Deserialize)]
-pub(super) enum LRAction<S> {
+#[derive(Debug)]
+pub enum LRAction<R> {
     Shift(usize),
-    Reduce(S, usize, usize), // syntax, goto_id, elems_cnt
+    Reduce(R, usize, usize), // tag, goto_id, elems_cnt
     Accept,
     None,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub(super) struct LR1Configure<'a, T, S>
+#[derive(Debug)]
+pub struct LR1Configure<Sl, Sp>
 where
-    T: TokenSet<'a>,
-    S: Syntax<'a, TokenSet = T>,
+    Sl: LexSource,
+    Sp: ParseSource<Sl::Tag>,
 {
-    // LR Tables
-    pub action_table: Vec<HashMap<T, LRAction<S>>>,
-    pub eof_action_table: Vec<LRAction<S>>,
+    pub action_table: Vec<HashMap<Sl::Tag, LRAction<Sp::Tag>>>,
+    pub eof_action_table: Vec<LRAction<Sp::Tag>>,
     pub goto_table: Vec<Vec<usize>>,
-
-    // PhantomData
-    tokenset: PhantomData<&'a T>,
 }
 
-impl<'a, T, S> LR1Configure<'a, T, S>
+impl<Sl, Sp> LR1Configure<Sl, Sp>
 where
-    T: TokenSet<'a>,
-    S: Syntax<'a, TokenSet = T>,
+    Sl: LexSource,
+    Sp: ParseSource<Sl::Tag>,
 {
-    pub fn setup() -> anyhow::Result<Self> {
+    pub fn new(source_l: &Sl, source_p: &Sp) -> anyhow::Result<Self> {
         // 1. Pre-process
-        let rules = S::into_iter().collect::<Vec<_>>();
-        let ruleset = S::into_ruleset();
+        let ruleset = source_p.into_ruleset();
         let first_set = ruleset.first_set();
 
         // 2. Generate dummy nonterm
-        let top_dummy: Rule<T> = Rule::from((
+        let top_dummy: Rule<Sl::Tag> = Rule::from((
             RuleElem::new_nonterm("__top_dummy"),
             vec![RuleElem::new_nonterm(&ruleset.top)],
         ));
@@ -68,20 +64,21 @@ where
             }
         }
 
-        let mut action_table: Vec<HashMap<T, LRAction<S>>> = Vec::with_capacity(dfa.0.len());
-        let mut eof_action_table: Vec<LRAction<S>> = Vec::with_capacity(dfa.0.len());
+        let mut action_table: Vec<HashMap<Sl::Tag, LRAction<Sp::Tag>>> = Vec::with_capacity(dfa.0.len());
+        let mut eof_action_table: Vec<LRAction<Sp::Tag>> = Vec::with_capacity(dfa.0.len());
         let mut goto_table: Vec<Vec<usize>> = Vec::with_capacity(dfa.0.len());
         for _ in 0..dfa.0.len() {
             action_table.push(HashMap::from_iter(
-                T::into_iter()
+                source_l.iter()
                     .map(|token| (token, LRAction::None))
-                    .collect::<Vec<(T, LRAction<S>)>>(),
+                    .collect::<Vec<(Sl::Tag, LRAction<Sp::Tag>)>>(),
             ));
             eof_action_table.push(LRAction::None);
             goto_table.push(vec![0; nonterm_table.keys().len()]);
         }
 
         // 5. Setup tables
+        let rule_tags = source_p.iter().collect::<Vec<_>>();
         for lritem_set in &dfa.0 {
             for (token, next) in &lritem_set.next {
                 match &token {
@@ -92,7 +89,7 @@ where
                     }
                     RuleElem::Term(t) => {
                         let id = lritem_set.id as usize;
-                        let label = action_table[id].get_mut(&t.0).unwrap();
+                        let label = action_table[id].get_mut(t).unwrap();
                         *label = LRAction::Shift(*next as usize);
                     }
                     _ => {}
@@ -107,9 +104,9 @@ where
                     for la_token in &item.la_tokens {
                         if let RuleElem::Term(t) = la_token {
                             let id = lritem_set.id as usize;
-                            let label = action_table[id].get_mut(&t.0).unwrap();
+                            let label = action_table[id].get_mut(t).unwrap();
                             *label = LRAction::Reduce(
-                                rules[item.rule.id as usize],
+                                rule_tags[item.rule.id as usize],
                                 *nonterm_table.get(lhs).unwrap(),
                                 item.rule.rhs.len(),
                             );
@@ -120,7 +117,7 @@ where
                                 LRAction::Accept
                             } else {
                                 LRAction::Reduce(
-                                    rules[item.rule.id as usize],
+                                    rule_tags[item.rule.id as usize],
                                     *nonterm_table.get(lhs).unwrap(),
                                     item.rule.rhs.len(),
                                 )
@@ -135,23 +132,22 @@ where
             action_table,
             eof_action_table,
             goto_table,
-            tokenset: PhantomData,
         })
     }
 }
 
 #[derive(Debug)]
-struct LRItemDFA<'a, 'b, T: TokenSet<'a>> (
-    Vec<LRItemSet<'a, 'b, T>>
+struct LRItemDFA<'a, T: TokenTag> (
+    Vec<LRItemSet<'a, T>>
 );
 
-impl<'a, 'b, T: TokenSet<'a>> LRItemDFA<'a, 'b, T> {
+impl<'a, T: TokenTag> LRItemDFA<'a, T> {
     fn gen(
-        init_set: LRItemSet<'a, 'b, T>,
-        ruleset: &'b RuleSet<'a, T>,
-        first_set: &HashMap<&'b RuleElem<'a, T>, Vec<&'b RuleElem<'a, T>>>,
-    ) -> LRItemDFA<'a, 'b, T> {
-        let issue_id = |old_sets: &Vec<LRItemSet<'a, 'b, T>>, set: &LRItemSet<'a, 'b, T>| {
+        init_set: LRItemSet<'a, T>,
+        ruleset: &'a RuleSet<T>,
+        first_set: &HashMap<&'a RuleElem<T>, Vec<&'a RuleElem<T>>>,
+    ) -> LRItemDFA<'a, T> {
+        let issue_id = |old_sets: &Vec<LRItemSet<'a, T>>, set: &LRItemSet<'a, T>| {
             if let Some(ex_set) = old_sets.iter().find(|&set0| set0.strict_eq(set)) {
                 Err(ex_set.id)
             } else {
@@ -187,29 +183,27 @@ impl<'a, 'b, T: TokenSet<'a>> LRItemDFA<'a, 'b, T> {
     }
 }
 
-#[derive(Clone, Debug)]
-struct LRItemSet<'a, 'b, T: TokenSet<'a>> {
+#[derive(Clone, Debug, Eq)]
+struct LRItemSet<'a, T: TokenTag> {
     id: i32,
-    next: HashMap<&'b RuleElem<'a, T>, i32>,
-    lr_items: HashSet<LRItem<'a, 'b, T>>,
+    next: HashMap<&'a RuleElem<T>, i32>,
+    lr_items: HashSet<LRItem<'a, T>>,
 }
 
-impl<'a, 'b, T: TokenSet<'a>> PartialEq for LRItemSet<'a, 'b, T> {
-    fn eq(&self, other: &LRItemSet<'a, 'b, T>) -> bool {
+impl<'a, T: TokenTag> PartialEq for LRItemSet<'a, T> {
+    fn eq(&self, other: &LRItemSet<'a, T>) -> bool {
         self.lr_items == other.lr_items
     }
 }
 
-impl<'a, 'b, T: TokenSet<'a>> PartialEq<HashSet<LRItem<'a, 'b, T>>> for LRItemSet<'a, 'b, T> {
-    fn eq(&self, other: &HashSet<LRItem<'a, 'b, T>>) -> bool {
+impl<'a, T: TokenTag> PartialEq<HashSet<LRItem<'a, T>>> for LRItemSet<'a, T> {
+    fn eq(&self, other: &HashSet<LRItem<'a, T>>) -> bool {
         &self.lr_items == other
     }
 }
 
-impl<'a, 'b, T: TokenSet<'a>> Eq for LRItemSet<'a, 'b, T> {}
-
-impl<'a, 'b, T: TokenSet<'a>> LRItemSet<'a, 'b, T> {
-    fn new(id: i32, lr_items: HashSet<LRItem<'a, 'b, T>>) -> Self {
+impl<'a, T: TokenTag> LRItemSet<'a, T> {
+    fn new(id: i32, lr_items: HashSet<LRItem<'a, T>>) -> Self {
         LRItemSet {
             id,
             next: HashMap::new(),
@@ -226,23 +220,23 @@ impl<'a, 'b, T: TokenSet<'a>> LRItemSet<'a, 'b, T> {
             .all(|item| other.lr_items.iter().any(|item_b| item_b.strict_eq(item)))
     }
 
-    fn expand_closure<'c>(
+    fn expand_closure<'b>(
         mut self,
-        ruleset: &'b RuleSet<'a, T>,
-        first_set: &'c HashMap<&'b RuleElem<'a, T>, Vec<&'b RuleElem<'a, T>>>,
-    ) -> LRItemSet<'a, 'b, T> {
+        ruleset: &'a RuleSet<T>,
+        first_set: &'b HashMap<&'a RuleElem<T>, Vec<&'a RuleElem<T>>>,
+    ) -> LRItemSet<'a, T> {
         let mut lr_items = self.lr_items.clone();
         let mut lr_items_fetched = self.lr_items;
         loop {
-            let new_items: Vec<LRItem<'_, '_, _>> = lr_items_fetched
+            let new_items: Vec<LRItem<'_, _>> = lr_items_fetched
                 .iter()
                 .flat_map(|item| item.expand_closure(ruleset, first_set))
                 .collect();
-            let new_items = LRItem::<'_, '_, _>::unify_all(new_items);
+            let new_items = LRItem::<'_, _>::unify_all(new_items);
             let new_items = HashSet::from_iter(new_items);
 
             let bef_len = lr_items.len();
-            lr_items = LRItem::<'_, '_, _>::unity_set(lr_items, new_items.clone());
+            lr_items = LRItem::<'_, _>::unity_set(lr_items, new_items.clone());
             let af_len = lr_items.len();
             if bef_len == af_len {
                 break;
@@ -254,18 +248,18 @@ impl<'a, 'b, T: TokenSet<'a>> LRItemSet<'a, 'b, T> {
         self
     }
 
-    fn gen_next_sets<'c>(
+    fn gen_next_sets<'b>(
         &self,
-        ruleset: &'b RuleSet<'a, T>,
-        first_set: &'c HashMap<&'b RuleElem<'a, T>, Vec<&'b RuleElem<'a, T>>>,
-    ) -> HashMap<&'b RuleElem<'a, T>, LRItemSet<'a, 'b, T>> {
-        let new_items: Vec<(&'b RuleElem<'a, T>, LRItem<'a, 'b, T>)> = self
+        ruleset: &'a RuleSet<T>,
+        first_set: &'b HashMap<&'a RuleElem<T>, Vec<&'a RuleElem<T>>>,
+    ) -> HashMap<&'a RuleElem<T>, LRItemSet<'a, T>> {
+        let new_items: Vec<(&'a RuleElem<T>, LRItem<'a, T>)> = self
             .lr_items
             .iter()
             .filter_map(|lr_item| lr_item.next_dot())
             .collect();
 
-        let mut new_sets: HashMap<&RuleElem<T>, HashSet<LRItem<'_, '_, _>>> = HashMap::new();
+        let mut new_sets: HashMap<&RuleElem<T>, HashSet<LRItem<'_, _>>> = HashMap::new();
         for (bef_token, lr_item) in new_items {
             if new_sets.get(&bef_token).is_none() {
                 new_sets.insert(bef_token, HashSet::new());
@@ -273,7 +267,7 @@ impl<'a, 'b, T: TokenSet<'a>> LRItemSet<'a, 'b, T> {
             new_sets.get_mut(&bef_token).unwrap().insert(lr_item);
         }
 
-        let mut new_sets_expanded: HashMap<&'b RuleElem<'a, T>, LRItemSet<'_, '_, _>> = HashMap::new();
+        let mut new_sets_expanded: HashMap<&'a RuleElem<T>, LRItemSet<'_, _>> = HashMap::new();
         for (ktoken, new_set) in new_sets {
             let new_set = LRItemSet::new(0, new_set);
             let new_set = new_set.expand_closure(ruleset, first_set);
@@ -284,30 +278,28 @@ impl<'a, 'b, T: TokenSet<'a>> LRItemSet<'a, 'b, T> {
     }
 }
 
-#[derive(Clone, Debug)]
-struct LRItem<'a, 'b, T: TokenSet<'a>> {
-    rule: &'b Rule<'a, T>,
+#[derive(Clone, Debug, Eq)]
+struct LRItem<'a, T: TokenTag> {
+    rule: &'a Rule<T>,
     dot_pos: usize,
-    la_tokens: HashSet<&'b RuleElem<'a, T>>,
+    la_tokens: HashSet<&'a RuleElem<T>>,
 }
 
-impl<'a, 'b, T: TokenSet<'a>> Hash for LRItem<'a, 'b, T> {
+impl<'a, T: TokenTag> Hash for LRItem<'a, T> {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.rule.hash(state);
         self.dot_pos.hash(state);
     }
 }
 
-impl<'a, 'b, T: TokenSet<'a>> PartialEq for LRItem<'a, 'b, T> {
+impl<'a, T: TokenTag> PartialEq for LRItem<'a, T> {
     fn eq(&self, other: &Self) -> bool {
         self.rule == other.rule && self.dot_pos == other.dot_pos
     }
 }
 
-impl<'a, 'b, T: TokenSet<'a>> Eq for LRItem<'a, 'b, T> {}
-
-impl<'a, 'b, T: TokenSet<'a>> LRItem<'a, 'b, T> {
-    fn new(rule: &'b Rule<'a, T>, la_tokens: HashSet<&'b RuleElem<'a, T>>) -> LRItem<'a, 'b, T> {
+impl<'a, T: TokenTag> LRItem<'a, T> {
+    fn new(rule: &'a Rule<T>, la_tokens: HashSet<&'a RuleElem<T>>) -> LRItem<'a, T> {
         LRItem {
             rule,
             dot_pos: 0,
@@ -321,11 +313,11 @@ impl<'a, 'b, T: TokenSet<'a>> LRItem<'a, 'b, T> {
             && self.la_tokens == other.la_tokens
     }
 
-    fn expand_closure<'c>(
+    fn expand_closure<'b>(
         &self,
-        ruleset: &'b RuleSet<'a, T>,
-        first_set: &'c HashMap<&'b RuleElem<'a, T>, Vec<&'b RuleElem<'a, T>>>,
-    ) -> HashSet<LRItem<'a, 'b, T>> {
+        ruleset: &'a RuleSet<T>,
+        first_set: &'b HashMap<&'a RuleElem<T>, Vec<&'a RuleElem<T>>>,
+    ) -> HashSet<LRItem<'a, T>> {
         let af_la_tokens = if self.dot_pos + 1 < self.rule.rhs.len() {
             HashSet::from_iter(
                 first_set
@@ -343,7 +335,7 @@ impl<'a, 'b, T: TokenSet<'a>> LRItem<'a, 'b, T> {
             ruleset
                 .find_rule(&self.rule.rhs[self.dot_pos])
                 .into_iter()
-                .map(|rule| LRItem::<'_, '_, _>::new(rule, af_la_tokens.clone()))
+                .map(|rule| LRItem::<'_,  _>::new(rule, af_la_tokens.clone()))
                 .collect()
         } else {
             HashSet::new()
@@ -351,7 +343,7 @@ impl<'a, 'b, T: TokenSet<'a>> LRItem<'a, 'b, T> {
     }
 
     #[allow(clippy::int_plus_one)]
-    fn next_dot(&self) -> Option<(&'b RuleElem<'a, T>, LRItem<'a, 'b, T>)> {
+    fn next_dot(&self) -> Option<(&'a RuleElem<T>, LRItem<'a, T>)> {
         if self.dot_pos + 1 <= self.rule.rhs.len() {
             let bef_token = &self.rule.rhs[self.dot_pos];
             let item = LRItem {
@@ -365,7 +357,7 @@ impl<'a, 'b, T: TokenSet<'a>> LRItem<'a, 'b, T> {
         }
     }
 
-    fn unify(&mut self, other: LRItem<'a, 'b, T>) {
+    fn unify(&mut self, other: LRItem<'a, T>) {
         if self != &other {
             return;
         }
@@ -376,7 +368,7 @@ impl<'a, 'b, T: TokenSet<'a>> LRItem<'a, 'b, T> {
         });
     }
 
-    fn unify_all(mut items: Vec<LRItem<'a, 'b, T>>) -> Vec<LRItem<'a, 'b, T>> {
+    fn unify_all(mut items: Vec<LRItem<'a, T>>) -> Vec<LRItem<'a, T>> {
         for idx in (0..items.len()).permutations(2) {
             let (a_idx, b_idx) = (idx[0], idx[1]);
             let tmp = items[b_idx].clone();
@@ -386,9 +378,9 @@ impl<'a, 'b, T: TokenSet<'a>> LRItem<'a, 'b, T> {
     }
 
     fn unity_set(
-        items_a: HashSet<LRItem<'a, 'b, T>>,
-        items_b: HashSet<LRItem<'a, 'b, T>>,
-    ) -> HashSet<LRItem<'a, 'b, T>> {
+        items_a: HashSet<LRItem<'a, T>>,
+        items_b: HashSet<LRItem<'a, T>>,
+    ) -> HashSet<LRItem<'a, T>> {
         let mut items_a = Vec::from_iter(items_a);
         let items_b = Vec::from_iter(items_b);
         items_a.extend(items_b);

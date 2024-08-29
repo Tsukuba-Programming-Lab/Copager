@@ -9,3 +9,7 @@ thiserror = { workspace = true }
 serde = { workspace = true }
 itertools = "0.12.1"
 copager_core = { path = "../core" }
+copager_cfg = { path = "../cfg" }
+copager_lex = { path = "../lex" }
+copager_parse = { path = "../parse" }
+copager_utils = { path = "../utils" }

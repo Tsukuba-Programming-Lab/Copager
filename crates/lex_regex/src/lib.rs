@@ -4,29 +4,29 @@ use copager_cfg::token::{TokenTag, Token};
 use copager_lex::{LexSource, LexIterator};
 use copager_utils::cache::Cacheable;
 
-struct RegexLexer<'cache, 'input, T: TokenTag> {
+struct RegexLexer<'cache, 'input, S: LexSource> {
     // regex
     regex_istr: &'cache Regex,
     regex_set: &'cache RegexSet,
-    regex_map: &'cache Vec<(Regex, T)>,
+    regex_map: &'cache Vec<(Regex, S::Tag)>,
 
     // state
     input: &'input str,
     pos: usize,
 }
 
-struct RegexLexerCache<T: TokenTag> {
+struct RegexLexerCache<S: LexSource> {
     regex_istr: Regex,
     regex_set: RegexSet,
-    regex_map: Vec<(Regex, T)>,
+    regex_map: Vec<(Regex, S::Tag)>,
 }
 
-impl<'cache, 'input, T, S> Cacheable<'cache, S> for RegexLexer<'cache, 'input, T>
+impl<'cache, 'input, T, S> Cacheable<'cache, S> for RegexLexer<'cache, 'input, S>
 where
     T: TokenTag,
-    S: LexSource<T>,
+    S: LexSource<Tag = T>,
 {
-    type Cache = RegexLexerCache<T>;
+    type Cache = RegexLexerCache<S>;
 
     fn new(source: S) -> anyhow::Result<Self::Cache> {
         let regex_istr = Regex::new(source.ignore_token())?;
@@ -56,11 +56,23 @@ where
     }
 }
 
-impl<'cache, 'input, T, S> LexIterator<'cache, 'input, T, S> for RegexLexer<'cache, 'input, T>
+impl<'cache, 'input, T, S> From<&'cache RegexLexerCache<S>> for RegexLexer<'cache, 'input, S>
 where
     T: TokenTag,
-    S: LexSource<T>,
+    S: LexSource<Tag = T>,
 {
+    fn from(value: &'cache RegexLexerCache<S>) -> Self {
+        Self::restore(value)
+    }
+}
+
+impl<'cache, 'input, T, S> LexIterator<'input, T> for RegexLexer<'cache, 'input, S>
+where
+    T: TokenTag,
+    S: LexSource<Tag = T> + 'cache,
+{
+    type From = &'cache RegexLexerCache<S>;
+
     fn init(&self, input: &'input str) -> Self {
         RegexLexer {
             regex_istr: self.regex_istr,
@@ -88,7 +100,7 @@ where
             .into_iter()
             .map(|idx| &self.regex_map[idx])
             .map(|(regex, token)| (*token, regex.find(remain).unwrap().as_str()))
-            .collect::<Vec<(T, &str)>>();
+            .collect::<Vec<(S::Tag, &str)>>();
         matches.sort_by(|(_, a), (_, b)| a.len().cmp(&b.len()));
 
         // Update myself
