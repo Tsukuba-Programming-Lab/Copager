@@ -64,7 +64,6 @@ dependencies = [
  "copager_lex",
  "copager_parse",
  "copager_utils",
- "serde",
  "thiserror",
 ]
 
@@ -132,7 +131,6 @@ dependencies = [
  "copager_parse",
  "copager_utils",
  "itertools",
- "serde",
  "thiserror",
 ]
 
