@@ -62,6 +62,8 @@ dependencies = [
  "anyhow",
  "copager_cfg",
  "copager_lex",
+ "copager_parse",
+ "copager_utils",
  "serde",
  "thiserror",
 ]
@@ -112,7 +114,11 @@ dependencies = [
 name = "copager_parse"
 version = "0.1.1"
 dependencies = [
- "copager_parse_lr1",
+ "anyhow",
+ "copager_cfg",
+ "copager_lex",
+ "copager_utils",
+ "thiserror",
 ]
 
 [[package]]
@@ -120,7 +126,11 @@ name = "copager_parse_lr1"
 version = "0.1.1"
 dependencies = [
  "anyhow",
+ "copager_cfg",
  "copager_core",
+ "copager_lex",
+ "copager_parse",
+ "copager_utils",
  "itertools",
  "serde",
  "thiserror",

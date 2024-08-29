@@ -2,36 +2,42 @@ pub mod error;
 
 use std::marker::PhantomData;
 
-use serde::{Serialize, Deserialize};
+use copager_lex::{LexSource, LexIterator};
+use copager_parse::{ParseSource, ParseIterator};
 
-use copager_lex::Lexer;
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Parser<'a, Algorithm>
+pub struct Processor<'input, Sl, Il, Sp, Ip>
 where
-    Algorithm: ParserImpl<'a>,
+    Sl: LexSource,
+    Il: LexIterator<'input, Sl::Tag>,
+    Sp: ParseSource<Sl::Tag>,
+    Ip: ParseIterator<'input, Sl::Tag, Sp::Tag, Il>,
 {
-    r#impl: Algorithm,
-    phantom: PhantomData<&'a ()>,
+    _phantom_sl: PhantomData<Sl>,
+    _phantom_il: PhantomData<Il>,
+    _phantom_sp: PhantomData<Sp>,
+    _phantom_ip: PhantomData<Ip>,
+    _phantom_input: PhantomData<&'input ()>,
 }
 
-#[allow(clippy::new_without_default)]
-impl<'a, Algorithm> Parser<'a, Algorithm>
+impl<'input, 'cache, Sl, Il, Sp, Ip> Processor<'input, Sl, Il, Sp, Ip>
 where
-    Algorithm: ParserImpl<'a>,
+    Sl: LexSource,
+    Il: LexIterator<'input, Sl::Tag, From = Sl>,
+    Sp: ParseSource<Sl::Tag>,
+    Ip: ParseIterator<'input, Sl::Tag, Sp::Tag, Il, From = Sp>,
 {
-    pub fn new() -> anyhow::Result<Parser<'a, Algorithm>> {
-        Ok(Parser {
-            r#impl: Algorithm::setup()?,
-            phantom: PhantomData,
-        })
-    }
-
-    pub fn parse<'b>(
-        &self,
-        input: &'b str,
-    ) -> anyhow::Result<SExp<'a, 'b, Algorithm::TokenSet, Algorithm::Syntax>> {
-        let lexer = Lexer::new::<Algorithm::TokenSet>(input)?;
-        self.r#impl.parse(lexer)
+    pub fn process(input: &'input str)
+    where
+        Sl: Default,
+        Sp: Default,
+    {
+        let lexer = Il::from(Sl::default()).init(input);
+        let mut parser = Ip::from(Sp::default()).init(lexer);
+        loop {
+            match parser.next() {
+                Some(_) => {}
+                None => break,
+            }
+        }
     }
 }
