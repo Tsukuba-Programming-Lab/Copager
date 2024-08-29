@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use regex::{Regex, RegexSet};
 
 use copager_cfg::token::{TokenTag, Token};
@@ -6,9 +8,9 @@ use copager_lex::{LexSource, LexIterator};
 #[derive(Debug)]
 struct RegexLexer<'input, S: LexSource> {
     // regex
-    regex_istr: Regex,
-    regex_set: RegexSet,
-    regex_map: Vec<(Regex, S::Tag)>,
+    regex_istr: Rc<Regex>,
+    regex_set: Rc<RegexSet>,
+    regex_map: Rc<Vec<(Regex, S::Tag)>>,
 
     // state
     input: &'input str,
@@ -31,9 +33,9 @@ where
             .collect::<anyhow::Result<Vec<_>>>().unwrap();
 
         RegexLexer {
-            regex_istr,
-            regex_set,
-            regex_map,
+            regex_istr: Rc::new(regex_istr),
+            regex_set: Rc::new(regex_set),
+            regex_map: Rc::new(regex_map),
             input: "",
             pos: 0,
         }
@@ -49,9 +51,9 @@ where
 
     fn init(&self, input: &'input str) -> Self {
         RegexLexer {
-            regex_istr: self.regex_istr.clone(),
-            regex_set: self.regex_set.clone(),
-            regex_map: self.regex_map.clone(),
+            regex_istr: Rc::clone(&self.regex_istr),
+            regex_set: Rc::clone(&self.regex_set),
+            regex_map: Rc::clone(&self.regex_map),
             input: input,
             pos: 0,
         }
