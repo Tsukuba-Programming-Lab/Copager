@@ -1,10 +1,10 @@
 use copager_cfg::token::TokenTag;
-use copager_cfg::RuleKind;
+use copager_cfg::rule::RuleTag;
 
 pub trait IR<T, R>
 where
     T: TokenTag,
-    R: RuleKind<T>,
+    R: RuleTag<TokenTag = T>,
 {
     type Builder: IRBuilder<T, R>;
 }
@@ -12,7 +12,7 @@ where
 pub trait IRBuilder<T, R>
 where
     T: TokenTag,
-    R: RuleKind<T>,
+    R: RuleTag<TokenTag = T>,
 {
     type Output: IR<T, R>;
 

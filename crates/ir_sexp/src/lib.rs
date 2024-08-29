@@ -1,14 +1,14 @@
 use std::fmt::{Debug, Display};
 
 use copager_cfg::token::{TokenTag, Token};
-use copager_cfg::RuleKind;
+use copager_cfg::rule::RuleTag;
 use copager_ir::{IR, IRBuilder};
 
 #[derive(Debug)]
 pub enum SExp<'input, T, S>
 where
     T: TokenTag,
-    S: RuleKind<T>,
+    S: RuleTag<TokenTag = T>,
 {
     List {
         tag: S,
@@ -20,7 +20,7 @@ where
 impl<T, S> Display for SExp<'_, T, S>
 where
     T: TokenTag,
-    S: RuleKind<T> + Debug,
+    S: RuleTag<TokenTag = T> + Debug,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -39,7 +39,7 @@ where
 impl<'input, T, R> IR<T, R> for SExp<'input, T, R>
 where
     T: TokenTag,
-    R: RuleKind<T>,
+    R: RuleTag<TokenTag = T>,
 {
     type Builder = SExpBuilder<'input, T, R>;
 }
@@ -48,7 +48,7 @@ where
 pub struct SExpBuilder<'input, T, R>
 where
     T: TokenTag,
-    R: RuleKind<T>,
+    R: RuleTag<TokenTag = T>,
 {
     stack: Vec<SExp<'input, T, R>>,
 }
@@ -56,7 +56,7 @@ where
 impl <'input, T, R> IRBuilder<T, R> for SExpBuilder<'input, T, R>
 where
     T: TokenTag,
-    R: RuleKind<T>,
+    R: RuleTag<TokenTag = T>,
 {
     type Output = SExp<'input, T, R>;
 
@@ -76,7 +76,7 @@ where
 impl<'input, T, R> SExpBuilder<'input, T, R>
 where
     T: TokenTag,
-    R: RuleKind<T>,
+    R: RuleTag<TokenTag = T>,
 {
     pub fn push(&mut self, token: Token<'input, T>) {
         self.stack.push(SExp::Atom(token));
