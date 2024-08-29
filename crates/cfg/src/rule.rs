@@ -4,13 +4,11 @@ use std::hash::Hash;
 
 use crate::token::TokenTag;
 
-pub trait RuleTag
+pub trait RuleTag<T: TokenTag>
 where
     Self: Debug + Copy + Clone + Hash + Eq,
 {
-    type TokenTag: TokenTag;
-
-    fn as_rules<'a, 'b>(&'a self) -> Vec<&'b Rule<Self::TokenTag>>;
+    fn as_rules<'a, 'b>(&'a self) -> Vec<&'b Rule<T>>;
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

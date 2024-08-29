@@ -3,7 +3,7 @@ use copager_cfg::rule::{RuleTag, RuleSet};
 use copager_lex::LexIterator;
 
 pub trait ParseSource<T: TokenTag> {
-    type Tag: RuleTag<TokenTag = T>;
+    type Tag: RuleTag<T>;
 
     fn iter(&self) -> impl Iterator<Item = Self::Tag>;
 
@@ -29,7 +29,7 @@ pub trait ParseIterator<'input, T, R, Il>
 where
     Self: From<Self::From>,
     T: TokenTag,
-    R: RuleTag,
+    R: RuleTag<T>,
     Il: LexIterator<'input, T>,
 {
     type From;
