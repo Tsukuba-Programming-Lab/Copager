@@ -2,82 +2,56 @@ use regex::{Regex, RegexSet};
 
 use copager_cfg::token::{TokenTag, Token};
 use copager_lex::{LexSource, LexIterator};
-use copager_utils::cache::Cacheable;
 
-struct RegexLexer<'cache, 'input, S: LexSource> {
+#[derive(Debug)]
+struct RegexLexer<'input, S: LexSource> {
     // regex
-    regex_istr: &'cache Regex,
-    regex_set: &'cache RegexSet,
-    regex_map: &'cache Vec<(Regex, S::Tag)>,
+    regex_istr: Regex,
+    regex_set: RegexSet,
+    regex_map: Vec<(Regex, S::Tag)>,
 
     // state
     input: &'input str,
     pos: usize,
 }
 
-struct RegexLexerCache<S: LexSource> {
-    regex_istr: Regex,
-    regex_set: RegexSet,
-    regex_map: Vec<(Regex, S::Tag)>,
-}
-
-impl<'cache, 'input, T, S> Cacheable<'cache, S> for RegexLexer<'cache, 'input, S>
+impl<'input, T, S> From<S> for RegexLexer<'input, S>
 where
     T: TokenTag,
     S: LexSource<Tag = T>,
 {
-    type Cache = RegexLexerCache<S>;
-
-    fn new(source: S) -> anyhow::Result<Self::Cache> {
-        let regex_istr = Regex::new(source.ignore_token())?;
+    fn from(source: S) -> Self { // TODO: -> try_from
+        let regex_istr = Regex::new(source.ignore_token()).unwrap();
         let regex_set = source.iter()
             .map(|token| token.as_str())
             .collect::<Vec<_>>();
-        let regex_set = RegexSet::new(regex_set)?;
+        let regex_set = RegexSet::new(regex_set).unwrap();
         let regex_map = source.iter()
             .map(|token| Ok((Regex::new(token.as_str())?, token)))
-            .collect::<anyhow::Result<Vec<_>>>()?;
+            .collect::<anyhow::Result<Vec<_>>>().unwrap();
 
-        Ok(RegexLexerCache {
+        RegexLexer {
             regex_istr,
             regex_set,
             regex_map,
-        })
-    }
-
-    fn restore(cache: &'cache Self::Cache) -> Self {
-        RegexLexer {
-            regex_istr: &cache.regex_istr,
-            regex_set: &cache.regex_set,
-            regex_map: &cache.regex_map,
             input: "",
             pos: 0,
         }
     }
 }
 
-impl<'cache, 'input, T, S> From<&'cache RegexLexerCache<S>> for RegexLexer<'cache, 'input, S>
+impl<'input, T, S> LexIterator<'input, T> for RegexLexer<'input, S>
 where
     T: TokenTag,
     S: LexSource<Tag = T>,
 {
-    fn from(value: &'cache RegexLexerCache<S>) -> Self {
-        Self::restore(value)
-    }
-}
-
-impl<'cache, 'input, T, S> LexIterator<'input, T> for RegexLexer<'cache, 'input, S>
-where
-    T: TokenTag,
-    S: LexSource<Tag = T> + 'cache,
-{
-    type From = &'cache RegexLexerCache<S>;
+    type From = S;
 
     fn init(&self, input: &'input str) -> Self {
         RegexLexer {
-            regex_istr: self.regex_istr,
-            regex_set: self.regex_set,
-            regex_map: self.regex_map,
+            regex_istr: self.regex_istr.clone(),
+            regex_set: self.regex_set.clone(),
+            regex_map: self.regex_map.clone(),
             input: input,
             pos: 0,
         }

@@ -3,6 +3,8 @@ mod builder;
 
 use std::marker::PhantomData;
 
+use serde::{Serialize, Deserialize};
+
 use copager_lex::{LexSource, LexIterator};
 use copager_parse::{ParseSource, ParseIterator};
 use copager_utils::cache::Cacheable;
@@ -10,6 +12,7 @@ use copager_utils::cache::Cacheable;
 use builder::{LR1Configure, LRAction};
 use error::ParseError;
 
+#[derive(Debug)]
 pub struct LR1<'cache, 'input, Sl, Il, Sp>
 where
     Sl: LexSource,

@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 anyhow = { workspace = true }
 thiserror = { workspace = true }
+serde = { workspace = true }
 itertools = "0.12.1"
 copager_core = { path = "../core" }
 copager_cfg = { path = "../cfg" }

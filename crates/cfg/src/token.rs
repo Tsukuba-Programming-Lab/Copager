@@ -1,9 +1,11 @@
 use std::fmt::Debug;
 use std::hash::Hash;
 
+use serde::{Serialize, Deserialize};
+
 pub trait TokenTag
 where
-    Self: Debug + Copy + Clone + Hash + Eq,
+    Self: Debug + Copy + Clone + Hash + Eq + Serialize + for<'de> Deserialize<'de>,
 {
     fn as_str<'a, 'b>(&'a self) -> &'b str;
 }

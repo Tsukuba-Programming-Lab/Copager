@@ -2,13 +2,14 @@ use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 
 use itertools::Itertools;
+use serde::{Serialize, Deserialize};
 
 use copager_cfg::token::TokenTag;
 use copager_cfg::rule::{Rule, RuleElem, RuleSet};
 use copager_lex::LexSource;
 use copager_parse::ParseSource;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub enum LRAction<R> {
     Shift(usize),
     Reduce(R, usize, usize), // tag, goto_id, elems_cnt
@@ -16,7 +17,7 @@ pub enum LRAction<R> {
     None,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct LR1Configure<Sl, Sp>
 where
     Sl: LexSource,

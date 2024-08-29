@@ -41,6 +41,7 @@ name = "copager_cfg"
 version = "0.1.1"
 dependencies = [
  "anyhow",
+ "serde",
  "thiserror",
 ]
 
@@ -131,6 +132,7 @@ dependencies = [
  "copager_parse",
  "copager_utils",
  "itertools",
+ "serde",
  "thiserror",
 ]
 
@@ -139,6 +141,7 @@ name = "copager_utils"
 version = "0.1.1"
 dependencies = [
  "anyhow",
+ "serde",
  "thiserror",
 ]
 
