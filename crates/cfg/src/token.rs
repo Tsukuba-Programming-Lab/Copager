@@ -1,8 +1,9 @@
+use std::fmt::Debug;
 use std::hash::Hash;
 
 pub trait TokenTag
 where
-    Self: Copy + Clone + Hash + Eq,
+    Self: Debug + Copy + Clone + Hash + Eq,
 {
     fn as_str<'a, 'b>(&'a self) -> &'b str;
 }

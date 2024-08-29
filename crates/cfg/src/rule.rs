@@ -1,9 +1,19 @@
 use std::collections::HashMap;
+use std::fmt::Debug;
 use std::hash::Hash;
 
 use crate::token::TokenTag;
 
-#[derive(PartialEq, Eq, Hash, Debug)]
+pub trait RuleTag
+where
+    Self: Debug + Copy + Clone + Hash + Eq,
+{
+    type TokenTag: TokenTag;
+
+    fn as_rules<'a, 'b>(&'a self) -> Vec<&'b Rule<Self::TokenTag>>;
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Rule<T: TokenTag> {
     pub id: usize,
     pub lhs: RuleElem<T>,
@@ -36,7 +46,7 @@ impl<T: TokenTag> Rule<T> {
     }
 }
 
-#[derive(Debug, Eq)]
+#[derive(Debug, Clone, Eq)]
 pub enum RuleElem<T: TokenTag> {
     NonTerm(String),
     Term(T),
@@ -74,7 +84,7 @@ impl<T: TokenTag> RuleElem<T> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct RuleSet<T: TokenTag> {
     pub top: String,
     pub rules: Vec<Rule<T>>,
