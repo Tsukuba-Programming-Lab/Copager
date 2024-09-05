@@ -1,4 +1,5 @@
 use copager_cfg::token::{TokenTag, Token};
+pub use copager_lex_derive::LexSource;
 
 pub trait LexSource {
     type Tag: TokenTag;
