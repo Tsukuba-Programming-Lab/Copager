@@ -12,7 +12,7 @@ syn = { version ="2.0", features = ["full", "extra-traits"] }
 
 [dev-dependencies]
 copager_cfg = { path = "../cfg" }
-copager_lex = { path = "../lex" }
+copager_lex = { path = "../lex", features = ["derive"] }
 
 [lib]
 proc-macro = true
