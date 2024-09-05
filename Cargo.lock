@@ -23,7 +23,6 @@ version = "0.1.1"
 dependencies = [
  "anyhow",
  "copager_cfg",
- "copager_cfg_derive",
  "copager_core",
  "copager_ir",
  "copager_ir_sexp",
@@ -43,17 +42,6 @@ name = "copager_cfg"
 version = "0.1.1"
 dependencies = [
  "anyhow",
- "thiserror",
-]
-
-[[package]]
-name = "copager_cfg_derive"
-version = "0.1.1"
-dependencies = [
- "anyhow",
- "proc-macro2",
- "quote",
- "syn",
  "thiserror",
 ]
 

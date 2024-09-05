@@ -6,7 +6,6 @@ edition = "2021"
 [dependencies]
 copager_core = { path = "./crates/core" }
 copager_cfg = { path = "./crates/cfg" }
-copager_cfg_derive = { path = "./crates/cfg_derive" }
 copager_lex = { path = "./crates/lex" }
 copager_lex_derive = { path = "./crates/lex_derive" }
 copager_lex_regex = { path = "./crates/lex_regex" }
@@ -30,7 +29,6 @@ resolver = "2"
 members = [
     "./crates/core",
     "./crates/cfg",
-    "./crates/cfg_derive",
     "./crates/lex",
     "./crates/lex_derive",
     "./crates/lex_regex",
