@@ -59,7 +59,7 @@ where
 {
     type From = &'cache LR1Configure<Sl, Sp>;
 
-    gen fn init<'input, Il>(&self, mut lexer: Il)
+    gen fn run<'input, Il>(&self, mut lexer: Il)
     where
         Il: Iterator<Item = Token<'input, Sl::Tag>>,
     {

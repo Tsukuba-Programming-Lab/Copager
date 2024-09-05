@@ -33,7 +33,7 @@ where
         let lexer = Dl::from(Sl::default());
         let parser = Dp::from(Sp::default());
         loop {
-            for _ in parser.init(lexer.init(input)) {
+            for _ in parser.run(lexer.run(input)) {
                 println!("-----");
             }
         }

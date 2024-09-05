@@ -54,11 +54,11 @@ enum ExprRule {
 #[test]
 fn simple_success() -> anyhow::Result<()> {
     let lexer = RegexLexer::from(ExprToken::default());
-    let lexer = lexer.init("1 + 2 * 3");
+    let lexer = lexer.run("1 + 2 * 3");
 
     let parser_conf = LR1::new((ExprToken::default(), ExprRule::default()))?;
     let parser = LR1::from(&parser_conf);
-    let parser = parser.init(lexer);
+    let parser = parser.run(lexer);
 
     assert_eq!(parser.count(), 0);
 

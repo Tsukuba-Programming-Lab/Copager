@@ -33,7 +33,7 @@ where
 {
     type From;
 
-    fn init<'input, Il>(&self, lexer: Il) -> impl Iterator<Item = ()>
+    fn run<'input, Il>(&self, lexer: Il) -> impl Iterator<Item = ()>
     where
         Il: Iterator<Item = Token<'input, T>>;
 }

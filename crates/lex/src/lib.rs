@@ -16,5 +16,5 @@ where
 {
     type From;
 
-    fn init<'input>(&self, input: &'input str) -> impl Iterator<Item = Token<'input, T>>;
+    fn run<'input>(&self, input: &'input str) -> impl Iterator<Item = Token<'input, T>>;
 }

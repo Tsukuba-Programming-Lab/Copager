@@ -44,7 +44,7 @@ where
 {
     type From = S;
 
-    gen fn init<'input>(&self, input: &'input str) -> Token<'input, T> {
+    gen fn run<'input>(&self, input: &'input str) -> Token<'input, T> {
         let mut pos = 0;
         loop {
             // Skip Spaces
