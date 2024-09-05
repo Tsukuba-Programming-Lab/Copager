@@ -5,28 +5,27 @@ use std::marker::PhantomData;
 use copager_lex::{LexSource, LexDriver};
 use copager_parse::{ParseSource, ParseDriver};
 
-pub struct Processor<'input, Sl, Dl, Sp, Dp>
+pub struct Processor<Sl, Dl, Sp, Dp>
 where
     Sl: LexSource,
-    Dl: LexDriver<'input, Sl::Tag>,
+    Dl: LexDriver<Sl::Tag>,
     Sp: ParseSource<Sl::Tag>,
-    Dp: ParseDriver<'input, Sl::Tag, Sp::Tag>,
+    Dp: ParseDriver<Sl::Tag, Sp::Tag>,
 {
     _phantom_sl: PhantomData<Sl>,
     _phantom_il: PhantomData<Dl>,
     _phantom_sp: PhantomData<Sp>,
     _phantom_ip: PhantomData<Dp>,
-    _phantom_input: PhantomData<&'input ()>,
 }
 
-impl<'input, 'cache, Sl, Dl, Sp, Dp> Processor<'input, Sl, Dl, Sp, Dp>
+impl<'cache, Sl, Dl, Sp, Dp> Processor<Sl, Dl, Sp, Dp>
 where
     Sl: LexSource,
-    Dl: LexDriver<'input, Sl::Tag, From = Sl>,
+    Dl: LexDriver<Sl::Tag, From = Sl>,
     Sp: ParseSource<Sl::Tag>,
-    Dp: ParseDriver<'input, Sl::Tag, Sp::Tag, From = Sp>,
+    Dp: ParseDriver<Sl::Tag, Sp::Tag, From = Sp>,
 {
-    pub fn process(input: &'input str)
+    pub fn process<'input>(input: &'input str)
     where
         Sl: Default,
         Sp: Default,

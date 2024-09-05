@@ -55,7 +55,7 @@ where
         let lr_items = lr_items.expand_closure(&ruleset, &first_set);
 
         // 3. Generate a DFA
-        let dfa = LRItemDFA::gen(lr_items, &ruleset, &first_set);
+        let dfa = LRItemDFA::r#gen(lr_items, &ruleset, &first_set);
 
         // 4. Initialize tables
         let mut idx = 0;
@@ -147,7 +147,7 @@ struct LRItemDFA<'a, T: TokenTag> (
 );
 
 impl<'a, T: TokenTag> LRItemDFA<'a, T> {
-    fn gen(
+    fn r#gen(
         init_set: LRItemSet<'a, T>,
         ruleset: &'a RuleSet<T>,
         first_set: &HashMap<&'a RuleElem<T>, Vec<&'a RuleElem<T>>>,

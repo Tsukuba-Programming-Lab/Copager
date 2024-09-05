@@ -3,11 +3,12 @@
 mod error;
 mod builder;
 
-use std::marker::PhantomData;
+use std::collections::HashMap;
 
 use serde::{Serialize, Deserialize};
 
-use copager_lex::{LexSource, LexDriver};
+use copager_cfg::token::Token;
+use copager_lex::LexSource;
 use copager_parse::{ParseSource, ParseDriver};
 use copager_utils::cache::Cacheable;
 
@@ -15,19 +16,15 @@ use builder::{LR1Configure, LRAction};
 use error::ParseError;
 
 #[derive(Debug)]
-pub struct LR1<'cache, 'input, Sl, Sp>
+pub struct LR1<'cache, Sl, Sp>
 where
     Sl: LexSource,
     Sp: ParseSource<Sl::Tag>,
 {
-    // LR-Table
     tables: &'cache LR1Configure<Sl, Sp>,
-
-    // Phantom Data
-    _phantom: PhantomData<&'input ()>,
 }
 
-impl<'cache, 'input, Sl, Sp> Cacheable<'cache, (Sl, Sp)> for LR1<'cache, 'input, Sl, Sp>
+impl<'cache, Sl, Sp> Cacheable<'cache, (Sl, Sp)> for LR1<'cache, Sl, Sp>
 where
     Sl: LexSource,
     Sl::Tag: Serialize + for<'de> Deserialize<'de>,
@@ -45,50 +42,44 @@ where
     }
 }
 
-impl<'cache, 'input, Sl, Sp> From<&'cache LR1Configure<Sl, Sp>> for LR1<'cache, 'input, Sl, Sp>
+impl<'cache, Sl, Sp> From<&'cache LR1Configure<Sl, Sp>> for LR1<'cache, Sl, Sp>
 where
     Sl: LexSource,
     Sp: ParseSource<Sl::Tag>,
 {
     fn from(tables: &'cache LR1Configure<Sl, Sp>) -> Self {
-        LR1 {
-            tables,
-            _phantom: PhantomData,
-        }
+        LR1 { tables }
     }
 }
 
-impl<'cache, 'input, Sl, Sp> ParseDriver<'input, Sl::Tag, Sp::Tag> for LR1<'cache, 'input, Sl, Sp>
+impl<'cache, Sl, Sp> ParseDriver<Sl::Tag, Sp::Tag> for LR1<'cache, Sl, Sp>
 where
     Sl: LexSource,
     Sp: ParseSource<Sl::Tag>,
 {
     type From = &'cache LR1Configure<Sl, Sp>;
 
-    gen fn init<Il>(&self, mut lexer: Il) -> impl Iterator<Item = ()>
+    gen fn init<'input, Il>(&self, mut lexer: Il)
     where
         Il: Iterator<Item = Token<'input, Sl::Tag>>,
     {
-        let mut stack = vec![];
+        let mut stack = vec![0];
         loop {
-            let input = lexer.next();
+            let token = lexer.next();
             loop {
                 let top = stack[stack.len() - 1];
-                let action = match input {
-                    Some(token) => (
-                        self.tables.action_table[top].get(&token.kind).unwrap(),
-                        Some(token),
-                    ),
-                    None => (
-                        &self.tables.eof_action_table[top],
-                        None
-                    ),
+                let action = match token {
+                    Some(token) => {
+                        let local_action_table: &HashMap<_, _> = &self.tables.action_table[top];
+                        (local_action_table.get(&token.kind).unwrap(), Some(token))
+                    },
+                    None => (&self.tables.eof_action_table[top], None),
                 };
                 match action {
                     (LRAction::Shift(new_state), Some(token)) => {
                         stack.push(*new_state);
                         // builder.push(token);
-                        println!("Shift: {:?}", token);
+                        println!("Shift: {}", token.as_str());
                         break;
                     }
                     (LRAction::Reduce(tag, goto, elems_cnt), _) => {

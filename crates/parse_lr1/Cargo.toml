@@ -1,7 +1,9 @@
+cargo-features = ["edition2024"]
+
 [package]
 name = "copager_parse_lr1"
 version = "0.1.1"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 anyhow = { workspace = true }
@@ -13,3 +15,9 @@ copager_cfg = { path = "../cfg" }
 copager_lex = { path = "../lex" }
 copager_parse = { path = "../parse" }
 copager_utils = { path = "../utils" }
+
+[dev-dependencies]
+copager_lex = { path = "../lex", features = ["derive"] }
+copager_lex_regex = { path = "../lex_regex"  }
+copager_parse = { path = "../parse", features = ["derive"] }
+copager_parse_lr1 = { path = "../parse_lr1" }

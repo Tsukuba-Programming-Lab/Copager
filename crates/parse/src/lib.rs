@@ -25,7 +25,7 @@ pub trait ParseSource<T: TokenTag> {
     }
 }
 
-pub trait ParseDriver<'input, T, R>
+pub trait ParseDriver<T, R>
 where
     Self: From<Self::From>,
     T: TokenTag,
@@ -33,7 +33,7 @@ where
 {
     type From;
 
-    fn init<Il>(&self, lexer: Il) -> impl Iterator<Item = ()>
+    fn init<'input, Il>(&self, lexer: Il) -> impl Iterator<Item = ()>
     where
         Il: Iterator<Item = Token<'input, T>>;
 }
