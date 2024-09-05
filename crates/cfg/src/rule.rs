@@ -8,7 +8,7 @@ pub trait RuleTag<T: TokenTag>
 where
     Self: Debug + Copy + Clone + Hash + Eq,
 {
-    fn as_rules<'a, 'b>(&'a self) -> Vec<&'b Rule<T>>;
+    fn as_rules(&self) -> Vec<Rule<T>>;
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

@@ -1,0 +1,19 @@
+[package]
+name = "copager_parse_derive"
+version = "0.1.1"
+edition = "2021"
+
+[dependencies]
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+proc-macro2 = "1.0"
+quote = "1.0"
+syn = { version ="2.0", features = ["full", "extra-traits"] }
+
+[dev-dependencies]
+copager_cfg = { path = "../cfg" }
+copager_lex = { path = "../lex", features = ["derive"] }
+copager_parse = { path = "../parse", features = ["derive"] }
+
+[lib]
+proc-macro = true
