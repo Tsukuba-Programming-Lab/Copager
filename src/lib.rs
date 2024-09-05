@@ -3,19 +3,19 @@ pub use copager_cfg as cfg;
 
 pub mod lex {
     pub use copager_lex::*;
-    #[cfg(feature = "regexlex")]
+    #[cfg(any(feature = "all", feature = "regexlex"))]
     pub use copager_lex_regex::*;
 }
 
 pub mod parse {
     pub use copager_parse::*;
-    #[cfg(feature = "lr1")]
+    #[cfg(any(feature = "all", feature = "lr1"))]
     pub use copager_parse_lr1::*;
 }
 
 pub mod ir {
     pub use copager_ir::*;
-    #[cfg(feature = "sexp")]
+    #[cfg(any(feature = "all", feature = "sexp"))]
     pub use copager_ir_sexp::*;
 }
 
