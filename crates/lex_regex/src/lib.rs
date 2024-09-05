@@ -8,18 +8,13 @@ use copager_cfg::token::{TokenTag, Token};
 use copager_lex::{LexSource, LexDriver};
 
 #[derive(Debug)]
-pub struct RegexLexer<'input, S: LexSource> {
-    // regex
+pub struct RegexLexer<S: LexSource> {
     regex_istr: Rc<Regex>,
     regex_set: Rc<RegexSet>,
     regex_map: Rc<Vec<(Regex, S::Tag)>>,
-
-    // state
-    input: &'input str,
-    pos: usize,
 }
 
-impl<'input, T, S> From<S> for RegexLexer<'input, S>
+impl<T, S> From<S> for RegexLexer<S>
 where
     T: TokenTag,
     S: LexSource<Tag = T>,
@@ -38,26 +33,24 @@ where
             regex_istr: Rc::new(regex_istr),
             regex_set: Rc::new(regex_set),
             regex_map: Rc::new(regex_map),
-            input: "",
-            pos: 0,
         }
     }
 }
 
-impl<'input, T, S> LexDriver<'input, T> for RegexLexer<'input, S>
+impl<T, S> LexDriver<T> for RegexLexer<S>
 where
     T: TokenTag,
     S: LexSource<Tag = T>,
 {
     type From = S;
 
-    gen fn init(&self, input: &'input str) -> impl Iterator<Item = Token<'input, T>> {
-        let pos = 0;
+    gen fn init<'input>(&self, input: &'input str) -> Token<'input, T> {
+        let mut pos = 0;
         loop {
             // Skip Spaces
             let remain = match self.regex_istr.find(&input[pos..]) {
                 Some(acc_s) => {
-                    self.pos += acc_s.len();
+                    pos += acc_s.len();
                     &input[pos..]
                 }
                 None => &input[pos..]
@@ -73,10 +66,13 @@ where
                 .collect::<Vec<(S::Tag, &str)>>();
             matches.sort_by(|(_, a), (_, b)| a.len().cmp(&b.len()));
 
-            // Update myself
-            let (token, acc_s) = matches.first()?;
+            // Update pos
+            let (token, acc_s) = match matches.first() {
+                Some(a) => a,
+                None => return,
+            };
             let range = (pos, pos + acc_s.len());
-            self.pos += acc_s.len();
+            pos += acc_s.len();
 
             yield Token::new(*token, &input, range);
         }

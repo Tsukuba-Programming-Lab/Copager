@@ -105,6 +105,7 @@ dependencies = [
  "anyhow",
  "copager_cfg",
  "copager_lex",
+ "copager_lex_regex",
  "copager_utils",
  "regex",
  "regex-macro",
