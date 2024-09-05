@@ -6,15 +6,12 @@ edition = "2021"
 [dependencies]
 copager_core = { path = "./crates/core" }
 copager_cfg = { path = "./crates/cfg" }
-copager_lex = { path = "./crates/lex" }
-copager_lex_derive = { path = "./crates/lex_derive" }
-copager_lex_regex = { path = "./crates/lex_regex" }
-copager_parse = { path = "./crates/parse" }
-copager_parse_derive = { path = "./crates/parse_derive" }
-copager_parse_lr1 = { path = "./crates/parse_lr1" }
+copager_lex = { path = "./crates/lex", optional = true }
+copager_lex_regex = { path = "./crates/lex_regex", optional = true }
+copager_parse = { path = "./crates/parse", optional = true }
+copager_parse_lr1 = { path = "./crates/parse_lr1", optional = true }
 copager_ir = { path = "./crates/ir" }
-copager_ir_sexp = { path = "./crates/ir_sexp" }
-copager_utils = { path = "./crates/utils" }
+copager_ir_sexp = { path = "./crates/ir_sexp", optional = true }
 
 [dev-dependencies]
 anyhow = { workspace = true }
@@ -22,7 +19,18 @@ serde = { workspace = true }
 serde_json = "1.0.117"
 
 [features]
-default = []
+# common
+default = ["copager_lex", "copager_parse"]
+derive = ["copager_lex/derive", "copager_parse/derive"]
+
+# lex
+regexlex = ["copager_lex_regex"]
+
+# parse
+lr1 = ["copager_parse_lr1"]
+
+# ir
+sexp = ["copager_ir_sexp"]
 
 [workspace]
 resolver = "2"

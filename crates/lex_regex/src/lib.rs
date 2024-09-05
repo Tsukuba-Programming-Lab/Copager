@@ -6,7 +6,7 @@ use copager_cfg::token::{TokenTag, Token};
 use copager_lex::{LexSource, LexIterator};
 
 #[derive(Debug)]
-struct RegexLexer<'input, S: LexSource> {
+pub struct RegexLexer<'input, S: LexSource> {
     // regex
     regex_istr: Rc<Regex>,
     regex_set: Rc<RegexSet>,

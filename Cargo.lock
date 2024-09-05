@@ -27,12 +27,9 @@ dependencies = [
  "copager_ir",
  "copager_ir_sexp",
  "copager_lex",
- "copager_lex_derive",
  "copager_lex_regex",
  "copager_parse",
- "copager_parse_derive",
  "copager_parse_lr1",
- "copager_utils",
  "serde",
  "serde_json",
 ]
