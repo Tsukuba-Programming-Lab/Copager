@@ -1,9 +1,11 @@
+#![feature(gen_blocks)]
+
 use std::rc::Rc;
 
 use regex::{Regex, RegexSet};
 
 use copager_cfg::token::{TokenTag, Token};
-use copager_lex::{LexSource, LexIterator};
+use copager_lex::{LexSource, LexDriver};
 
 #[derive(Debug)]
 pub struct RegexLexer<'input, S: LexSource> {
@@ -42,48 +44,41 @@ where
     }
 }
 
-impl<'input, T, S> LexIterator<'input, T> for RegexLexer<'input, S>
+impl<'input, T, S> LexDriver<'input, T> for RegexLexer<'input, S>
 where
     T: TokenTag,
     S: LexSource<Tag = T>,
 {
     type From = S;
 
-    fn init(&self, input: &'input str) -> Self {
-        RegexLexer {
-            regex_istr: Rc::clone(&self.regex_istr),
-            regex_set: Rc::clone(&self.regex_set),
-            regex_map: Rc::clone(&self.regex_map),
-            input: input,
-            pos: 0,
+    gen fn init(&self, input: &'input str) -> impl Iterator<Item = Token<'input, T>> {
+        let pos = 0;
+        loop {
+            // Skip Spaces
+            let remain = match self.regex_istr.find(&input[pos..]) {
+                Some(acc_s) => {
+                    self.pos += acc_s.len();
+                    &input[pos..]
+                }
+                None => &input[pos..]
+            };
+
+            // Find the token
+            let mut matches = self
+                .regex_set
+                .matches(remain)
+                .into_iter()
+                .map(|idx| &self.regex_map[idx])
+                .map(|(regex, token)| (*token, regex.find(remain).unwrap().as_str()))
+                .collect::<Vec<(S::Tag, &str)>>();
+            matches.sort_by(|(_, a), (_, b)| a.len().cmp(&b.len()));
+
+            // Update myself
+            let (token, acc_s) = matches.first()?;
+            let range = (pos, pos + acc_s.len());
+            self.pos += acc_s.len();
+
+            yield Token::new(*token, &input, range);
         }
-    }
-
-    fn next(&mut self) -> Option<Token<'input, T>> {
-        // Skip Spaces
-        let remain = match self.regex_istr.find(&self.input[self.pos..]) {
-            Some(acc_s) => {
-                self.pos += acc_s.len();
-                &self.input[self.pos..]
-            }
-            None => &self.input[self.pos..]
-        };
-
-        // Find the token
-        let mut matches = self
-            .regex_set
-            .matches(remain)
-            .into_iter()
-            .map(|idx| &self.regex_map[idx])
-            .map(|(regex, token)| (*token, regex.find(remain).unwrap().as_str()))
-            .collect::<Vec<(S::Tag, &str)>>();
-        matches.sort_by(|(_, a), (_, b)| a.len().cmp(&b.len()));
-
-        // Update myself
-        let (token, acc_s) = matches.first()?;
-        let range = (self.pos, self.pos + acc_s.len());
-        self.pos += acc_s.len();
-
-        Some(Token::new(*token, &self.input, range))
     }
 }

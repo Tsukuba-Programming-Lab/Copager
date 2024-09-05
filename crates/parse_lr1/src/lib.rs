@@ -1,3 +1,5 @@
+#![feature(gen_blocks)]
+
 mod error;
 mod builder;
 
@@ -5,36 +7,30 @@ use std::marker::PhantomData;
 
 use serde::{Serialize, Deserialize};
 
-use copager_lex::{LexSource, LexIterator};
-use copager_parse::{ParseSource, ParseIterator};
+use copager_lex::{LexSource, LexDriver};
+use copager_parse::{ParseSource, ParseDriver};
 use copager_utils::cache::Cacheable;
 
 use builder::{LR1Configure, LRAction};
 use error::ParseError;
 
 #[derive(Debug)]
-pub struct LR1<'cache, 'input, Sl, Il, Sp>
+pub struct LR1<'cache, 'input, Sl, Sp>
 where
     Sl: LexSource,
-    Il: LexIterator<'input, Sl::Tag>,
     Sp: ParseSource<Sl::Tag>,
 {
     // LR-Table
     tables: &'cache LR1Configure<Sl, Sp>,
 
-    // States
-    lexer: Option<Il>,
-    stack: Option<Vec<usize>>,
-
     // Phantom Data
     _phantom: PhantomData<&'input ()>,
 }
 
-impl<'cache, 'input, Sl, Il, Sp> Cacheable<'cache, (Sl, Sp)> for LR1<'cache, 'input, Sl, Il, Sp>
+impl<'cache, 'input, Sl, Sp> Cacheable<'cache, (Sl, Sp)> for LR1<'cache, 'input, Sl, Sp>
 where
     Sl: LexSource,
     Sl::Tag: Serialize + for<'de> Deserialize<'de>,
-    Il: LexIterator<'input, Sl::Tag>,
     Sp: ParseSource<Sl::Tag>,
     Sp::Tag: Serialize + for<'de> Deserialize<'de>,
 {
@@ -49,42 +45,31 @@ where
     }
 }
 
-impl<'cache, 'input, Sl, Il, Sp> From<&'cache LR1Configure<Sl, Sp>> for LR1<'cache, 'input, Sl, Il, Sp>
+impl<'cache, 'input, Sl, Sp> From<&'cache LR1Configure<Sl, Sp>> for LR1<'cache, 'input, Sl, Sp>
 where
     Sl: LexSource,
-    Il: LexIterator<'input, Sl::Tag>,
     Sp: ParseSource<Sl::Tag>,
 {
     fn from(tables: &'cache LR1Configure<Sl, Sp>) -> Self {
         LR1 {
             tables,
-            lexer: None,
-            stack: None,
             _phantom: PhantomData,
         }
     }
 }
 
-impl<'cache, 'input, Sl, Il, Sp> ParseIterator<'input, Sl::Tag, Sp::Tag, Il> for LR1<'cache, 'input, Sl, Il, Sp>
+impl<'cache, 'input, Sl, Sp> ParseDriver<'input, Sl::Tag, Sp::Tag> for LR1<'cache, 'input, Sl, Sp>
 where
     Sl: LexSource,
-    Il: LexIterator<'input, Sl::Tag>,
     Sp: ParseSource<Sl::Tag>,
 {
     type From = &'cache LR1Configure<Sl, Sp>;
 
-    fn init(&self, lexer: Il) -> Self {
-        LR1 {
-            tables: &self.tables,
-            lexer: Some(lexer),
-            stack: Some(Vec::new()),
-            _phantom: PhantomData,
-        }
-    }
-
-    fn next(&mut self) -> Option<()> {
-        let lexer = self.lexer.as_mut().unwrap();
-        let stack = self.stack.as_mut().unwrap();
+    gen fn init<Il>(&self, mut lexer: Il) -> impl Iterator<Item = ()>
+    where
+        Il: Iterator<Item = Token<'input, Sl::Tag>>,
+    {
+        let mut stack = vec![];
         loop {
             let input = lexer.next();
             loop {
@@ -114,16 +99,18 @@ where
                     }
                     (LRAction::Accept, _) => {
                         // return builder.build();
-                        return Some(());
+                        println!("Done!");
+                        return;
                     }
                     (LRAction::None, Some(token)) => {
                         // return Err(ParseError::new_unexpected_token(token).into());
-                        println!("Done!");
-                        return None;
+                        println!("Unexpected: {:?}", token);
+                        return;
                     }
                     (LRAction::None, None) => {
                         // return Err(ParseError::UnexpectedEOF.into());
-                        return None;
+                        println!("Unexpected EOF");
+                        return;
                     }
                     _ => unreachable!(),
                 }

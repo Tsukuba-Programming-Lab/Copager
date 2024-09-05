@@ -1,6 +1,5 @@
-use copager_cfg::token::TokenTag;
+use copager_cfg::token::{TokenTag, Token};
 use copager_cfg::rule::{RuleTag, RuleSet};
-use copager_lex::LexIterator;
 #[cfg(feature = "derive")]
 pub use copager_parse_derive::ParseSource;
 
@@ -26,15 +25,15 @@ pub trait ParseSource<T: TokenTag> {
     }
 }
 
-pub trait ParseIterator<'input, T, R, Il>
+pub trait ParseDriver<'input, T, R>
 where
     Self: From<Self::From>,
     T: TokenTag,
     R: RuleTag<T>,
-    Il: LexIterator<'input, T>,
 {
     type From;
 
-    fn init(&self, lexer: Il) -> Self;
-    fn next(&mut self) -> Option<()>;
+    fn init<Il>(&self, lexer: Il) -> impl Iterator<Item = ()>
+    where
+        Il: Iterator<Item = Token<'input, T>>;
 }
