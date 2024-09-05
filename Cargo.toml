@@ -1,7 +1,9 @@
+cargo-features = ["edition2024"]
+
 [package]
 name = "copager"
 version = "0.1.1"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 copager_core = { path = "./crates/core" }
@@ -21,18 +23,18 @@ copager = { path = ".", features = ["derive", "all"] }
 
 [features]
 # common
-default = ["copager_lex", "copager_parse"]
+default = ["dep:copager_lex", "dep:copager_parse"]
 derive = ["copager_lex/derive", "copager_parse/derive"]
-all = ["copager_lex_regex", "copager_parse_lr1", "copager_ir_sexp"]
+all = ["dep:copager_lex_regex", "dep:copager_parse_lr1", "dep:copager_ir_sexp"]
 
 # lex
-regexlex = ["copager_lex_regex"]
+regexlex = ["dep:copager_lex_regex"]
 
 # parse
-lr1 = ["copager_parse_lr1"]
+lr1 = ["dep:copager_parse_lr1"]
 
 # ir
-sexp = ["copager_ir_sexp"]
+sexp = ["dep:copager_ir_sexp"]
 
 [workspace]
 resolver = "2"
