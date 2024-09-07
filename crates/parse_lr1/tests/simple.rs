@@ -6,7 +6,6 @@ use copager_lex::{LexSource, LexDriver};
 use copager_lex_regex::RegexLexer;
 use copager_parse::{ParseSource, ParseDriver};
 use copager_parse_lr1::LR1;
-use copager_utils::cache::Cacheable;
 
 #[derive(
     Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
@@ -52,17 +51,18 @@ enum ExprRule {
 }
 
 type MyLexer = RegexLexer<ExprToken>;
+type MyParser = LR1<ExprToken, ExprRule>;
 
 #[test]
 fn simple_success() -> anyhow::Result<()> {
     let source = ExprToken::default();
     let lexer = <MyLexer as LexDriver<ExprToken>>::try_from(source).unwrap();
 
-    let parser_conf = LR1::new((ExprToken::default(), ExprRule::default()))?;
-    let parser = LR1::from(parser_conf);
-    let parser = parser.run(lexer.run("1 + 2 * 3"));
+    let source = (ExprToken::default(), ExprRule::default());
+    let parser = <MyParser as ParseDriver<ExprToken, ExprRule>>::try_from(source)?;
 
-    assert_eq!(parser.count(), 0);
+    let result = parser.run(lexer.run("1 + 2 * 3"));
+    assert_eq!(result.count(), 0);
 
     Ok(())
 }

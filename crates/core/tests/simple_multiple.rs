@@ -113,7 +113,6 @@ fn gen_processor() -> MyProcessor {
     MyProcessor::new()
         .build_lexer()
         .unwrap()
-        .prebuild_parser()
+        .build_parser()
         .unwrap()
-        .build_parser_by_cache()
 }

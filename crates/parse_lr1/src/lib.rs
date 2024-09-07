@@ -38,26 +38,19 @@ where
     }
 
     fn restore(tables: Self::Cache) -> Self {
-        Self::from(tables)
-    }
-}
-
-impl<Sl, Sp> From<LR1Configure<Sl, Sp>> for LR1<Sl, Sp>
-where
-    Sl: LexSource,
-    Sp: ParseSource<Sl::Tag>,
-{
-    fn from(tables: LR1Configure<Sl, Sp>) -> Self {
         LR1 { tables }
     }
 }
 
-impl<Sl, Sp> ParseDriver<Sl::Tag, Sp::Tag> for LR1<Sl, Sp>
+impl<Sl, Sp> ParseDriver<Sl, Sp> for LR1<Sl, Sp>
 where
     Sl: LexSource,
     Sp: ParseSource<Sl::Tag>,
 {
-    type From = LR1Configure<Sl, Sp>;
+    fn try_from((source_l, source_p): (Sl, Sp)) -> anyhow::Result<Self> {
+        let tables = LR1Configure::new(&source_l, &source_p)?;
+        Ok(LR1 { tables })
+    }
 
     gen fn run<'input, Il>(&self, mut lexer: Il)
     where

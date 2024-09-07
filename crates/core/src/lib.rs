@@ -38,10 +38,7 @@ pub struct Processor<G, Dl, Dp>
 where
     G: GrammarDesign,
     Dl: LexDriver<G::Lex>,
-    Dp: ParseDriver<
-        <G::Lex as LexSource>::Tag,
-        <G::Parse as ParseSource<<G::Lex as LexSource>::Tag>>::Tag,
-    >,
+    Dp: ParseDriver<G::Lex, G::Parse>,
 {
     // Cache
     cache_lex: Option<Vec<u8>>,
@@ -66,10 +63,7 @@ impl<G, Dl, Dp> Processor<G, Dl, Dp>
 where
     G: GrammarDesign,
     Dl: LexDriver<G::Lex>,
-    Dp: ParseDriver<
-        <G::Lex as LexSource>::Tag,
-        <G::Parse as ParseSource<<G::Lex as LexSource>::Tag>>::Tag,
-    >,
+    Dp: ParseDriver<G::Lex, G::Parse>,
 {
     pub fn new() -> Self {
         Processor {
@@ -160,35 +154,25 @@ where
         self
     }
 
-    pub fn build_parser(self) -> Self
+    pub fn build_parser(self) -> anyhow::Result<Self>
     where
         G::Lex: Default,
         G::Parse: Default,
-        Dp: ParseDriver<
-            <G::Lex as LexSource>::Tag,
-            <G::Parse as ParseSource<<G::Lex as LexSource>::Tag>>::Tag,
-            From = (G::Lex, G::Parse),
-        >,
     {
         self.build_parser_by((G::Lex::default(), G::Parse::default()))
     }
 
-    pub fn build_parser_by(mut self, source: (G::Lex, G::Parse)) -> Self
+    pub fn build_parser_by(mut self, source: (G::Lex, G::Parse)) -> anyhow::Result<Self>
     where
         G::Lex: Default,
         G::Parse: Default,
-        Dp: ParseDriver<
-            <G::Lex as LexSource>::Tag,
-            <G::Parse as ParseSource<<G::Lex as LexSource>::Tag>>::Tag,
-            From = (G::Lex, G::Parse),
-        >,
     {
         assert!(self.cache_parse.is_none());
 
-        let parser = Dp::from(source);
+        let parser = Dp::try_from(source)?;
         self.parser = Some(parser);
 
-        self
+        Ok(self)
     }
 
     pub fn build_parser_by_cache(mut self) -> Self

@@ -60,8 +60,7 @@ type MyProcessor = Processor<MyGrammar, MyLexer, MyParser>;
 fn simple_success() -> anyhow::Result<()> {
     MyProcessor::new()
         .build_lexer()?
-        .prebuild_parser()?
-        .build_parser_by_cache()
+        .build_parser()?
         .process("1 + 2 * 3")?;
 
     Ok(())
