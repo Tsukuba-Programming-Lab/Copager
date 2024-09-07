@@ -6,8 +6,10 @@ edition = "2021"
 [dependencies]
 anyhow = { workspace = true }
 thiserror = { workspace = true }
-copager = { path = "../..", features = ["derive", "regexlex", "lr1", "sexp"] }
+copager = { path = "../.." }
+grammar = { package = "example_prebuild_grammar", path = "./grammar" }
 
 [build-dependencies]
 serde = { workspace = true }
-copager = { path = "../..", features = ["derive", "regexlex", "lr1"] }
+copager = { path = "../.." }
+grammar = { package = "example_prebuild_grammar", path = "./grammar" }

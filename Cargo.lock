@@ -224,6 +224,17 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "copager",
+ "example_prebuild_grammar",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
+name = "example_prebuild_grammar"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "copager",
  "serde",
  "thiserror",
 ]
