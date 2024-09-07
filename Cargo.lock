@@ -27,6 +27,7 @@ dependencies = [
  "copager_core",
  "copager_ir",
  "copager_ir_sexp",
+ "copager_ir_void",
  "copager_lex",
  "copager_lex_regex",
  "copager_parse",
@@ -50,6 +51,8 @@ dependencies = [
  "anyhow",
  "copager_cfg",
  "copager_core",
+ "copager_ir",
+ "copager_ir_void",
  "copager_lex",
  "copager_lex_regex",
  "copager_parse",
@@ -71,6 +74,16 @@ dependencies = [
 
 [[package]]
 name = "copager_ir_sexp"
+version = "0.1.1"
+dependencies = [
+ "anyhow",
+ "copager_cfg",
+ "copager_ir",
+ "thiserror",
+]
+
+[[package]]
+name = "copager_ir_void"
 version = "0.1.1"
 dependencies = [
  "anyhow",

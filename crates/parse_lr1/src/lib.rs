@@ -9,7 +9,7 @@ use serde::{Serialize, Deserialize};
 
 use copager_cfg::token::Token;
 use copager_lex::LexSource;
-use copager_parse::{ParseSource, ParseDriver, ParseState};
+use copager_parse::{ParseSource, ParseDriver, ParseEvent};
 use copager_utils::cache::Cacheable;
 
 use builder::{LR1Configure, LRAction};
@@ -52,7 +52,7 @@ where
         Ok(LR1 { tables })
     }
 
-    gen fn run<'input, Il>(&self, mut lexer: Il) -> ParseState<'input, Sl::Tag, Sp::Tag>
+    gen fn run<'input, Il>(&self, mut lexer: Il) -> ParseEvent<'input, Sl::Tag, Sp::Tag>
     where
         Il: Iterator<Item = Token<'input, Sl::Tag>>,
     {
@@ -71,23 +71,23 @@ where
                 match action {
                     (LRAction::Shift(new_state), Some(token)) => {
                         stack.push(*new_state);
-                        yield ParseState::Consume(token);
+                        yield ParseEvent::Read(token);
                         break;
                     }
                     (LRAction::Reduce(tag, goto, elems_cnt), _) => {
                         stack.truncate(stack.len() - elems_cnt);
                         stack.push(self.tables.goto_table[stack[stack.len() - 1]][*goto]);
-                        yield ParseState::Reduce(*tag);
+                        yield ParseEvent::Parse(*tag);
                     }
                     (LRAction::Accept, _) => {
                         return;
                     }
                     (LRAction::None, Some(token)) => {
-                        yield ParseState::Err(ParseError::new_unexpected_token(token).into());
+                        yield ParseEvent::Err(ParseError::new_unexpected_token(token).into());
                         return;
                     }
                     (LRAction::None, None) => {
-                        yield ParseState::Err(ParseError::UnexpectedEOF.into());
+                        yield ParseEvent::Err(ParseError::UnexpectedEOF.into());
                         return;
                     }
                     _ => unreachable!(),

@@ -5,27 +5,27 @@ use copager_cfg::rule::RuleTag;
 use copager_ir::{IR, IRBuilder};
 
 #[derive(Debug)]
-pub enum SExp<'input, T, S>
+pub enum SExp<'input, T, R>
 where
     T: TokenTag,
-    S: RuleTag<T>,
+    R: RuleTag<T>,
 {
     List {
-        tag: S,
-        elems: Vec<SExp<'input, T, S>>,
+        rule: R,
+        elems: Vec<SExp<'input, T, R>>,
     },
     Atom(Token<'input, T>),
 }
 
-impl<T, S> Display for SExp<'_, T, S>
+impl<T, R> Display for SExp<'_, T, R>
 where
     T: TokenTag,
-    S: RuleTag<T> + Debug,
+    R: RuleTag<T> + Debug,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            SExp::List { tag, elems } => {
-                write!(f, "({:?}", tag)?;
+            SExp::List { rule, elems } => {
+                write!(f, "({:?}", rule)?;
                 for elem in elems {
                     write!(f, " {}", elem)?;
                 }
@@ -36,7 +36,7 @@ where
     }
 }
 
-impl<'input, T, R> IR<T, R> for SExp<'input, T, R>
+impl<'input, T, R> IR<'input, T, R> for SExp<'input, T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,
@@ -53,7 +53,7 @@ where
     stack: Vec<SExp<'input, T, R>>,
 }
 
-impl <'input, T, R> IRBuilder<T, R> for SExpBuilder<'input, T, R>
+impl <'input, T, R> IRBuilder<'input, T, R> for SExpBuilder<'input, T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,
@@ -64,26 +64,22 @@ where
         SExpBuilder { stack: vec![] }
     }
 
+    fn on_read(&mut self, token: Token<'input, T>) -> anyhow::Result<()> {
+        self.stack.push(SExp::Atom(token));
+        Ok(())
+    }
+
+    fn on_parse(&mut self, rule: R) -> anyhow::Result<()> {
+        let elems = self.stack.split_off(self.stack.len() - rule.len());
+        self.stack.push(SExp::List { rule, elems });
+        Ok(())
+    }
+
     fn build(mut self) -> anyhow::Result<SExp<'input, T, R>> {
         if self.stack.len() == 1 {
             Ok(self.stack.pop().unwrap())
         } else {
             Err(anyhow::anyhow!("Invalid S-Expression"))
         }
-    }
-}
-
-impl<'input, T, R> SExpBuilder<'input, T, R>
-where
-    T: TokenTag,
-    R: RuleTag<T>,
-{
-    pub fn push(&mut self, token: Token<'input, T>) {
-        self.stack.push(SExp::Atom(token));
-    }
-
-    pub fn wrap(&mut self, tag: R, cnt: usize) {
-        let elems = self.stack.split_off(self.stack.len() - cnt);
-        self.stack.push(SExp::List { tag, elems });
     }
 }

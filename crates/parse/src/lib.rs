@@ -33,17 +33,17 @@ where
     Sp: ParseSource<Sl::Tag>,
 {
     fn try_from(source: (Sl, Sp)) -> anyhow::Result<Self>;
-    fn run<'input, Il>(&self, lexer: Il) -> impl Iterator<Item = ParseState<'input, Sl::Tag, Sp::Tag>>
+    fn run<'input, Il>(&self, lexer: Il) -> impl Iterator<Item = ParseEvent<'input, Sl::Tag, Sp::Tag>>
     where
         Il: Iterator<Item = Token<'input, Sl::Tag>>;
 }
 
-pub enum ParseState<'input, T, R>
+pub enum ParseEvent<'input, T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    Consume(Token<'input, T>),
-    Reduce(R),
+    Read(Token<'input, T>),
+    Parse(R),
     Err(anyhow::Error)
 }

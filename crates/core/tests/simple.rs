@@ -7,6 +7,7 @@ use copager_lex::LexSource;
 use copager_lex_regex::RegexLexer;
 use copager_parse::ParseSource;
 use copager_parse_lr1::LR1;
+use copager_ir_void::Void;
 
 #[derive(
     Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
@@ -61,7 +62,7 @@ fn simple_success() -> anyhow::Result<()> {
     MyProcessor::new()
         .build_lexer()?
         .build_parser()?
-        .process("1 + 2 * 3")?;
+        .process::<Void>("1 + 2 * 3")?;
 
     Ok(())
 }

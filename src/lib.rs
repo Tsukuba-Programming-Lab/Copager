@@ -15,6 +15,8 @@ pub mod parse {
 
 pub mod ir {
     pub use copager_ir::*;
+    #[cfg(any(feature = "all", feature = "void"))]
+    pub use copager_ir_void::*;
     #[cfg(any(feature = "all", feature = "sexp"))]
     pub use copager_ir_sexp::*;
 }

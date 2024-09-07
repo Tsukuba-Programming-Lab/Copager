@@ -7,7 +7,8 @@ use serde_cbor::ser::to_vec_packed;
 use serde_cbor::de::from_slice;
 
 use copager_lex::{LexSource, LexDriver};
-use copager_parse::{ParseSource, ParseDriver, ParseState};
+use copager_parse::{ParseSource, ParseDriver, ParseEvent};
+use copager_ir::{IR, IRBuilder};
 use copager_utils::cache::Cacheable;
 
 pub trait GrammarDesign {
@@ -191,25 +192,25 @@ where
         self
     }
 
-    pub fn process<'input>(&self, input: &'input str) -> anyhow::Result<()> {
+    pub fn process<'input, I>(&self, input: &'input str) -> anyhow::Result<I>
+    where
+        I: IR<'input, <G::Lex as LexSource>::Tag, <G::Parse as ParseSource<<G::Lex as LexSource>::Tag>>::Tag>,
+    {
         assert!(self.lexer.is_some());
         assert!(self.parser.is_some());
 
         let lexer = self.lexer.as_ref().unwrap();
         let parser = self.parser.as_ref().unwrap();
 
+        let mut ir_builder = <I::Builder as IRBuilder<'input, <G::Lex as LexSource>::Tag, <G::Parse as ParseSource<<G::Lex as LexSource>::Tag>>::Tag>>::new();
         for result in parser.run(lexer.run(input)) {
             match result {
-                ParseState::Consume(token) => {
-                    println!("Consume: {:?}", token);
-                },
-                ParseState::Reduce(rule) => {
-                    println!("Reduce: {:?}", rule);
-                },
-                ParseState::Err(err) => return Err(err),
+                ParseEvent::Read(token) => ir_builder.on_read(token)?,
+                ParseEvent::Parse(rule) => ir_builder.on_parse(rule)?,
+                ParseEvent::Err(err) => return Err(err),
             }
         }
 
-        Ok(())
+        ir_builder.build()
     }
 }

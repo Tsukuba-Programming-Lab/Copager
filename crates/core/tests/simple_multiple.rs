@@ -7,6 +7,7 @@ use copager_lex::LexSource;
 use copager_lex_regex::RegexLexer;
 use copager_parse::ParseSource;
 use copager_parse_lr1::LR1;
+use copager_ir_void::Void;
 
 #[derive(
     Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
@@ -80,7 +81,7 @@ const ERR_INPUTS: [&str; 7] = [
 fn simple_multiple_only_success() {
     let processor = gen_processor();
     for input in OK_INPUTS {
-        assert!(processor.process(input).is_ok());
+        assert!(processor.process::<Void>(input).is_ok());
     }
 }
 
@@ -88,7 +89,7 @@ fn simple_multiple_only_success() {
 fn simple_multiple_only_failure() {
     let processor = gen_processor();
     for input in ERR_INPUTS {
-        assert!(processor.process(input).is_err());
+        assert!(processor.process::<Void>(input).is_err());
     }
 }
 
@@ -102,9 +103,9 @@ fn simple_multiple_mix_success_and_failure() {
     let processor = gen_processor();
     for (is_ok, input) in mixed_testcases {
         if is_ok {
-            assert!(processor.process(input).is_ok());
+            assert!(processor.process::<Void>(input).is_ok());
         } else {
-            assert!(processor.process(input).is_err());
+            assert!(processor.process::<Void>(input).is_err());
         }
     }
 }

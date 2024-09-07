@@ -4,7 +4,7 @@ use copager_cfg::token::TokenTag;
 use copager_cfg::rule::{RuleTag, Rule, RuleElem};
 use copager_lex::{LexSource, LexDriver};
 use copager_lex_regex::RegexLexer;
-use copager_parse::{ParseSource, ParseDriver, ParseState};
+use copager_parse::{ParseSource, ParseDriver, ParseEvent};
 use copager_parse_lr1::LR1;
 
 #[derive(
@@ -98,7 +98,7 @@ fn parse<'input>(input: &'input str) -> bool {
     let parser = <MyParser as ParseDriver<ExprToken, ExprRule>>::try_from(source).unwrap();
 
     let mut parse_itr = parser.run(lexer.run(input));
-    let is_err = |state| matches!(state, ParseState::Err(_));
+    let is_err = |state| matches!(state, ParseEvent::Err(_));
     let err_happened = parse_itr.any(is_err);
 
     !err_happened

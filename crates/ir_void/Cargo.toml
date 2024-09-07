@@ -1,0 +1,10 @@
+[package]
+name = "copager_ir_void"
+version = "0.1.1"
+edition = "2021"
+
+[dependencies]
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+copager_cfg = { path = "../cfg" }
+copager_ir = { path = "../ir" }
