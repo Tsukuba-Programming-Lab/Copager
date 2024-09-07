@@ -26,7 +26,7 @@ copager = { path = ".", features = ["derive", "all"] }
 # common
 default = ["dep:copager_lex", "dep:copager_parse"]
 derive = ["copager_lex/derive", "copager_parse/derive"]
-all = ["dep:copager_lex_regex", "dep:copager_parse_lr1", "dep:copager_ir_void", "dep:copager_ir_sexp"]
+all = ["regexlex", "lr1", "void", "sexp"]
 
 # lex
 regexlex = ["dep:copager_lex_regex"]
