@@ -1,4 +1,5 @@
 pub use copager_core::*;
+pub use copager_core_macros::*;
 pub use copager_cfg as cfg;
 
 pub mod lex {

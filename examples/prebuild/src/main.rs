@@ -1,0 +1,4 @@
+#[copager::load]
+fn main() {
+
+}

@@ -7,6 +7,7 @@ edition = "2024"
 
 [dependencies]
 copager_core = { path = "./crates/core" }
+copager_core_macros = { path = "./crates/core_macros" }
 copager_cfg = { path = "./crates/cfg" }
 copager_lex = { path = "./crates/lex", optional = true }
 copager_lex_regex = { path = "./crates/lex_regex", optional = true }
@@ -43,6 +44,7 @@ resolver = "2"
 members = [
     # Copager
     "./crates/core",
+    "./crates/core_macros",
     "./crates/cfg",
     "./crates/lex",
     "./crates/lex_derive",
@@ -57,6 +59,7 @@ members = [
 
     # Examples
     "./examples/oneshot",
+    "./examples/prebuild",
 ]
 exclude = []
 

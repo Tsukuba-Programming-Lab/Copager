@@ -25,6 +25,7 @@ dependencies = [
  "copager",
  "copager_cfg",
  "copager_core",
+ "copager_core_macros",
  "copager_ir",
  "copager_ir_sexp",
  "copager_ir_void",
@@ -60,6 +61,17 @@ dependencies = [
  "copager_utils",
  "serde",
  "serde_cbor",
+ "thiserror",
+]
+
+[[package]]
+name = "copager_core_macros"
+version = "0.1.1"
+dependencies = [
+ "anyhow",
+ "proc-macro2",
+ "quote",
+ "syn",
  "thiserror",
 ]
 
@@ -203,6 +215,16 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "copager",
+ "thiserror",
+]
+
+[[package]]
+name = "example_prebuild"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "copager",
+ "serde",
  "thiserror",
 ]
 
