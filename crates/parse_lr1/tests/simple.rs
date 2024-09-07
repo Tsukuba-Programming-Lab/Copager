@@ -4,7 +4,7 @@ use copager_cfg::token::TokenTag;
 use copager_cfg::rule::{RuleTag, Rule, RuleElem};
 use copager_lex::{LexSource, LexDriver};
 use copager_lex_regex::RegexLexer;
-use copager_parse::{ParseSource, ParseDriver};
+use copager_parse::{ParseSource, ParseDriver, ParseState};
 use copager_parse_lr1::LR1;
 
 #[derive(
@@ -53,16 +53,53 @@ enum ExprRule {
 type MyLexer = RegexLexer<ExprToken>;
 type MyParser = LR1<ExprToken, ExprRule>;
 
+const OK_INPUTS: [&str; 10] = [
+    "10",
+    "10 + 20",
+    "10 - 20",
+    "10 * 20",
+    "10 / 20",
+    "10 + 20 * 30 - 40",
+    "(10)",
+    "((((10))))",
+    "10 * (20 - 30)",
+    "((10 + 20) * (30 / 40)) - 50",
+];
+
+const ERR_INPUTS: [&str; 7] = [
+    "()",
+    "(10 -",
+    "10 +",
+    "*",
+    "10 20 + 30",
+    "10 + 20 * 30 / 40 (",
+    "(((10))",
+];
+
 #[test]
-fn simple_success() -> anyhow::Result<()> {
+fn simple_success() {
+    for input in &OK_INPUTS {
+        assert!(parse(input), "{}", input);
+    }
+}
+
+#[test]
+fn simple_failure() {
+    for input in &ERR_INPUTS {
+        assert!(!parse(input), "{}", input);
+    }
+}
+
+fn parse<'input>(input: &'input str) -> bool {
     let source = ExprToken::default();
     let lexer = <MyLexer as LexDriver<ExprToken>>::try_from(source).unwrap();
 
     let source = (ExprToken::default(), ExprRule::default());
-    let parser = <MyParser as ParseDriver<ExprToken, ExprRule>>::try_from(source)?;
+    let parser = <MyParser as ParseDriver<ExprToken, ExprRule>>::try_from(source).unwrap();
 
-    let result = parser.run(lexer.run("1 + 2 * 3"));
-    assert_eq!(result.count(), 0);
+    let mut parse_itr = parser.run(lexer.run(input));
+    let is_err = |state| matches!(state, ParseState::Err(_));
+    let err_happened = parse_itr.any(is_err);
 
-    Ok(())
+    !err_happened
 }
