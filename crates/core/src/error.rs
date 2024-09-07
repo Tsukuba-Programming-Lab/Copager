@@ -15,7 +15,36 @@ pub struct ParseError {
 
 impl Display for ParseError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.err)
+        fn pretty_print(
+            f: &mut std::fmt::Formatter<'_>,
+            input: &str,
+            pos: (usize, usize)
+        ) -> std::fmt::Result {
+            writeln!(f, "-----")?;
+
+            let (row, col) = (pos.0 as i32 - 1, pos.1 as i32 - 1);
+            let lines = input.split('\n');
+            let neighbor_lines = lines
+                .skip(max(0, row - 2) as usize)
+                .take(min(row + 1, 3) as usize);
+
+            for (idx, line) in neighbor_lines.enumerate() {
+                let row = max(1, row - 1) + (idx as i32);
+                writeln!(f, "{:2}: {}", row, line)?;
+            }
+
+            writeln!(f, "    {}^ here", " ".repeat(col as usize))?;
+            writeln!(f, "Found at line {}, column {}.", row + 1, col + 1)?;
+            writeln!(f, "-----")
+        }
+
+        writeln!(f, "{}", self.err)?;
+        match (&self.src, self.pos) {
+            (Some(src), Some(pos)) => pretty_print(f, &src, pos)?,
+            _ => {},
+        }
+
+        Ok(())
     }
 }
 
@@ -55,34 +84,6 @@ impl ParseError {
             err: self.err,
             src: Some(token.src.to_string()),
             pos: Some((rows, cols)),
-        }
-    }
-
-    pub fn pretty_print(&self) {
-        let pretty_printer = |input: &str, pos: (usize, usize)| {
-            eprintln!("-----");
-
-            let (row, col) = (pos.0 as i32 - 1, pos.1 as i32 - 1);
-            let lines = input.split('\n');
-            let neighbor_lines = lines
-                .skip(max(0, row - 2) as usize)
-                .take(min(row + 1, 3) as usize);
-
-            neighbor_lines.enumerate().for_each(|(idx, line)| {
-                let row = max(1, row - 1) + (idx as i32);
-                println!("{:2}: {}", row, line);
-            });
-
-            eprintln!("    {}^ here", " ".repeat(col as usize));
-            eprintln!("Error at line {}, column {}.", row + 1, col + 1);
-            eprintln!("-----\n");
-        };
-
-        match (&self.src, self.pos) {
-            (Some(src), Some(pos)) => {
-                pretty_printer(&src, pos);
-            }
-            _ => {},
         }
     }
 }
