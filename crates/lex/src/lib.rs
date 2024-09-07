@@ -9,12 +9,11 @@ pub trait LexSource {
     fn iter(&self) -> impl Iterator<Item = Self::Tag>;
 }
 
-pub trait LexDriver<T>
+pub trait LexDriver<S>
 where
-    Self: Sized + From<Self::From>,
-    T: TokenTag,
+    Self: Sized,
+    S: LexSource,
 {
-    type From;
-
-    fn run<'input>(&self, input: &'input str) -> impl Iterator<Item = Token<'input, T>>;
+    fn try_from(source: S) -> anyhow::Result<Self>;
+    fn run<'input>(&self, input: &'input str) -> impl Iterator<Item = Token<'input, S::Tag>>;
 }

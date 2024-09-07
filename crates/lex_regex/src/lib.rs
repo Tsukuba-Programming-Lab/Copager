@@ -14,37 +14,25 @@ pub struct RegexLexer<S: LexSource> {
     regex_map: Rc<Vec<(Regex, S::Tag)>>,
 }
 
-impl<T, S> From<S> for RegexLexer<S>
-where
-    T: TokenTag,
-    S: LexSource<Tag = T>,
-{
-    fn from(source: S) -> Self { // TODO: -> try_from
-        let regex_istr = Regex::new(source.ignore_token()).unwrap();
+impl<S: LexSource> LexDriver<S> for RegexLexer<S> {
+    fn try_from(source: S) -> anyhow::Result<Self> {
+        let regex_istr = Regex::new(source.ignore_token())?;
         let regex_set = source.iter()
             .map(|token| token.as_str())
             .collect::<Vec<_>>();
-        let regex_set = RegexSet::new(regex_set).unwrap();
+        let regex_set = RegexSet::new(regex_set)?;
         let regex_map = source.iter()
             .map(|token| Ok((Regex::new(token.as_str())?, token)))
-            .collect::<anyhow::Result<Vec<_>>>().unwrap();
+            .collect::<anyhow::Result<Vec<_>>>()?;
 
-        RegexLexer {
+        Ok(RegexLexer {
             regex_istr: Rc::new(regex_istr),
             regex_set: Rc::new(regex_set),
             regex_map: Rc::new(regex_map),
-        }
+        })
     }
-}
 
-impl<T, S> LexDriver<T> for RegexLexer<S>
-where
-    T: TokenTag,
-    S: LexSource<Tag = T>,
-{
-    type From = S;
-
-    gen fn run<'input>(&self, input: &'input str) -> Token<'input, T> {
+    gen fn run<'input>(&self, input: &'input str) -> Token<'input, S::Tag> {
         let mut pos = 0;
         loop {
             // Skip Spaces

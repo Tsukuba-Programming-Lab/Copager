@@ -37,7 +37,7 @@ where
 pub struct Processor<G, Dl, Dp>
 where
     G: GrammarDesign,
-    Dl: LexDriver<<G::Lex as LexSource>::Tag>,
+    Dl: LexDriver<G::Lex>,
     Dp: ParseDriver<
         <G::Lex as LexSource>::Tag,
         <G::Parse as ParseSource<<G::Lex as LexSource>::Tag>>::Tag,
@@ -65,7 +65,7 @@ where
 impl<G, Dl, Dp> Processor<G, Dl, Dp>
 where
     G: GrammarDesign,
-    Dl: LexDriver<<G::Lex as LexSource>::Tag>,
+    Dl: LexDriver<G::Lex>,
     Dp: ParseDriver<
         <G::Lex as LexSource>::Tag,
         <G::Parse as ParseSource<<G::Lex as LexSource>::Tag>>::Tag,
@@ -126,25 +126,23 @@ where
         Ok(self)
     }
 
-    pub fn build_lexer(self) -> Self
+    pub fn build_lexer(self) -> anyhow::Result<Self>
     where
         G::Lex: Default,
-        Dl: LexDriver<<G::Lex as LexSource>::Tag, From = G::Lex>,
     {
         self.build_lexer_by(G::Lex::default())
     }
 
-    pub fn build_lexer_by(mut self, source: G::Lex) -> Self
+    pub fn build_lexer_by(mut self, source: G::Lex) -> anyhow::Result<Self>
     where
         G::Lex: Default,
-        Dl: LexDriver<<G::Lex as LexSource>::Tag, From = G::Lex>,
     {
         assert!(self.cache_lex.is_none());
 
-        let lexer = Dl::from(source);
+        let lexer = Dl::try_from(source)?;
         self.lexer = Some(lexer);
 
-        self
+        Ok(self)
     }
 
     pub fn build_lexer_by_cache(mut self) -> Self

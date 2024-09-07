@@ -112,6 +112,7 @@ fn simple_multiple_mix_success_and_failure() {
 fn gen_processor() -> MyProcessor {
     MyProcessor::new()
         .build_lexer()
+        .unwrap()
         .prebuild_parser()
         .unwrap()
         .build_parser_by_cache()

@@ -23,9 +23,12 @@ enum ExprToken {
     _Whitespace,
 }
 
+type MyLexer = RegexLexer<ExprToken>;
+
 #[test]
 fn simple_success() {
-    let lexer = RegexLexer::from(ExprToken::default());
+    let source = ExprToken::default();
+    let lexer = <MyLexer as LexDriver<ExprToken>>::try_from(source).unwrap();
     let mut lexer = lexer.run("1 + 2 * 3");
     assert_eq_token(lexer.next(), "1");
     assert_eq_token(lexer.next(), "+");
@@ -38,7 +41,8 @@ fn simple_success() {
 #[test]
 #[should_panic]
 fn simple_failed() {
-    let lexer = RegexLexer::from(ExprToken::default());
+    let source = ExprToken::default();
+    let lexer = <MyLexer as LexDriver<ExprToken>>::try_from(source).unwrap();
     let mut lexer = lexer.run("1 + 2 * stop 3");
     assert_eq_token(lexer.next(), "1");
     assert_eq_token(lexer.next(), "+");

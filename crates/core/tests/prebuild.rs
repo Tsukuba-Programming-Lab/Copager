@@ -77,7 +77,7 @@ fn build_rs() -> anyhow::Result<MyProcessor> {
 
 fn main_rs(processor: MyProcessor) -> anyhow::Result<()> {
     processor
-        .build_lexer()
+        .build_lexer()?
         .build_parser_by_cache()
         .process("1 + 2 * 3")?;
 
