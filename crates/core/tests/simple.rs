@@ -1,12 +1,12 @@
 use serde::{Serialize, Deserialize};
 
+use copager_core::{Grammar, Processor};
 use copager_cfg::token::TokenTag;
 use copager_cfg::rule::{RuleTag, Rule, RuleElem};
-use copager_lex::{LexSource, LexDriver};
+use copager_lex::LexSource;
 use copager_lex_regex::RegexLexer;
-use copager_parse::{ParseSource, ParseDriver};
+use copager_parse::ParseSource;
 use copager_parse_lr1::LR1;
-use copager_utils::cache::Cacheable;
 
 #[derive(
     Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
@@ -51,16 +51,18 @@ enum ExprRule {
     Num,
 }
 
+type MyGrammar = Grammar<ExprToken, ExprRule>;
+type MyLexer = RegexLexer<ExprToken>;
+type MyParser = LR1<ExprToken, ExprRule>;
+type MyProcessor = Processor<MyGrammar, MyLexer, MyParser>;
+
 #[test]
 fn simple_success() -> anyhow::Result<()> {
-    let lexer = RegexLexer::from(ExprToken::default());
-    let lexer = lexer.run("1 + 2 * 3");
-
-    let parser_conf = LR1::new((ExprToken::default(), ExprRule::default()))?;
-    let parser = LR1::from(parser_conf);
-    let parser = parser.run(lexer);
-
-    assert_eq!(parser.count(), 0);
+    MyProcessor::new()
+        .build_lexer()
+        .prebuild_parser()?
+        .build_parser_by_cache()
+        .process("1 + 2 * 3")?;
 
     Ok(())
 }

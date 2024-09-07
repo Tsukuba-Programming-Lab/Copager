@@ -1,12 +1,14 @@
 use serde::{Serialize, Deserialize};
+use serde_cbor::ser::to_vec_packed;
+use serde_cbor::de::from_slice;
 
+use copager_core::{Grammar, Processor};
 use copager_cfg::token::TokenTag;
 use copager_cfg::rule::{RuleTag, Rule, RuleElem};
-use copager_lex::{LexSource, LexDriver};
+use copager_lex::LexSource;
 use copager_lex_regex::RegexLexer;
-use copager_parse::{ParseSource, ParseDriver};
+use copager_parse::ParseSource;
 use copager_parse_lr1::LR1;
-use copager_utils::cache::Cacheable;
 
 #[derive(
     Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
@@ -51,16 +53,33 @@ enum ExprRule {
     Num,
 }
 
+type MyGrammar = Grammar<ExprToken, ExprRule>;
+type MyLexer = RegexLexer<ExprToken>;
+type MyParser = LR1<ExprToken, ExprRule>;
+type MyProcessor = Processor<MyGrammar, MyLexer, MyParser>;
+
 #[test]
-fn simple_success() -> anyhow::Result<()> {
-    let lexer = RegexLexer::from(ExprToken::default());
-    let lexer = lexer.run("1 + 2 * 3");
+fn prebuild() -> anyhow::Result<()> {
+    // in build.rs
+    let prebuiled_processor = build_rs()?;
+    let serialized = to_vec_packed(&prebuiled_processor)?;
 
-    let parser_conf = LR1::new((ExprToken::default(), ExprRule::default()))?;
-    let parser = LR1::from(parser_conf);
-    let parser = parser.run(lexer);
+    // in main.rs
+    let deserialized: MyProcessor = from_slice(&serialized)?;
+    main_rs(deserialized)?;
 
-    assert_eq!(parser.count(), 0);
+    Ok(())
+}
+
+fn build_rs() -> anyhow::Result<MyProcessor> {
+    MyProcessor::new().prebuild_parser()
+}
+
+fn main_rs(processor: MyProcessor) -> anyhow::Result<()> {
+    processor
+        .build_lexer()
+        .build_parser_by_cache()
+        .process("1 + 2 * 3")?;
 
     Ok(())
 }

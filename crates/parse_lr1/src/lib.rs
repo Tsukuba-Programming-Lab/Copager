@@ -16,15 +16,15 @@ use builder::{LR1Configure, LRAction};
 use error::ParseError;
 
 #[derive(Debug)]
-pub struct LR1<'cache, Sl, Sp>
+pub struct LR1<Sl, Sp>
 where
     Sl: LexSource,
     Sp: ParseSource<Sl::Tag>,
 {
-    tables: &'cache LR1Configure<Sl, Sp>,
+    tables: LR1Configure<Sl, Sp>,
 }
 
-impl<'cache, Sl, Sp> Cacheable<'cache, (Sl, Sp)> for LR1<'cache, Sl, Sp>
+impl<Sl, Sp> Cacheable<(Sl, Sp)> for LR1<Sl, Sp>
 where
     Sl: LexSource,
     Sl::Tag: Serialize + for<'de> Deserialize<'de>,
@@ -37,27 +37,27 @@ where
         Ok(LR1Configure::new(&source_l, &source_p)?)
     }
 
-    fn restore(tables: &'cache Self::Cache) -> Self {
+    fn restore(tables: Self::Cache) -> Self {
         Self::from(tables)
     }
 }
 
-impl<'cache, Sl, Sp> From<&'cache LR1Configure<Sl, Sp>> for LR1<'cache, Sl, Sp>
+impl<Sl, Sp> From<LR1Configure<Sl, Sp>> for LR1<Sl, Sp>
 where
     Sl: LexSource,
     Sp: ParseSource<Sl::Tag>,
 {
-    fn from(tables: &'cache LR1Configure<Sl, Sp>) -> Self {
+    fn from(tables: LR1Configure<Sl, Sp>) -> Self {
         LR1 { tables }
     }
 }
 
-impl<'cache, Sl, Sp> ParseDriver<Sl::Tag, Sp::Tag> for LR1<'cache, Sl, Sp>
+impl<Sl, Sp> ParseDriver<Sl::Tag, Sp::Tag> for LR1<Sl, Sp>
 where
     Sl: LexSource,
     Sp: ParseSource<Sl::Tag>,
 {
-    type From = &'cache LR1Configure<Sl, Sp>;
+    type From = LR1Configure<Sl, Sp>;
 
     gen fn run<'input, Il>(&self, mut lexer: Il)
     where
