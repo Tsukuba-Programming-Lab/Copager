@@ -60,5 +60,3 @@ exclude = []
 anyhow = "1.0.82"
 thiserror = "1.0.58"
 serde = { version = "1.0.197", features = ["derive"] }
-regex = "1.10.4"
-regex-macro = "0.2.0"
