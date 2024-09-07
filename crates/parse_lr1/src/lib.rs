@@ -9,7 +9,7 @@ use serde::{Serialize, Deserialize};
 
 use copager_cfg::token::Token;
 use copager_lex::LexSource;
-use copager_parse::{ParseSource, ParseDriver};
+use copager_parse::{ParseSource, ParseDriver, ParseState};
 use copager_utils::cache::Cacheable;
 
 use builder::{LR1Configure, LRAction};
@@ -52,7 +52,7 @@ where
         Ok(LR1 { tables })
     }
 
-    gen fn run<'input, Il>(&self, mut lexer: Il)
+    gen fn run<'input, Il>(&self, mut lexer: Il) -> ParseState<'input, Sl::Tag, Sp::Tag>
     where
         Il: Iterator<Item = Token<'input, Sl::Tag>>,
     {
@@ -71,29 +71,23 @@ where
                 match action {
                     (LRAction::Shift(new_state), Some(token)) => {
                         stack.push(*new_state);
-                        // builder.push(token);
-                        println!("Shift: {}", token.as_str());
+                        yield ParseState::Consume(token);
                         break;
                     }
                     (LRAction::Reduce(tag, goto, elems_cnt), _) => {
                         stack.truncate(stack.len() - elems_cnt);
                         stack.push(self.tables.goto_table[stack[stack.len() - 1]][*goto]);
-                        // builder.wrap(*tag, *elems_cnt);
-                        println!("Reduce: {:?}", tag);
+                        yield ParseState::Reduce(*tag);
                     }
                     (LRAction::Accept, _) => {
-                        // return builder.build();
-                        println!("Done!");
                         return;
                     }
                     (LRAction::None, Some(token)) => {
-                        // return Err(ParseError::new_unexpected_token(token).into());
-                        println!("Unexpected: {:?}", token);
+                        yield ParseState::Err(ParseError::new_unexpected_token(token).into());
                         return;
                     }
                     (LRAction::None, None) => {
-                        // return Err(ParseError::UnexpectedEOF.into());
-                        println!("Unexpected EOF");
+                        yield ParseState::Err(ParseError::UnexpectedEOF.into());
                         return;
                     }
                     _ => unreachable!(),

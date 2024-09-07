@@ -7,7 +7,7 @@ use serde_cbor::ser::to_vec_packed;
 use serde_cbor::de::from_slice;
 
 use copager_lex::{LexSource, LexDriver};
-use copager_parse::{ParseSource, ParseDriver};
+use copager_parse::{ParseSource, ParseDriver, ParseState};
 use copager_utils::cache::Cacheable;
 
 pub trait GrammarDesign {
@@ -199,7 +199,15 @@ where
         let parser = self.parser.as_ref().unwrap();
 
         for result in parser.run(lexer.run(input)) {
-            println!("{:?}", result);
+            match result {
+                ParseState::Consume(token) => {
+                    println!("Consume: {:?}", token);
+                },
+                ParseState::Reduce(rule) => {
+                    println!("Reduce: {:?}", rule);
+                },
+                ParseState::Err(err) => return Err(err),
+            }
         }
 
         Ok(())
