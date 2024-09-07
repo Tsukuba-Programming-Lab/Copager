@@ -194,7 +194,7 @@ where
 
     pub fn process<'input, I>(&self, input: &'input str) -> anyhow::Result<I>
     where
-        I: IR<'input, <G::Lex as LexSource>::Tag, <G::Parse as ParseSource<<G::Lex as LexSource>::Tag>>::Tag>,
+        I: IR<'input, G::Lex, G::Parse>,
     {
         assert!(self.lexer.is_some());
         assert!(self.parser.is_some());
@@ -202,7 +202,7 @@ where
         let lexer = self.lexer.as_ref().unwrap();
         let parser = self.parser.as_ref().unwrap();
 
-        let mut ir_builder = <I::Builder as IRBuilder<'input, <G::Lex as LexSource>::Tag, <G::Parse as ParseSource<<G::Lex as LexSource>::Tag>>::Tag>>::new();
+        let mut ir_builder = I::Builder::new();
         for result in parser.run(lexer.run(input)) {
             match result {
                 ParseEvent::Read(token) => ir_builder.on_read(token)?,

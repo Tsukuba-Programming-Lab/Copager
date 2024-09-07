@@ -1,24 +1,25 @@
 use std::fmt::Debug;
 
-use copager_cfg::token::{TokenTag, Token};
-use copager_cfg::rule::RuleTag;
+use copager_cfg::token::Token;
+use copager_lex::LexSource;
+use copager_parse::ParseSource;
 use copager_ir::{IR, IRBuilder};
 
 #[derive(Debug)]
 pub struct Void;
 
-impl<'input, T, R> IR<'input, T, R> for Void
+impl<'input, Sl, Sp> IR<'input, Sl, Sp> for Void
 where
-    T: TokenTag,
-    R: RuleTag<T>,
+    Sl: LexSource,
+    Sp: ParseSource<Sl::Tag>,
 {
     type Builder = Self;
 }
 
-impl <'input, T, R> IRBuilder<'input, T, R> for Void
+impl <'input, Sl, Sp> IRBuilder<'input, Sl, Sp> for Void
 where
-    T: TokenTag,
-    R: RuleTag<T>,
+    Sl: LexSource,
+    Sp: ParseSource<Sl::Tag>,
 {
     type Output = Self;
 
@@ -26,11 +27,11 @@ where
         Void
     }
 
-    fn on_read(&mut self, _: Token<'input, T>) -> anyhow::Result<()> {
+    fn on_read(&mut self, _: Token<'input, Sl::Tag>) -> anyhow::Result<()> {
         Ok(())
     }
 
-    fn on_parse(&mut self, _: R) -> anyhow::Result<()> {
+    fn on_parse(&mut self, _: Sp::Tag) -> anyhow::Result<()> {
         Ok(())
     }
 

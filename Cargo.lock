@@ -69,6 +69,8 @@ version = "0.1.1"
 dependencies = [
  "anyhow",
  "copager_cfg",
+ "copager_lex",
+ "copager_parse",
  "thiserror",
 ]
 
@@ -79,6 +81,8 @@ dependencies = [
  "anyhow",
  "copager_cfg",
  "copager_ir",
+ "copager_lex",
+ "copager_parse",
  "thiserror",
 ]
 
@@ -89,6 +93,8 @@ dependencies = [
  "anyhow",
  "copager_cfg",
  "copager_ir",
+ "copager_lex",
+ "copager_parse",
  "thiserror",
 ]
 
