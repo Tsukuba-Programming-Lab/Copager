@@ -48,51 +48,6 @@ type MyLexer = RegexLexer<ExprToken>;
 type MyParser = LR1<ExprToken, ExprRule>;
 type MyProcessor = Processor<MyGrammar, MyLexer, MyParser>;
 
-fn eval(ir: &SExp<'_, ExprToken, ExprRule>) -> i32 {
-    macro_rules! match_atom {
-        ($term:expr, $($kind:pat => $block:expr),* $(,)?) => {
-            match $term {
-                SExp::Atom(token) => {
-                    match token.kind {
-                        $($kind => $block,)*
-                        _ => unreachable!(),
-                    }
-                }
-                _ => unreachable!(),
-            }
-        }
-    }
-
-    match ir {
-        SExp::List { rule, elems } => {
-            match rule {
-                ExprRule::Expr if elems.len() == 1 => eval(&elems[0]),
-                ExprRule::Expr => {
-                    let lhs = eval(&elems[0]);
-                    let rhs = eval(&elems[2]);
-                    match_atom!(elems[1],
-                        ExprToken::Plus => lhs + rhs,
-                        ExprToken::Minus => lhs - rhs,
-                    )
-                }
-                ExprRule::Term if elems.len() == 1 => eval(&elems[0]),
-                ExprRule::Term => {
-                    let lhs = eval(&elems[0]);
-                    let rhs = eval(&elems[2]);
-                    match_atom!(elems[1],
-                        ExprToken::Mul => lhs * rhs,
-                        ExprToken::Div => lhs / rhs,
-                    )
-                }
-                ExprRule::Num if elems.len() == 1 => eval(&elems[0]),
-                ExprRule::Num => eval(&elems[1]),
-
-            }
-        }
-        SExp::Atom(token) => token.as_str().parse().unwrap(),
-    }
-}
-
 fn main() -> anyhow::Result<()> {
     let mut input = String::new();
     stdin().read_line(&mut input)?;
@@ -101,7 +56,7 @@ fn main() -> anyhow::Result<()> {
         .build_lexer()?
         .build_parser()?
         .process::<SExp<_, _>>(&input)?;
-    println!("{} = {}", input.trim(), eval(&sexp));
+    println!("Success : {}", sexp);
 
     Ok(())
 }
