@@ -19,6 +19,6 @@ where
 
     fn new() -> Self;
     fn on_read(&mut self, token: Token<'input, Sl::Tag>) -> anyhow::Result<()>;
-    fn on_parse(&mut self, rule: Sp::Tag) -> anyhow::Result<()>;
+    fn on_parse(&mut self, rule: Sp::Tag, len: usize) -> anyhow::Result<()>;
     fn build(self) -> anyhow::Result<Self::Output>;
 }

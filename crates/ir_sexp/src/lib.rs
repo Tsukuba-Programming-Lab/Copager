@@ -1,7 +1,6 @@
 use std::fmt::{Debug, Display};
 
 use copager_cfg::token::Token;
-use copager_cfg::rule::RuleTag;
 use copager_lex::LexSource;
 use copager_parse::ParseSource;
 use copager_ir::{IR, IRBuilder};
@@ -74,8 +73,8 @@ where
         Ok(())
     }
 
-    fn on_parse(&mut self, rule: Sp::Tag) -> anyhow::Result<()> {
-        let elems = self.stack.split_off(self.stack.len() - rule.len());
+    fn on_parse(&mut self, rule: Sp::Tag, len: usize) -> anyhow::Result<()> {
+        let elems = self.stack.split_off(self.stack.len() - len);
         self.stack.push(SExp::List { rule, elems });
         Ok(())
     }

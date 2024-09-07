@@ -81,8 +81,11 @@ dependencies = [
  "anyhow",
  "copager_cfg",
  "copager_ir",
+ "copager_ir_sexp",
  "copager_lex",
+ "copager_lex_regex",
  "copager_parse",
+ "copager_parse_lr1",
  "thiserror",
 ]
 

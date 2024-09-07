@@ -206,7 +206,7 @@ where
         for result in parser.run(lexer.run(input)) {
             match result {
                 ParseEvent::Read(token) => ir_builder.on_read(token)?,
-                ParseEvent::Parse(rule) => ir_builder.on_parse(rule)?,
+                ParseEvent::Parse{ rule,len } => ir_builder.on_parse(rule, len)?,
                 ParseEvent::Err(err) => return Err(err),
             }
         }

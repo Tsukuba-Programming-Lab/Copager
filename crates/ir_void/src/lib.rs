@@ -31,7 +31,7 @@ where
         Ok(())
     }
 
-    fn on_parse(&mut self, _: Sp::Tag) -> anyhow::Result<()> {
+    fn on_parse(&mut self, _: Sp::Tag, _: usize) -> anyhow::Result<()> {
         Ok(())
     }
 

@@ -77,7 +77,7 @@ where
                     (LRAction::Reduce(tag, goto, elems_cnt), _) => {
                         stack.truncate(stack.len() - elems_cnt);
                         stack.push(self.tables.goto_table[stack[stack.len() - 1]][*goto]);
-                        yield ParseEvent::Parse(*tag);
+                        yield ParseEvent::Parse { rule: *tag, len: *elems_cnt };
                     }
                     (LRAction::Accept, _) => {
                         return;

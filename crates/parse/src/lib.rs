@@ -43,7 +43,13 @@ where
     T: TokenTag,
     R: RuleTag<T>,
 {
+    // Parsing Event
     Read(Token<'input, T>),
-    Parse(R),
-    Err(anyhow::Error)
+    Parse {
+        rule: R,
+        len: usize,
+    },
+
+    // Control
+    Err(anyhow::Error),
 }

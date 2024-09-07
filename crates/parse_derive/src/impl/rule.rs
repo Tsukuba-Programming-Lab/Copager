@@ -19,9 +19,6 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
     let enum_matcher_table_i2r = parsed_variantes
         .iter()
         .map(|variant| variant.gen_matcher_ident_to_rule());
-    let enum_matcher_table_i2l = parsed_variantes
-        .iter()
-        .map(|variant| variant.gen_matcher_ident_to_len());
     let enum_assoc_type = format!("{}", enum_name)
         .replace("Rule", "Token")
         .parse::<TokenStream>()
@@ -32,12 +29,6 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
 
     quote! {
         impl RuleTag<#enum_assoc_type> for #enum_name {
-            fn len(&self) -> usize {
-                match self {
-                    #( #enum_matcher_table_i2l, )*
-                }
-            }
-
             fn as_rules(&self) -> Vec<Rule<#enum_assoc_type>> {
                 match self {
                     #( #enum_matcher_table_i2r, )*
@@ -89,16 +80,6 @@ impl<'a> VariantInfo<'a> {
         let self_ident = self.self_ident;
 
         quote! { #parent_ident :: #self_ident }
-    }
-
-    fn gen_matcher_ident_to_len(&self) -> TokenStream {
-        let ident = self.gen_ident();
-        if self.rules.is_empty() {
-            quote! { #ident => unimplemented!() }
-        } else {
-            let rules_len = &self.rules.len();
-            quote! { #ident => #rules_len }
-        }
     }
 
     fn gen_matcher_ident_to_rule(&self) -> TokenStream {
