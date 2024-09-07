@@ -41,6 +41,7 @@ sexp = ["dep:copager_ir_sexp"]
 [workspace]
 resolver = "2"
 members = [
+    # Copager
     "./crates/core",
     "./crates/cfg",
     "./crates/lex",
@@ -53,6 +54,9 @@ members = [
     "./crates/ir_void",
     "./crates/ir_sexp",
     "./crates/utils",
+
+    # Examples
+    "./examples/oneshot",
 ]
 exclude = []
 

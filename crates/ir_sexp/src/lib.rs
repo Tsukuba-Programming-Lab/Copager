@@ -79,7 +79,7 @@ where
         Ok(())
     }
 
-    fn build(mut self) -> anyhow::Result<SExp<'input, Sl, Sp>> {
+    fn build(mut self) -> anyhow::Result<Self::Output> {
         if self.stack.len() == 1 {
             Ok(self.stack.pop().unwrap())
         } else {
