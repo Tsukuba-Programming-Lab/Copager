@@ -1,10 +1,10 @@
 pub use copager_core::*;
 pub use copager_cfg as cfg;
 
-#[cfg(any(feature = "all", feature = "prebuild"))]
+#[cfg(feature = "prebuild")]
 pub use copager_core_macros::*;
 
-#[cfg(any(feature = "all", feature = "prebuild"))]
+#[cfg(feature = "prebuild")]
 pub mod prebuild {
     pub use serde_json::to_string as serialize;
     pub use serde_json::from_str as deserialize;
@@ -12,21 +12,21 @@ pub mod prebuild {
 
 pub mod lex {
     pub use copager_lex::*;
-    #[cfg(any(feature = "all", feature = "regexlex"))]
+    #[cfg(feature = "regexlex")]
     pub use copager_lex_regex::*;
 }
 
 pub mod parse {
     pub use copager_parse::*;
-    #[cfg(any(feature = "all", feature = "lr1"))]
+    #[cfg(feature = "lr1")]
     pub use copager_parse_lr1::*;
 }
 
 pub mod ir {
     pub use copager_ir::*;
-    #[cfg(any(feature = "all", feature = "void"))]
+    #[cfg(feature = "void")]
     pub use copager_ir_void::*;
-    #[cfg(any(feature = "all", feature = "sexp"))]
+    #[cfg(feature = "sexp")]
     pub use copager_ir_sexp::*;
 }
 
