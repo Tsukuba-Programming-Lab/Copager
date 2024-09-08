@@ -1,35 +1,71 @@
+cargo-features = ["edition2024"]
+
 [package]
-name = "parsergen"
-version = "0.1.1"
-edition = "2021"
+name = "copager"
+version = "0.2.0"
+edition = "2024"
 
 [dependencies]
-anyhow = { workspace = true }
-thiserror = { workspace = true }
-pgen_core = { workspace = true }
-pgen_algorithm = { workspace = true }
+serde_json = { version = "1.0.117", optional = true }
+copager_core = { path = "./crates/core" }
+copager_core_macros = { path = "./crates/core_macros" }
+copager_cfg = { path = "./crates/cfg" }
+copager_lex = { path = "./crates/lex", optional = true }
+copager_lex_regex = { path = "./crates/lex_regex", optional = true }
+copager_parse = { path = "./crates/parse", optional = true }
+copager_parse_lr1 = { path = "./crates/parse_lr1", optional = true }
+copager_ir = { path = "./crates/ir" }
+copager_ir_void = { path = "./crates/ir_void", optional = true }
+copager_ir_sexp = { path = "./crates/ir_sexp", optional = true }
 
 [dev-dependencies]
+anyhow = { workspace = true }
 serde = { workspace = true }
 serde_json = "1.0.117"
+copager = { path = ".", features = ["all"] }
 
 [features]
-default = []
-derive = ["pgen_core/derive"]
+# common
+default = ["dep:copager_lex", "dep:copager_parse"]
+all = ["prebuild", "derive", "regexlex", "lr1", "void", "sexp"]
+prebuild = ["dep:serde_json"]
+derive = ["copager_lex/derive", "copager_parse/derive"]
+
+# lex
+regexlex = ["dep:copager_lex_regex"]
+
+# parse
+lr1 = ["dep:copager_parse_lr1"]
+
+# ir
+void = ["dep:copager_ir_void"]
+sexp = ["dep:copager_ir_sexp"]
 
 [workspace]
 resolver = "2"
 members = [
+    # Copager
     "./crates/core",
-    "./crates/algorithm",
+    "./crates/core_macros",
+    "./crates/cfg",
+    "./crates/lex",
+    "./crates/lex_derive",
+    "./crates/lex_regex",
+    "./crates/parse",
+    "./crates/parse_derive",
+    "./crates/parse_lr1",
+    "./crates/ir",
+    "./crates/ir_void",
+    "./crates/ir_sexp",
+    "./crates/utils",
+
+    # Examples
+    "./examples/oneshot",
+    "./examples/prebuild",
 ]
 exclude = []
 
 [workspace.dependencies]
 anyhow = "1.0.82"
 thiserror = "1.0.58"
-serde = "1.0.197"
-regex = "1.10.4"
-regex-macro = "0.2.0"
-pgen_core = { package = "core", path = "./crates/core" }
-pgen_algorithm = { package = "algorithm", path = "./crates/algorithm" }
+serde = { version = "1.0.197", features = ["derive"] }

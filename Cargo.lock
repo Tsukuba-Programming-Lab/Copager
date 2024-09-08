@@ -12,43 +12,61 @@ dependencies = [
 ]
 
 [[package]]
-name = "algorithm"
-version = "0.1.1"
-dependencies = [
- "algorithm_lr1",
-]
-
-[[package]]
-name = "algorithm_lr1"
-version = "0.1.1"
-dependencies = [
- "anyhow",
- "core",
- "itertools",
- "serde",
- "thiserror",
-]
-
-[[package]]
 name = "anyhow"
 version = "1.0.83"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "25bdb32cbbdce2b519a9cd7df3a678443100e265d5e25ca763b7572a5104f5f3"
 
 [[package]]
-name = "core"
-version = "0.1.1"
+name = "copager"
+version = "0.2.0"
 dependencies = [
  "anyhow",
- "core_derive",
- "regex",
+ "copager",
+ "copager_cfg",
+ "copager_core",
+ "copager_core_macros",
+ "copager_ir",
+ "copager_ir_sexp",
+ "copager_ir_void",
+ "copager_lex",
+ "copager_lex_regex",
+ "copager_parse",
+ "copager_parse_lr1",
  "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "copager_cfg"
+version = "0.2.0"
+dependencies = [
+ "anyhow",
  "thiserror",
 ]
 
 [[package]]
-name = "core_derive"
-version = "0.1.1"
+name = "copager_core"
+version = "0.2.0"
+dependencies = [
+ "anyhow",
+ "copager_cfg",
+ "copager_core",
+ "copager_ir",
+ "copager_ir_void",
+ "copager_lex",
+ "copager_lex_regex",
+ "copager_parse",
+ "copager_parse_lr1",
+ "copager_utils",
+ "serde",
+ "serde_cbor",
+ "thiserror",
+]
+
+[[package]]
+name = "copager_core_macros"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "proc-macro2",
@@ -58,10 +76,174 @@ dependencies = [
 ]
 
 [[package]]
+name = "copager_ir"
+version = "0.2.0"
+dependencies = [
+ "anyhow",
+ "copager_cfg",
+ "copager_lex",
+ "copager_parse",
+ "thiserror",
+]
+
+[[package]]
+name = "copager_ir_sexp"
+version = "0.2.0"
+dependencies = [
+ "anyhow",
+ "copager_cfg",
+ "copager_ir",
+ "copager_ir_sexp",
+ "copager_lex",
+ "copager_lex_regex",
+ "copager_parse",
+ "copager_parse_lr1",
+ "thiserror",
+]
+
+[[package]]
+name = "copager_ir_void"
+version = "0.2.0"
+dependencies = [
+ "anyhow",
+ "copager_cfg",
+ "copager_ir",
+ "copager_lex",
+ "copager_parse",
+ "thiserror",
+]
+
+[[package]]
+name = "copager_lex"
+version = "0.2.0"
+dependencies = [
+ "anyhow",
+ "copager_cfg",
+ "copager_lex_derive",
+ "copager_utils",
+ "thiserror",
+]
+
+[[package]]
+name = "copager_lex_derive"
+version = "0.2.0"
+dependencies = [
+ "anyhow",
+ "copager_cfg",
+ "copager_lex",
+ "proc-macro2",
+ "quote",
+ "syn",
+ "thiserror",
+]
+
+[[package]]
+name = "copager_lex_regex"
+version = "0.2.0"
+dependencies = [
+ "anyhow",
+ "copager_cfg",
+ "copager_lex",
+ "copager_lex_regex",
+ "copager_utils",
+ "regex",
+ "regex-macro",
+ "thiserror",
+]
+
+[[package]]
+name = "copager_parse"
+version = "0.2.0"
+dependencies = [
+ "anyhow",
+ "copager_cfg",
+ "copager_lex",
+ "copager_parse_derive",
+ "copager_utils",
+ "thiserror",
+]
+
+[[package]]
+name = "copager_parse_derive"
+version = "0.2.0"
+dependencies = [
+ "anyhow",
+ "copager_cfg",
+ "copager_lex",
+ "copager_parse",
+ "proc-macro2",
+ "quote",
+ "syn",
+ "thiserror",
+]
+
+[[package]]
+name = "copager_parse_lr1"
+version = "0.2.0"
+dependencies = [
+ "anyhow",
+ "copager_cfg",
+ "copager_core",
+ "copager_lex",
+ "copager_lex_regex",
+ "copager_parse",
+ "copager_parse_lr1",
+ "copager_utils",
+ "itertools",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
+name = "copager_utils"
+version = "0.1.1"
+dependencies = [
+ "anyhow",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
 name = "either"
-version = "1.11.0"
+version = "1.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a47c1c47d2f5964e29c61246e81db715514cd532db6b5116a25ea3c03d6780a2"
+checksum = "60b1af1c220855b6ceac025d3f6ecdd2b7c4894bfe9cd9bda4fbb4bc7c0d4cf0"
+
+[[package]]
+name = "example_oneshot"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "copager",
+ "thiserror",
+]
+
+[[package]]
+name = "example_prebuild"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "copager",
+ "example_prebuild_grammar",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
+name = "example_prebuild_grammar"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "copager",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
+name = "half"
+version = "1.8.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1b43ede17f21864e81be2fa654110bf1e793774238d86ef8555c37e6519c0403"
 
 [[package]]
 name = "itertools"
@@ -85,16 +267,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6c8640c5d730cb13ebd907d8d04b52f55ac9a2eec55b440c8892f40d56c76c1d"
 
 [[package]]
-name = "parsergen"
-version = "0.1.1"
-dependencies = [
- "algorithm",
- "anyhow",
- "core",
- "serde",
- "serde_json",
- "thiserror",
-]
+name = "once_cell"
+version = "1.19.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3fdb12b2476b595f9358c5161aa467c2438859caa136dec86c26fdd2efe17b92"
 
 [[package]]
 name = "proc-macro2"
@@ -138,6 +314,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "regex-macro"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "12fa36e7add16db296640bba993a65dae2a0088a8e5cd5f935c8bfbd3710145b"
+dependencies = [
+ "once_cell",
+ "regex",
+]
+
+[[package]]
 name = "regex-syntax"
 version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -159,6 +345,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde_cbor"
+version = "0.11.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2bef2ebfde456fb76bbcf9f59315333decc4fda0b2b44b420243c11e0f5ec1f5"
+dependencies = [
+ "half",
+ "serde",
+]
+
+[[package]]
 name = "serde_derive"
 version = "1.0.202"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -171,11 +367,12 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.117"
+version = "1.0.128"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "455182ea6142b14f93f4bc5320a2b31c1f266b66a4a5c858b013302a5d8cbfc3"
+checksum = "6ff5456707a1de34e7e37f2a6fd3d3f808c318259cbd01ab6377795054b483d8"
 dependencies = [
  "itoa",
+ "memchr",
  "ryu",
  "serde",
 ]

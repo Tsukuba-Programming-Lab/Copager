@@ -1,0 +1,15 @@
+[package]
+name = "example_prebuild"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+copager = { path = "../..", features = ["prebuild", "sexp"] }
+grammar = { package = "example_prebuild_grammar", path = "./grammar" }
+
+[build-dependencies]
+serde = { workspace = true }
+copager = { path = "../..", features = ["prebuild"] }
+grammar = { package = "example_prebuild_grammar", path = "./grammar" }
