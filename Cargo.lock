@@ -226,7 +226,6 @@ dependencies = [
  "copager",
  "example_prebuild_grammar",
  "serde",
- "serde_json",
  "thiserror",
 ]
 

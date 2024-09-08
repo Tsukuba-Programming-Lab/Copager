@@ -6,6 +6,7 @@ version = "0.1.1"
 edition = "2024"
 
 [dependencies]
+serde_json = { version = "1.0.117", optional = true }
 copager_core = { path = "./crates/core" }
 copager_core_macros = { path = "./crates/core_macros" }
 copager_cfg = { path = "./crates/cfg" }
@@ -26,8 +27,9 @@ copager = { path = ".", features = ["derive", "all"] }
 [features]
 # common
 default = ["dep:copager_lex", "dep:copager_parse"]
+all = ["prebuild", "derive", "regexlex", "lr1", "void", "sexp"]
+prebuild = ["dep:serde_json"]
 derive = ["copager_lex/derive", "copager_parse/derive"]
-all = ["regexlex", "lr1", "void", "sexp"]
 
 # lex
 regexlex = ["dep:copager_lex_regex"]

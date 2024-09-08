@@ -18,7 +18,7 @@ pub fn proc_macro_impl_load(_args: TokenStream, ast: ItemFn) -> TokenStream {
             let out_dir = std::env::var_os("OUT_DIR").unwrap();
             let cache_path = std::path::Path::new(&out_dir).join("MyProcessor.cache");
             let cache_body = std::fs::read_to_string(cache_path).unwrap();
-            let deserialized = serde_json::from_str(&cache_body).unwrap();
+            let deserialized = copager::prebuild::deserialize(&cache_body).unwrap();
             __inner(deserialized)
         }
     }

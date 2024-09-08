@@ -2,6 +2,12 @@ pub use copager_core::*;
 pub use copager_core_macros::*;
 pub use copager_cfg as cfg;
 
+#[cfg(any(feature = "all", feature = "prebuild"))]
+pub mod prebuild {
+    pub use serde_json::to_string as serialize;
+    pub use serde_json::from_str as deserialize;
+}
+
 pub mod lex {
     pub use copager_lex::*;
     #[cfg(any(feature = "all", feature = "regexlex"))]

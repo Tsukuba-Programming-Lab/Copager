@@ -15,7 +15,7 @@ pub fn proc_macro_impl_prebuild(_args: TokenStream, ast: ItemFn) -> TokenStream 
                 #fn_body
             }
 
-            let serialized = serde_json::to_string(&__inner()).unwrap();
+            let serialized = copager::prebuild::serialize(&__inner()).unwrap();
             let out_dir = std::env::var_os("OUT_DIR").unwrap();
             let cache_path = std::path::Path::new(&out_dir).join("MyProcessor.cache");
             std::fs::write(cache_path, serialized).unwrap();

@@ -6,12 +6,10 @@ edition = "2021"
 [dependencies]
 anyhow = { workspace = true }
 thiserror = { workspace = true }
-serde_json = "1.0.128"
-copager = { path = "../..", features = ["sexp"] }
+copager = { path = "../..", features = ["prebuild", "sexp"] }
 grammar = { package = "example_prebuild_grammar", path = "./grammar" }
 
 [build-dependencies]
 serde = { workspace = true }
-serde_json = "1.0.128"
-copager = { path = "../.." }
+copager = { path = "../..", features = ["prebuild"] }
 grammar = { package = "example_prebuild_grammar", path = "./grammar" }
