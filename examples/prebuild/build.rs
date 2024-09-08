@@ -1,6 +1,8 @@
 use grammar::MyProcessor;
 
 #[copager::prebuild]
-fn main() {
-    let processor = MyProcessor::new();
+fn main() -> MyProcessor {
+    MyProcessor::new()
+        .prebuild_parser()
+        .unwrap()
 }
