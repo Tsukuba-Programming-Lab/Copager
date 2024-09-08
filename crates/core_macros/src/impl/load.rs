@@ -15,9 +15,7 @@ pub fn proc_macro_impl_load(_args: TokenStream, ast: ItemFn) -> TokenStream {
                 #fn_body
             }
 
-            let out_dir = std::env::var_os("OUT_DIR").unwrap();
-            let cache_path = std::path::Path::new(&out_dir).join("MyProcessor.cache");
-            let cache_body = std::fs::read_to_string(cache_path).unwrap();
+            let cache_body = include_str!(concat!(env!("OUT_DIR"), "/MyProcessor.cache"));
             let deserialized = copager::prebuild::deserialize(&cache_body).unwrap();
             __inner(deserialized)
         }
