@@ -6,8 +6,9 @@ Rust製パーサジェネレータ
 
 ### Common
 
-- `derive`
 - `all`
+- `derive`
+- `prebuild`
 
 ### Lex
 
@@ -24,23 +25,20 @@ Rust製パーサジェネレータ
 
 ## Examples
 
-[examples/oneshot](examples/oneshot)
+### One-shot
 
-### ok
+[examples/oneshot](examples/oneshot)
 
 ```
 $ echo "10 * (20 + 30)" | cargo run -p example_oneshot
 Success : (Expr (Term (Term (Num "10")) "*" (Num "(" (Expr (Expr (Term (Num "20"))) "+" (Term (Num "30"))) ")")))
 ```
 
-### error
+### Pre-build
+
+[examples/prebuild](examples/prebuild)
 
 ```
-$ echo "(10 *)" | cargo run -p example_oneshot
-Error: Unexpected token "BracketR" found
------
- 1: (10 *)
-         ^ here
-Found at line 1, column 6.
-----
+$ echo "10 * (20 + 30)" | cargo run -p example_prebuild
+Success : (Expr (Term (Term (Num "10")) "*" (Num "(" (Expr (Expr (Term (Num "20"))) "+" (Term (Num "30"))) ")")))
 ```

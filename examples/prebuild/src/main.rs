@@ -13,7 +13,7 @@ fn main(processor: MyProcessor) -> anyhow::Result<()> {
         .build_lexer()?
         .build_parser_by_cache()
         .process::<SExp<_, _>>(&input)?;
-    println!("{}", sexp);
+    println!("Success : {}", sexp);
 
     Ok(())
 }
