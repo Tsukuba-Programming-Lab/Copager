@@ -1,6 +1,8 @@
 pub use copager_core::*;
-pub use copager_core_macros::*;
 pub use copager_cfg as cfg;
+
+#[cfg(any(feature = "all", feature = "prebuild"))]
+pub use copager_core_macros::*;
 
 #[cfg(any(feature = "all", feature = "prebuild"))]
 pub mod prebuild {
