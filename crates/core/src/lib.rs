@@ -78,49 +78,6 @@ where
         }
     }
 
-    pub fn prebuild_lexer(self) -> anyhow::Result<Self>
-    where
-        G::Lex: Default,
-        Dl: Cacheable<G::Lex>,
-    {
-        self.prebuild_lexer_by(G::Lex::default())
-    }
-
-    pub fn prebuild_lexer_by(mut self, source: G::Lex) -> anyhow::Result<Self>
-    where
-        Dl: Cacheable<G::Lex>,
-    {
-        assert!(self.cache_lex.is_none());
-
-        let cache_lex = Dl::new(source)?;
-        self.cache_lex = Some(to_vec_packed(&cache_lex)?);
-
-        Ok(self)
-    }
-
-    pub fn prebuild_parser(self) -> anyhow::Result<Self>
-    where
-        G::Lex: Default,
-        G::Parse: Default,
-        Dp: Cacheable<(G::Lex, G::Parse)>,
-    {
-        self.prebuild_parser_by((G::Lex::default(), G::Parse::default()))
-    }
-
-    pub fn prebuild_parser_by(mut self, source: (G::Lex, G::Parse)) -> anyhow::Result<Self>
-    where
-        G::Lex: Default,
-        G::Parse: Default,
-        Dp: Cacheable<(G::Lex, G::Parse)>,
-    {
-        assert!(self.cache_parse.is_none());
-
-        let cache_parse = Dp::new(source)?;
-        self.cache_parse = Some(to_vec_packed(&cache_parse)?);
-
-        Ok(self)
-    }
-
     pub fn build_lexer(self) -> anyhow::Result<Self>
     where
         G::Lex: Default,
@@ -138,21 +95,6 @@ where
         self.lexer = Some(lexer);
 
         Ok(self)
-    }
-
-    pub fn build_lexer_by_cache(mut self) -> Self
-    where
-        G::Lex: Default,
-        Dl: Cacheable<G::Lex>,
-    {
-        assert!(self.lexer.is_some());
-
-        let cache_lex = self.cache_lex.as_ref().unwrap();
-        let cache_lex = from_slice(cache_lex);
-        let lexer = Dl::restore(cache_lex.unwrap());
-        self.lexer = Some(lexer);
-
-        self
     }
 
     pub fn build_parser(self) -> anyhow::Result<Self>
@@ -176,22 +118,6 @@ where
         Ok(self)
     }
 
-    pub fn build_parser_by_cache(mut self) -> Self
-    where
-        G::Lex: Default,
-        G::Parse: Default,
-        Dp: Cacheable<(G::Lex, G::Parse)>,
-    {
-        assert!(self.parser.is_none());
-
-        let cache_parse = self.cache_parse.as_ref().unwrap();
-        let cache_parse = from_slice(cache_parse);
-        let parser = Dp::restore(cache_parse.unwrap());
-        self.parser = Some(parser);
-
-        self
-    }
-
     pub fn process<'input, I>(&self, input: &'input str) -> anyhow::Result<I>
     where
         I: IR<'input, G::Lex, G::Parse>,
@@ -212,5 +138,81 @@ where
         }
 
         ir_builder.build()
+    }
+}
+
+impl<G, Dl, Dp> Processor<G, Dl, Dp>
+where
+    G: GrammarDesign,
+    Dl: LexDriver<G::Lex> + Cacheable<G::Lex>,
+    Dp: ParseDriver<G::Lex, G::Parse>,
+{
+    pub fn prebuild_lexer(self) -> anyhow::Result<Self>
+    where
+        G::Lex: Default,
+    {
+        self.prebuild_lexer_by(G::Lex::default())
+    }
+
+    pub fn prebuild_lexer_by(mut self, source: G::Lex) -> anyhow::Result<Self> {
+        assert!(self.cache_lex.is_none());
+
+        let cache_lex = Dl::new(source)?;
+        self.cache_lex = Some(to_vec_packed(&cache_lex)?);
+
+        Ok(self)
+    }
+
+    pub fn build_lexer_by_cache(mut self) -> Self
+    where
+        G::Lex: Default,
+    {
+        assert!(self.lexer.is_some());
+
+        let cache_lex = self.cache_lex.as_ref().unwrap();
+        let cache_lex = from_slice(cache_lex);
+        let lexer = Dl::restore(cache_lex.unwrap());
+        self.lexer = Some(lexer);
+
+        self
+    }
+}
+
+impl<G, Dl, Dp> Processor<G, Dl, Dp>
+where
+    G: GrammarDesign,
+    Dl: LexDriver<G::Lex>,
+    Dp: ParseDriver<G::Lex, G::Parse> + Cacheable<(G::Lex, G::Parse)>,
+{
+    pub fn prebuild_parser(self) -> anyhow::Result<Self>
+    where
+        G::Lex: Default,
+        G::Parse: Default,
+    {
+        self.prebuild_parser_by((G::Lex::default(), G::Parse::default()))
+    }
+
+    pub fn prebuild_parser_by(mut self, source: (G::Lex, G::Parse)) -> anyhow::Result<Self> {
+        assert!(self.cache_parse.is_none());
+
+        let cache_parse = Dp::new(source)?;
+        self.cache_parse = Some(to_vec_packed(&cache_parse)?);
+
+        Ok(self)
+    }
+
+    pub fn build_parser_by_cache(mut self) -> Self
+    where
+        G::Lex: Default,
+        G::Parse: Default,
+    {
+        assert!(self.parser.is_none());
+
+        let cache_parse = self.cache_parse.as_ref().unwrap();
+        let cache_parse = from_slice(cache_parse);
+        let parser = Dp::restore(cache_parse.unwrap());
+        self.parser = Some(parser);
+
+        self
     }
 }
