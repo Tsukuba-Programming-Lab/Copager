@@ -42,3 +42,11 @@ Success : (Expr (Term (Term (Num "10")) "*" (Num "(" (Expr (Expr (Term (Num "20"
 $ echo "10 * (20 + 30)" | cargo run -p example_prebuild
 Success : (Expr (Term (Term (Num "10")) "*" (Num "(" (Expr (Expr (Term (Num "20"))) "+" (Term (Num "30"))) ")")))
 ```
+
+## Docs
+
+```
+$ make -C docs run
+```
+
+⇒ http://localhost:1313
