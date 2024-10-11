@@ -1,0 +1,28 @@
+title = "Copager Document"
+theme = "hugo-theme-learn"
+languageCode = "ja-JP"
+defaultContentLanguage = "ja"
+canonifyurls = true
+relativeURLs = true
+
+[outputs]
+home = ["HTML", "JSON"]
+
+[params]
+title = "Copager"
+description = "Copager Document"
+titleSeparator = "|"
+themeVariant = "blue"
+disableLandingPageButton = true
+disableShortcutsTitle = true
+
+[Languages]
+[Languages.ja]
+weight = 1
+languageName = "日本語"
+
+[[Languages.ja.menu.shortcuts]]
+name = "<i class='fab fa-fw fa-github'></i> Copager"
+identifier = "github-copager"
+url = "https://github.com/Tsukuba-Programming-Lab/Copager"
+weight = 1
