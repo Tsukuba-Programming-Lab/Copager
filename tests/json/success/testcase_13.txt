@@ -1,0 +1,8 @@
+[
+    10,
+    "value",
+    true,
+    false,
+    null,
+    {"key": "value"}
+]

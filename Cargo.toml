@@ -24,6 +24,7 @@ serde = { workspace = true }
 serde_json = "1.0.117"
 copager = { path = ".", features = ["all"] }
 example_lang_arithmetic = { path = "./examples/lang_arithmetic" }
+example_lang_json = { path = "./examples/lang_json" }
 
 [features]
 # common
@@ -64,6 +65,7 @@ members = [
     "./examples/build_oneshot",
     "./examples/build_prebuild",
     "./examples/lang_arithmetic",
+    "./examples/lang_json",
 ]
 exclude = []
 
@@ -75,3 +77,7 @@ serde = { version = "1.0.197", features = ["derive"] }
 [[test]]
 name = "test_by_arithmetic"
 path = "./tests/arithmetic/test.rs"
+
+[[test]]
+name = "test_by_json"
+path = "./tests/json/test.rs"
