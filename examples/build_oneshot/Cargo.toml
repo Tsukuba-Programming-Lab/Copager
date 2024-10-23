@@ -1,5 +1,5 @@
 [package]
-name = "example_oneshot"
+name = "example_build_oneshot"
 version = "0.1.0"
 edition = "2021"
 

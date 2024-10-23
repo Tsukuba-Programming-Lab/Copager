@@ -210,7 +210,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "60b1af1c220855b6ceac025d3f6ecdd2b7c4894bfe9cd9bda4fbb4bc7c0d4cf0"
 
 [[package]]
-name = "example_oneshot"
+name = "example_build_oneshot"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -219,7 +219,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "example_prebuild"
+name = "example_build_prebuild"
 version = "0.1.0"
 dependencies = [
  "anyhow",

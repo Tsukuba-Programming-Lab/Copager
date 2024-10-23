@@ -25,21 +25,21 @@ Rust製パーサジェネレータ
 
 ## Examples
 
-### One-shot
+### build/one-shot
 
-[examples/oneshot](examples/oneshot)
+[examples/build_oneshot](examples/build_oneshot)
 
 ```
-$ echo "10 * (20 + 30)" | cargo run -p example_oneshot
+$ echo "10 * (20 + 30)" | cargo run -p example_build_oneshot
 Success : (Expr (Term (Term (Num "10")) "*" (Num "(" (Expr (Expr (Term (Num "20"))) "+" (Term (Num "30"))) ")")))
 ```
 
-### Pre-build
+### build/pre-build
 
-[examples/prebuild](examples/prebuild)
+[examples/build_prebuild](examples/build_prebuild)
 
 ```
-$ echo "10 * (20 + 30)" | cargo run -p example_prebuild
+$ echo "10 * (20 + 30)" | cargo run -p example_build_prebuild
 Success : (Expr (Term (Term (Num "10")) "*" (Num "(" (Expr (Expr (Term (Num "20"))) "+" (Term (Num "30"))) ")")))
 ```
 
