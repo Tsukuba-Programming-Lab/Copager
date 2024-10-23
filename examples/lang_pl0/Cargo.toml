@@ -1,0 +1,9 @@
+[package]
+name = "example_lang_pl0"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+copager = { path = "../..", features = ["derive", "regexlex", "lr1", "sexp"] }

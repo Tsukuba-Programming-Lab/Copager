@@ -35,6 +35,7 @@ dependencies = [
  "copager_parse_lr1",
  "example_lang_arithmetic",
  "example_lang_json",
+ "example_lang_pl0",
  "serde",
  "serde_json",
 ]
@@ -242,6 +243,15 @@ dependencies = [
 
 [[package]]
 name = "example_lang_json"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "copager",
+ "thiserror",
+]
+
+[[package]]
+name = "example_lang_pl0"
 version = "0.1.0"
 dependencies = [
  "anyhow",
