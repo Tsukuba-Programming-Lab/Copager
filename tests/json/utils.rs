@@ -11,7 +11,7 @@ pub fn test_dir<T>(dir: &str, expect: Expect, test_fn: &T)
 where
     T: Fn(&str) -> anyhow::Result<()> + panic::RefUnwindSafe,
 {
-    let entries = fs::read_dir(dir)
+    let mut entries = fs::read_dir(dir)
         .unwrap()
         .map(|entry| entry.unwrap().path())
         .filter(|path| { path.is_file() })
@@ -20,6 +20,7 @@ where
             (path, body)
         })
         .collect::<Vec<_>>();
+    entries.sort();
 
     for (path, body) in entries {
         print!("Testing {:?} ... ", path);
