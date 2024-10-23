@@ -45,24 +45,23 @@ impl<S: LexSource> LexDriver<S> for RegexLexer<S> {
             };
 
             // Find the token
-            let mut matches = self
+            let matched = self
                 .regex_set
                 .matches(remain)
                 .into_iter()
                 .map(|idx| &self.regex_map[idx])
                 .map(|(regex, token)| (*token, regex.find(remain).unwrap().as_str()))
-                .collect::<Vec<(S::Tag, &str)>>();
-            matches.sort_by(|(_, a), (_, b)| a.len().cmp(&b.len()));
+                .next();
 
             // Update pos
-            let (token, acc_s) = match matches.first() {
+            let (token, acc_s) = match matched {
                 Some(a) => a,
                 None => return,
             };
             let range = (pos, pos + acc_s.len());
             pos += acc_s.len();
 
-            yield Token::new(*token, &input, range);
+            yield Token::new(token, &input, range);
         }
     }
 }
