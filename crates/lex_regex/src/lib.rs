@@ -1,7 +1,5 @@
 #![feature(gen_blocks)]
 
-use std::rc::Rc;
-
 use regex::{Regex, RegexSet};
 
 use copager_cfg::token::{TokenTag, Token};
@@ -9,9 +7,9 @@ use copager_lex::{LexSource, LexDriver};
 
 #[derive(Debug)]
 pub struct RegexLexer<S: LexSource> {
-    regex_istr: Rc<Regex>,
-    regex_set: Rc<RegexSet>,
-    regex_map: Rc<Vec<(Regex, S::Tag)>>,
+    regex_istr: Regex,
+    regex_set: RegexSet,
+    regex_map: Vec<(Regex, S::Tag)>,
 }
 
 impl<S: LexSource> LexDriver<S> for RegexLexer<S> {
@@ -26,9 +24,9 @@ impl<S: LexSource> LexDriver<S> for RegexLexer<S> {
             .collect::<anyhow::Result<Vec<_>>>()?;
 
         Ok(RegexLexer {
-            regex_istr: Rc::new(regex_istr),
-            regex_set: Rc::new(regex_set),
-            regex_map: Rc::new(regex_map),
+            regex_istr,
+            regex_set,
+            regex_map,
         })
     }
 
