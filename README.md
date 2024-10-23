@@ -25,28 +25,22 @@ Rust製パーサジェネレータ
 
 ## Examples
 
-### build/one-shot
-
-[examples/build_oneshot](examples/build_oneshot)
-
-```
-$ echo "10 * (20 + 30)" | cargo run -p example_build_oneshot
-Success : (Expr (Term (Term (Num "10")) "*" (Num "(" (Expr (Expr (Term (Num "20"))) "+" (Term (Num "30"))) ")")))
-```
-
-### build/pre-build
-
-[examples/build_prebuild](examples/build_prebuild)
+- [example_build_oneshot](examples/build_oneshot)
+- [example_build_prebuild](examples/build_prebuild)
+- [example_lang_arithmetic](examples/lang_arithmetic)
+- [example_lang_json](examples/lang_json)
+- [example_lang_pl0](examples/lang_pl0)
+- [example_lang_xml](examples/lang_xml)
 
 ```
-$ echo "10 * (20 + 30)" | cargo run -p example_build_prebuild
-Success : (Expr (Term (Term (Num "10")) "*" (Num "(" (Expr (Expr (Term (Num "20"))) "+" (Term (Num "30"))) ")")))
+$ cargo run -p example_build_oneshot
+Example <one-shot>
+Input: 10 * 20 + 30
+Success: (Expr (Expr (Term (Term (Num "10")) "*" (Num "20"))) "+" (Term (Num "30")))
 ```
 
-## Docs
+## Test
 
 ```
-$ make -C docs run
+$ cargo test
 ```
-
-⇒ http://localhost:1313
