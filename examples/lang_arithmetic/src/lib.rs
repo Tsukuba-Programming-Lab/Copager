@@ -1,13 +1,10 @@
-use std::io::stdin;
-
-use copager::lex::{LexSource, RegexLexer};
-use copager::parse::{ParseSource, LR1};
-use copager::ir::SExp;
+use copager::lex::LexSource;
+use copager::parse::ParseSource;
 use copager::prelude::*;
-use copager::{Grammar, Processor};
+use copager::Grammar;
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, LexSource)]
-enum ExprToken {
+pub enum ArithmeticToken {
     #[default]
     #[token(text = r"\+")]
     Plus,
@@ -28,7 +25,7 @@ enum ExprToken {
 }
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, ParseSource)]
-enum ExprRule {
+pub enum ArithmeticRule {
     #[default]
     #[rule("<expr> ::= <expr> Plus <term>")]
     #[rule("<expr> ::= <expr> Minus <term>")]
@@ -43,20 +40,4 @@ enum ExprRule {
     Num,
 }
 
-type MyGrammar = Grammar<ExprToken, ExprRule>;
-type MyLexer = RegexLexer<ExprToken>;
-type MyParser = LR1<ExprToken, ExprRule>;
-type MyProcessor = Processor<MyGrammar, MyLexer, MyParser>;
-
-fn main() -> anyhow::Result<()> {
-    let mut input = String::new();
-    stdin().read_line(&mut input)?;
-
-    let sexp = MyProcessor::new()
-        .build_lexer()?
-        .build_parser()?
-        .process::<SExp<_, _>>(&input)?;
-    println!("Success : {}", sexp);
-
-    Ok(())
-}
+pub type Arithmetic = Grammar<ArithmeticToken, ArithmeticRule>;

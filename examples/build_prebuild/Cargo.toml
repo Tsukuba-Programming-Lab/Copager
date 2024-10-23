@@ -1,5 +1,5 @@
 [package]
-name = "example_prebuild"
+name = "example_build_prebuild"
 version = "0.1.0"
 edition = "2021"
 
