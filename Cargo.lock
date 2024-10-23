@@ -33,6 +33,7 @@ dependencies = [
  "copager_lex_regex",
  "copager_parse",
  "copager_parse_lr1",
+ "example_lang_arithmetic",
  "serde",
  "serde_json",
 ]
@@ -226,6 +227,15 @@ dependencies = [
  "copager",
  "example_prebuild_grammar",
  "serde",
+ "thiserror",
+]
+
+[[package]]
+name = "example_lang_arithmetic"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "copager",
  "thiserror",
 ]
 
