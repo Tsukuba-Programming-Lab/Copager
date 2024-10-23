@@ -36,6 +36,7 @@ dependencies = [
  "example_lang_arithmetic",
  "example_lang_json",
  "example_lang_pl0",
+ "example_lang_xml",
  "serde",
  "serde_json",
 ]
@@ -252,6 +253,15 @@ dependencies = [
 
 [[package]]
 name = "example_lang_pl0"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "copager",
+ "thiserror",
+]
+
+[[package]]
+name = "example_lang_xml"
 version = "0.1.0"
 dependencies = [
  "anyhow",

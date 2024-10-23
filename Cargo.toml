@@ -26,6 +26,7 @@ copager = { path = ".", features = ["all"] }
 example_lang_arithmetic = { path = "./examples/lang_arithmetic" }
 example_lang_json = { path = "./examples/lang_json" }
 example_lang_pl0 = { path = "./examples/lang_pl0" }
+example_lang_xml = { path = "./examples/lang_xml" }
 
 [features]
 # common
@@ -67,6 +68,8 @@ members = [
     "./examples/build_prebuild",
     "./examples/lang_arithmetic",
     "./examples/lang_json",
+    "./examples/lang_pl0",
+    "./examples/lang_xml",
 ]
 exclude = []
 
@@ -86,3 +89,7 @@ path = "./tests/json/test.rs"
 [[test]]
 name = "test_by_pl0"
 path = "./tests/pl0/test.rs"
+
+[[test]]
+name = "test_by_xml"
+path = "./tests/xml/test.rs"
