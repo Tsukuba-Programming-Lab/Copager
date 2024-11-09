@@ -168,6 +168,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "copager_parse_common"
+version = "0.2.0"
+dependencies = [
+ "anyhow",
+ "copager_cfg",
+ "copager_lex",
+ "copager_parse",
+ "thiserror",
+]
+
+[[package]]
 name = "copager_parse_derive"
 version = "0.2.0"
 dependencies = [
@@ -195,17 +206,6 @@ dependencies = [
  "copager_utils",
  "itertools",
  "serde",
- "thiserror",
-]
-
-[[package]]
-name = "copager_parse_lr_common"
-version = "0.2.0"
-dependencies = [
- "anyhow",
- "copager_cfg",
- "copager_lex",
- "copager_parse",
  "thiserror",
 ]
 
