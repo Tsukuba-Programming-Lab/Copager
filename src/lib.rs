@@ -34,3 +34,8 @@ pub mod prelude {
     pub use copager_cfg::rule::{RuleTag, Rule, RuleElem};
     pub use copager_cfg::token::TokenTag;
 }
+
+#[cfg(feature = "dev")]
+pub mod dev {
+    pub use copager_parse_common::*;
+}

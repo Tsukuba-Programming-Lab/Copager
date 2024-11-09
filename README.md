@@ -9,6 +9,7 @@ Rust製パーサジェネレータ
 - `all`
 - `derive`
 - `prebuild`
+- `dev`
 
 ### Lex
 

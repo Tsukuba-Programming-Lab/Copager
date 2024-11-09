@@ -32,6 +32,7 @@ dependencies = [
  "copager_lex",
  "copager_lex_regex",
  "copager_parse",
+ "copager_parse_common",
  "copager_parse_lr1",
  "example_lang_arithmetic",
  "example_lang_json",
