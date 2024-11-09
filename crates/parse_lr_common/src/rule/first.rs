@@ -8,10 +8,8 @@ pub struct FirstSet<'a, T: TokenTag> {
     ruleset: &'a RuleSet<T>,
 }
 
-impl<'a, T: TokenTag> TryFrom<&'a RuleSet<T>> for FirstSet<'a, T> {
-    type Error = anyhow::Error;
-
-    fn try_from(ruleset: &'a RuleSet<T>) -> anyhow::Result<Self> {
+impl<'a, T: TokenTag> From<&'a RuleSet<T>> for FirstSet<'a, T> {
+    fn from(ruleset: &'a RuleSet<T>) -> Self {
         let mut map = HashMap::new();
         for nonterm in ruleset.nonterms() {
             if let RuleElem::NonTerm(nonterm) = nonterm {
@@ -21,14 +19,13 @@ impl<'a, T: TokenTag> TryFrom<&'a RuleSet<T>> for FirstSet<'a, T> {
         }
 
         let mut first_set = FirstSet { map, ruleset };
-        first_set.expand()?;
-
-        Ok(first_set)
+        while first_set.expand() {}
+        first_set
     }
 }
 
 impl<'a, T: TokenTag> FirstSet<'a, T> {
-    fn expand(&mut self) -> anyhow::Result<bool> {
+    fn expand(&mut self) -> bool {
         let nonterms = &self.ruleset.nonterms();
         let nonterms = nonterms
             .iter()
@@ -51,8 +48,7 @@ impl<'a, T: TokenTag> FirstSet<'a, T> {
                 }
             }
         }
-
-        Ok(modified)
+        modified
     }
 }
 
@@ -128,7 +124,7 @@ mod test {
     #[test]
     fn first_set() {
         let ruleset = TestRule::default().into_ruleset();
-        let first_set = FirstSet::try_from(&ruleset).unwrap();
+        let first_set = FirstSet::from(&ruleset);
 
         let expected = vec![&TestToken::A, &TestToken::B];
         assert_eq!(first_set.get("S"), Some(expected.as_slice()));
