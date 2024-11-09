@@ -1,0 +1,10 @@
+cargo-features = ["edition2024"]
+
+[package]
+name = "copager_parse_lr_common"
+version = "0.2.0"
+edition = "2024"
+
+[dependencies]
+anyhow = { workspace = true }
+thiserror = { workspace = true }
