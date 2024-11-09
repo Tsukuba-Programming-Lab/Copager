@@ -44,21 +44,12 @@ impl<T: TokenTag> Rule<T> {
     }
 }
 
-#[derive(Debug, Clone, Eq)]
+#[derive(Debug, Clone, Hash, Eq)]
 pub enum RuleElem<T: TokenTag> {
     NonTerm(String),
     Term(T),
+    Epsilon,
     EOF,
-}
-
-impl<T: TokenTag> Hash for RuleElem<T> {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        match self {
-            RuleElem::NonTerm(s) => s.hash(state),
-            RuleElem::Term(t) => t.hash(state),
-            RuleElem::EOF => 0.hash(state),
-        }
-    }
 }
 
 impl<T: TokenTag> PartialEq for RuleElem<T> {
@@ -66,6 +57,7 @@ impl<T: TokenTag> PartialEq for RuleElem<T> {
         match (self, other) {
             (RuleElem::NonTerm(s1), RuleElem::NonTerm(s2)) => s1 == s2,
             (RuleElem::Term(t1), RuleElem::Term(t2)) => t1 == t2,
+            (RuleElem::Epsilon, RuleElem::Epsilon) => true,
             (RuleElem::EOF, RuleElem::EOF) => true,
             _ => false,
         }

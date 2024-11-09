@@ -112,6 +112,11 @@ fn parse_rule(token: &TokenStream, input: &str) -> TokenStream {
             }
         })
         .collect::<Vec<_>>();
+    let rhs = if rhs.len() == 0 {
+        vec![quote! { RuleElem::Epsilon }]
+    } else {
+        rhs
+    };
 
     quote! { Rule::from((#lhs, vec![ #( #rhs, )* ])) }
 }
