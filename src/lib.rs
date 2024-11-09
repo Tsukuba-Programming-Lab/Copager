@@ -19,7 +19,7 @@ pub mod lex {
 pub mod parse {
     pub use copager_parse::*;
     #[cfg(feature = "lr1")]
-    pub use copager_parse_lr1::*;
+    pub use copager_parse_lr_lr1::*;
 }
 
 pub mod ir {

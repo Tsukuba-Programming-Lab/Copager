@@ -5,7 +5,7 @@ use copager_cfg::rule::{RuleTag, Rule, RuleElem};
 use copager_lex::{LexSource, LexDriver};
 use copager_lex_regex::RegexLexer;
 use copager_parse::{ParseSource, ParseDriver, ParseEvent};
-use copager_parse_lr1::LR1;
+use copager_parse_lr_lr1::LR1;
 
 #[derive(
     Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
