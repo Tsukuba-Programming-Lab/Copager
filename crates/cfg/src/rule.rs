@@ -11,7 +11,7 @@ where
     fn as_rules(&self) -> Vec<Rule<T>>;
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Eq)]
 pub struct Rule<T: TokenTag> {
     pub id: usize,
     pub lhs: RuleElem<T>,
@@ -21,6 +21,19 @@ pub struct Rule<T: TokenTag> {
 impl<T: TokenTag> From<(RuleElem<T>, Vec<RuleElem<T>>)> for Rule<T> {
     fn from((lhs, rhs): (RuleElem<T>, Vec<RuleElem<T>>)) -> Self {
         Rule { id: 0, lhs, rhs }
+    }
+}
+
+impl<T: TokenTag> PartialEq for Rule<T> {
+    fn eq(&self, other: &Self) -> bool {
+        self.lhs == other.lhs && self.rhs == other.rhs
+    }
+}
+
+impl<T: TokenTag> Hash for Rule<T> {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.lhs.hash(state);
+        self.rhs.hash(state);
     }
 }
 

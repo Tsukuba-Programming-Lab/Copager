@@ -26,7 +26,7 @@ impl<'a, T: TokenTag> From<&'a RuleSet<T>> for FollowSet<'a, T> {
 }
 
 impl<'a, T: TokenTag> FollowSet<'a, T> {
-    pub fn get(&self, nonterm: &str) -> Option<&[&RuleElem<T>]> {
+    pub fn get(&self, nonterm: &str) -> Option<&[&'a RuleElem<T>]> {
         self.map.get(nonterm).map(|terms| terms.as_slice())
     }
 }
