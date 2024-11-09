@@ -38,4 +38,5 @@ pub mod prelude {
 #[cfg(feature = "dev")]
 pub mod dev {
     pub use copager_parse_common::*;
+    pub use copager_parse_lr_common as lr;
 }
