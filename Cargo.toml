@@ -57,6 +57,7 @@ members = [
     "./crates/lex_regex",
     "./crates/parse",
     "./crates/parse_derive",
+    "./crates/parse_lr_common",
     "./crates/parse_lr1",
     "./crates/ir",
     "./crates/ir_void",

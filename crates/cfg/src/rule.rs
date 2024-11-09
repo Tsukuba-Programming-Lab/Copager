@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fmt::Debug;
 use std::hash::Hash;
 
@@ -103,11 +103,11 @@ impl<T: TokenTag> FromIterator<Rule<T>> for RuleSet<T> {
 }
 
 impl<T: TokenTag> RuleSet<T> {
-    pub fn nonterms<'a>(&'a self) -> Vec<&'a RuleElem<T>> {
+    pub fn nonterms<'a>(&'a self) -> HashSet<&'a RuleElem<T>> {
         self.rules.iter().flat_map(|rule| rule.nonterms()).collect()
     }
 
-    pub fn terms<'a>(&'a self) -> Vec<&'a RuleElem<T>> {
+    pub fn terms<'a>(&'a self) -> HashSet<&'a RuleElem<T>> {
         self.rules.iter().flat_map(|rule| rule.terms()).collect()
     }
 

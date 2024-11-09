@@ -1,0 +1,15 @@
+cargo-features = ["edition2024"]
+
+[package]
+name = "copager_parse_lr_common"
+version = "0.2.0"
+edition = "2024"
+
+[dependencies]
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+copager_cfg = { path = "../cfg" }
+
+[dev-dependencies]
+copager_lex = { path = "../lex", features = ["derive"] }
+copager_parse = { path = "../parse", features = ["derive"] }
