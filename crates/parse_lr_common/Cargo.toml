@@ -8,3 +8,4 @@ edition = "2024"
 [dependencies]
 anyhow = { workspace = true }
 thiserror = { workspace = true }
+copager_cfg = { path = "../cfg" }
