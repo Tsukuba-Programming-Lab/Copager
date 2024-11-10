@@ -5,8 +5,8 @@ use copager_cfg::rule::{Rule, RuleElem, RuleSet};
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub struct LR0Item<'a, T: TokenTag> {
-    rule: &'a Rule<T>,
-    dot_pos: usize,
+    pub rule: &'a Rule<T>,
+    pub dot_pos: usize,
 }
 
 impl<'a, T: TokenTag> From<&'a Rule<T>> for LR0Item<'a, T> {
@@ -39,7 +39,7 @@ impl<'a, T: TokenTag> LR0Item<'a, T> {
 
 #[derive(Debug)]
 pub struct LR0ItemSet<'a, T: TokenTag> {
-    items: HashSet<LR0Item<'a, T>>,
+    pub items: HashSet<LR0Item<'a, T>>,
     ruleset: &'a RuleSet<T>,
 }
 
