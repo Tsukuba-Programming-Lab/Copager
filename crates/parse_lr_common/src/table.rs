@@ -62,7 +62,7 @@ where
     T: TokenTag + 'a,
     R: RuleTag<T>,
 {
-    pub fn from<A>(automaton: &'b impl Automaton<'a, 'b, T>) -> Self {
+    pub fn from(automaton: &'b impl Automaton<'a, 'b, T>) -> Self {
         let size = automaton.len();
 
         // 初期化
