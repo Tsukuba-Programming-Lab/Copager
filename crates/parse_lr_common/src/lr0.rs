@@ -1,4 +1,4 @@
 pub mod item;
-pub mod automaton;
+pub mod dfa;
 
-pub use automaton::LR0DFA;
+pub use dfa::LR0DFA;

@@ -4,6 +4,7 @@ use std::marker::PhantomData;
 use copager_cfg::token::TokenTag;
 use copager_cfg::rule::{Rule, RuleElem, RuleSet};
 
+use crate::automaton::Automaton;
 use crate::lr0::item::{LR0Item, LR0ItemSet};
 
 #[derive(Debug)]
@@ -51,6 +52,16 @@ impl<'a, T: TokenTag> From<&'a RuleSet<T>> for LR0DFA<'a, T> {
         }
 
         LR0DFA { nodes, edges }
+    }
+}
+
+impl<'a: 'b, 'b, T: TokenTag> Automaton<'a, 'b, T> for LR0DFA<'a, T> {
+    fn len(&self) -> usize {
+        self.nodes.len()
+    }
+
+    fn edges(&'b self) -> impl Iterator<Item = &'b (usize, usize, &'a RuleElem<T>)> {
+        self.edges.iter()
     }
 }
 
