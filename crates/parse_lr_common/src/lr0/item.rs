@@ -11,7 +11,11 @@ pub struct LR0Item<'a, T: TokenTag> {
 
 impl<'a, T: TokenTag> From<&'a Rule<T>> for LR0Item<'a, T> {
     fn from(rule: &'a Rule<T>) -> Self {
-        LR0Item { rule, dot_pos: 0 }
+        if rule.rhs[0] == RuleElem::Epsilon {
+            LR0Item { rule, dot_pos: 1 }
+        } else {
+            LR0Item { rule, dot_pos: 0 }
+        }
     }
 }
 
