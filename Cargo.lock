@@ -200,6 +200,7 @@ version = "0.2.0"
 dependencies = [
  "anyhow",
  "copager_cfg",
+ "copager_parse",
  "thiserror",
 ]
 
