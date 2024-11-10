@@ -80,24 +80,26 @@ impl<'a, T: TokenTag> LR0ItemSet<'a, T> {
     }
 
     fn expand(&mut self) {
-        let new_expaned = self.items
-            .iter()
-            .flat_map(|item| self.expand_once(item))
-            .flatten()
-            .collect::<Vec<_>>();
-        for item in new_expaned {
-            self.items.insert(item);
+        let mut modified = true;
+        while modified {
+            modified = false;
+            let new_expaned = self.items
+                .iter()
+                .flat_map(|item| self.expand_once(item))
+                .flatten()
+                .collect::<Vec<_>>();
+            for item in new_expaned {
+                modified |= self.items.insert(item);
+            }
         }
     }
 
-    fn expand_once(&self, item: &LR0Item<'a, T>) -> Option<Vec<LR0Item<'a, T>>> {
+    fn expand_once(&self, item: &LR0Item<'a, T>) -> Option<impl Iterator<Item = LR0Item<'a, T>>> {
         if let Some(nonterm@RuleElem::NonTerm(..)) = item.check_next_elem() {
-            let items = self.ruleset
+            Some(self.ruleset
                 .find_rule(nonterm)
                 .into_iter()
-                .map(|rule| LR0Item::from(rule))
-                .collect();
-            Some(items)
+                .map(|rule| LR0Item::from(rule)))
         } else {
             None
         }
