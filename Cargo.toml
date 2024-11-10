@@ -69,6 +69,7 @@ members = [
     "./crates/parse_common",
     "./crates/parse_derive",
     "./crates/parse_lr_common",
+    "./crates/parse_lr_lr0",
     "./crates/parse_lr_lr1",
     "./crates/ir",
     "./crates/ir_void",
