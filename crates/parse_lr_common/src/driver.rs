@@ -4,21 +4,21 @@ use copager_parse::ParseEvent;
 
 use crate::table::{LRAction, LRTable};
 
-pub struct LRDriver<T, R>
+pub struct LRDriver<'table, T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    table: LRTable<T, R>,
+    table: &'table LRTable<T, R>,
     stack: Vec<usize>,
 }
 
-impl<T, R> From<LRTable<T, R>> for LRDriver<T, R>
+impl<'table, T, R> From<&'table LRTable<T, R>> for LRDriver<'table, T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    fn from(table: LRTable<T, R>) -> Self {
+    fn from(table: &'table LRTable<T, R>) -> Self {
         LRDriver {
             table,
             stack: vec![0],
@@ -26,7 +26,7 @@ where
     }
 }
 
-impl<'input, T, R> LRDriver<T, R>
+impl<'table, 'input, T, R> LRDriver<'table, T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,
