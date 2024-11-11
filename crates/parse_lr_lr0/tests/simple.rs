@@ -61,7 +61,8 @@ fn simple_success() {
         .unwrap();
 
     for input in &OK_INPUTS {
-        assert!(processor.process::<Void>(input).is_ok(), "input: {}", input);
+        println!("input: {}", input);
+        processor.process::<Void>(input).unwrap();
     }
 }
 
