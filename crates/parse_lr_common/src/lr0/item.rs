@@ -1,4 +1,5 @@
 use std::collections::{HashMap, HashSet};
+use std::hash::Hash;
 
 use copager_cfg::token::TokenTag;
 use copager_cfg::rule::{Rule, RuleElem, RuleSet, RuleTag};
@@ -49,13 +50,13 @@ where
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LR0ItemSet<'a, T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    pub items: HashSet<LR0Item<'a, T, R>>,
+    pub items: Vec<LR0Item<'a, T, R>>,
     ruleset: &'a RuleSet<T, R>,
 }
 
@@ -66,11 +67,37 @@ where
 {
     fn from(ruleset: &'a RuleSet<T, R>) -> Self {
         LR0ItemSet {
-            items: HashSet::new(),
+            items: vec![],
             ruleset,
         }
     }
 }
+
+impl<'a, T, R> Hash for LR0ItemSet<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.items.hash(state);
+    }
+}
+
+impl<'a, T, R> PartialEq for LR0ItemSet<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn eq(&self, other: &Self) -> bool {
+        self.items == other.items
+    }
+}
+
+impl <'a, T, R> Eq for LR0ItemSet<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{}
 
 impl<'a, T, R> LR0ItemSet<'a, T, R>
 where
@@ -78,7 +105,10 @@ where
     R: RuleTag<T>,
 {
     pub fn init(mut self, rule: &'a Rule<T, R>) -> Self {
-        self.items.insert(LR0Item::from(rule));
+        let new_item = LR0Item::from(rule);
+        if !self.items.contains(&new_item) {
+            self.items.push(new_item);
+        }
         self
     }
 
@@ -98,9 +128,10 @@ where
 
         next_set_candidates
             .into_iter()
-            .map(|(cond, items)|
+            .map(|(cond, items)| {
+                let items = items.into_iter().collect();
                 (cond, LR0ItemSet { items, ruleset: self.ruleset })
-            )
+            })
     }
 
     fn expand(&mut self) {
@@ -113,7 +144,11 @@ where
                 .flatten()
                 .collect::<Vec<_>>();
             for item in new_expaned {
-                modified |= self.items.insert(item);
+                if self.items.contains(&item) {
+                    continue;
+                }
+                self.items.push(item);
+                modified = true;
             }
         }
     }

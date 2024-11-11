@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::rc::Rc;
 use std::marker::PhantomData;
 
@@ -7,7 +8,7 @@ use copager_cfg::rule::{Rule, RuleElem, RuleSet, RuleTag};
 use crate::automaton::Automaton;
 use crate::lr0::item::{LR0Item, LR0ItemSet};
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct LR0DFANode<'a, T, R>
 where
     T: TokenTag,
@@ -87,24 +88,24 @@ where
 }
 
 #[derive(Debug)]
-struct LR0DFABuilder<T, R>
+struct LR0DFABuilder<'a, T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    nodes: usize,
+    itemsets: HashSet<LR0ItemSet<'a, T, R>>,
     _phantom_t: PhantomData<T>,
     _phantom_r: PhantomData<R>,
 }
 
-impl<'a, T, R> LR0DFABuilder<T, R>
+impl<'a, T, R> LR0DFABuilder<'a, T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,
 {
     fn new() -> Self {
         LR0DFABuilder {
-            nodes: 0,
+            itemsets: HashSet::new(),
             _phantom_t: PhantomData,
             _phantom_r: PhantomData,
         }
@@ -118,23 +119,29 @@ where
             .unwrap();
         let top = LR0ItemSet::from(ruleset).init(top);
 
-        self.gen_recursive(top)
+        self.gen_recursive(top).unwrap()
     }
 
-    fn gen_recursive(&mut self, mut itemset: LR0ItemSet<'a, T, R>) -> LR0DFANode<'a, T, R>
+    fn gen_recursive(&mut self, mut itemset: LR0ItemSet<'a, T, R>) -> Option<LR0DFANode<'a, T, R>>
     where
         T: TokenTag,
     {
-        let id = self.nodes;
+        if self.itemsets.contains(&itemset) {
+            return None;
+        }
+
+        let id = self.itemsets.len();
+        self.itemsets.insert(itemset.clone());
+
         let next = itemset
             .gen_next_sets()
-            .map(|(cond, next_items) | {
-                (cond, Rc::new(self.gen_recursive(next_items)))
+            .filter_map(|(cond, next_items) | {
+                let next_node = self.gen_recursive(next_items);
+                next_node.map(|next_node| (cond, Rc::new(next_node)))
             })
             .collect();
-        self.nodes += 1;
 
-        LR0DFANode { id, itemset, next }
+        Some(LR0DFANode { id, itemset, next })
     }
 }
 
