@@ -11,6 +11,7 @@ where
 {
     table: &'table LRTable<T, R>,
     stack: Vec<usize>,
+    accepted: bool,
 }
 
 impl<'table, T, R> From<&'table LRTable<T, R>> for LRDriver<'table, T, R>
@@ -22,6 +23,7 @@ where
         LRDriver {
             table,
             stack: vec![0],
+            accepted: false,
         }
     }
 }
@@ -38,7 +40,8 @@ where
     pub gen fn consume(&mut self, token: Option<Token<'input, T>>) -> ParseEvent<'input, T, R> {
         loop {
             let top = self.stack[self.stack.len() - 1];
-            match (self.table.get_action(top, token), token) {
+            let action = self.table.get_action(top, token);
+            match (action, token) {
                 (LRAction::Shift(new_state), Some(token)) => {
                     self.stack.push(*new_state);
                     yield ParseEvent::Read(token);
@@ -49,16 +52,17 @@ where
                     let lhs = lhs_as_str(&rule.lhs);
                     let rhs_len = rule.rhs.len();
                     self.stack.truncate(self.stack.len() - rhs_len);
-                    self.stack.push(self.table.get_goto(self.stack.len()-1, lhs).unwrap());
+                    self.stack.push(self.table.get_goto(self.stack[self.stack.len()-1], lhs).unwrap());
                     yield ParseEvent::Parse { rule: tag, len: rhs_len };
                 },
                 (LRAction::Accept, _) => {
+                    self.accepted = true;
                     return;
                 }
-                (LRAction::None, Some(_)) => {
+                (LRAction::None, Some(token)) => {
                     // TODO
                     // yield ParseEvent::Err(ParseError::new_unexpected_token(token).into());
-                    yield ParseEvent::Err(anyhow::anyhow!("unexpected token").into());
+                    yield ParseEvent::Err(anyhow::anyhow!("unexpected token {}", token.as_str()).into());
                     return;
                 }
                 (LRAction::None, None) => {
@@ -70,6 +74,10 @@ where
                 _ => unreachable!(),
             }
         }
+    }
+
+    pub fn accepted(&self) -> bool {
+        self.accepted
     }
 }
 
