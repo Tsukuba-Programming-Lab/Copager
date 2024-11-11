@@ -5,7 +5,7 @@ use copager_cfg::rule::{Rule, RuleElem, RuleTag};
 
 use crate::automaton::Automaton;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum LRAction<T, R>
 where
     T: TokenTag,
@@ -17,7 +17,7 @@ where
     None,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LRTable<T, R>
 where
     T: TokenTag,
@@ -95,11 +95,11 @@ where
         }
     }
 
-    pub fn set_reduce(&mut self, state: usize, token: Option<T>, rule: Rule<T, R>) {
+    pub fn set(&mut self, state: usize, token: Option<T>, action: LRAction<T, R>) {
         if let Some(token) = token {
-            self.action_table[state].insert(token, LRAction::Reduce(rule));
+            self.action_table[state].insert(token, action);
         } else {
-            self.eof_action_table[state] = LRAction::Reduce(rule);
+            self.eof_action_table[state] = action;
         }
     }
 
