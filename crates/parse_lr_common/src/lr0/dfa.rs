@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use std::fmt::Debug;
 use std::rc::Rc;
 use std::marker::PhantomData;
 
@@ -8,7 +9,7 @@ use copager_cfg::rule::{Rule, RuleElem, RuleSet, RuleTag};
 use crate::automaton::Automaton;
 use crate::lr0::item::{LR0Item, LR0ItemSet};
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+#[derive(Clone, Hash, PartialEq, Eq)]
 pub struct LR0DFANode<'a, T, R>
 where
     T: TokenTag,
@@ -17,6 +18,39 @@ where
     pub id: usize,
     pub itemset: LR0ItemSet<'a, T, R>,
     pub next: Vec<(&'a RuleElem<T>, Rc<Self>)>,  // (cond, next_node)
+}
+
+impl<'a, T, R> Debug for LR0DFANode<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        #[derive(Debug)]
+        #[allow(dead_code)]
+        struct LR0DFANode<'a, 'b, T, R>
+        where
+            T: TokenTag,
+            R: RuleTag<T>,
+        {
+            id: usize,
+            itemset: &'b LR0ItemSet<'a, T, R>,
+            next: Vec<(&'a RuleElem<T>, usize)>,
+        }
+
+        let id = self.id;
+        let itemset = &self.itemset;
+        let next = self.next
+            .iter()
+            .map(|(cond, next_node)| (*cond, next_node.id))
+            .collect::<Vec<_>>();
+
+        if f.alternate() {
+            return write!(f, "{:#?}", LR0DFANode { id, itemset, next });
+        } else {
+            write!(f, "{:?}", LR0DFANode { id, itemset, next })
+        }
+    }
 }
 
 impl<'a, T, R> LR0DFANode<'a, T, R>
@@ -62,6 +96,7 @@ where
         let mut edges = vec![];
         let mut stack = vec![Rc::new(dfa_top)];
         while let Some(node) = stack.pop() {
+            println!("{:#?}", node);
             nodes.push(Rc::clone(&node));
             for (cond, next_node) in &node.next {
                 edges.push((node.id, next_node.id, *cond));

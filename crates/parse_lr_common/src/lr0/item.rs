@@ -1,10 +1,11 @@
 use std::collections::{HashMap, HashSet};
+use std::fmt::{Display, Debug};
 use std::hash::Hash;
 
 use copager_cfg::token::TokenTag;
 use copager_cfg::rule::{Rule, RuleElem, RuleSet, RuleTag};
 
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
 pub struct LR0Item<'a, T, R>
 where
     T: TokenTag,
@@ -12,6 +13,33 @@ where
 {
     pub rule: &'a Rule<T, R>,
     pub dot_pos: usize,
+}
+
+impl<'a, T, R> Display for LR0Item<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} -> ", self.rule.lhs)?;
+        for (i, elem) in self.rule.rhs.iter().enumerate() {
+            if i == self.dot_pos {
+                write!(f, "• ")?;
+            }
+            write!(f, "{} ", elem)?;
+        }
+        write!(f, "")
+    }
+}
+
+impl<'a, T, R> Debug for LR0Item<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self)
+    }
 }
 
 impl<'a, T, R> From<&'a Rule<T, R>> for LR0Item<'a, T, R>
@@ -50,7 +78,7 @@ where
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct LR0ItemSet<'a, T, R>
 where
     T: TokenTag,
@@ -58,6 +86,20 @@ where
 {
     pub items: Vec<LR0Item<'a, T, R>>,
     ruleset: &'a RuleSet<T, R>,
+}
+
+impl<'a, T, R> Debug for LR0ItemSet<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if f.alternate() {
+            write!(f, "{:#?}", self.items)
+        } else {
+            write!(f, "{:?}", self.items)
+        }
+    }
 }
 
 impl<'a, T, R> From<&'a RuleSet<T, R>> for LR0ItemSet<'a, T, R>

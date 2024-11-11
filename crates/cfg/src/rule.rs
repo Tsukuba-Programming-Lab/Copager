@@ -1,5 +1,5 @@
 use std::collections::{HashMap, HashSet};
-use std::fmt::Debug;
+use std::fmt::{Display, Debug};
 use std::hash::Hash;
 
 use crate::token::TokenTag;
@@ -73,12 +73,29 @@ where
     }
 }
 
-#[derive(Debug, Clone, Hash, Eq)]
+#[derive(Clone, Hash, Eq)]
 pub enum RuleElem<T: TokenTag> {
     NonTerm(String),
     Term(T),
     Epsilon,
     EOF,
+}
+
+impl<T: TokenTag> Display for RuleElem<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            RuleElem::NonTerm(s) => write!(f, "<{}>", s),
+            RuleElem::Term(t) => write!(f, "{:?}", t.as_str()),
+            RuleElem::Epsilon => write!(f, "ε"),
+            RuleElem::EOF => write!(f, "$"),
+        }
+    }
+}
+
+impl<T: TokenTag> Debug for RuleElem<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self)
+    }
 }
 
 impl<T: TokenTag> PartialEq for RuleElem<T> {
