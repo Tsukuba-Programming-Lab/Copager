@@ -28,6 +28,9 @@ where
             }
             write!(f, "{} ", elem)?;
         }
+        if self.dot_pos == self.rule.rhs.len() {
+            write!(f, "•")?;
+        }
         write!(f, "")
     }
 }
