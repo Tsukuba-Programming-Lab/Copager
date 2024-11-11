@@ -136,6 +136,13 @@ where
     T: TokenTag,
     R: RuleTag<T>,
 {
+    pub fn update_top(&mut self, rule: Rule<T, R>) {
+        if let RuleElem::NonTerm(top) = &rule.lhs {
+            self.top = top.to_string();
+        }
+        self.rules.push(rule);
+    }
+
     pub fn nonterms<'a>(&'a self) -> HashSet<&'a RuleElem<T>> {
         self.rules.iter().flat_map(|rule| rule.nonterms()).collect()
     }
