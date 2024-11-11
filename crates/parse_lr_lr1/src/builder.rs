@@ -1,11 +1,12 @@
 use std::collections::{HashMap, HashSet};
+use std::marker::PhantomData;
 use std::hash::Hash;
 
 use itertools::Itertools;
 use serde::{Serialize, Deserialize};
 
 use copager_cfg::token::TokenTag;
-use copager_cfg::rule::{Rule, RuleElem, RuleSet};
+use copager_cfg::rule::{Rule, RuleElem, RuleSet, RuleTag};
 use copager_lex::LexSource;
 use copager_parse::ParseSource;
 
@@ -43,10 +44,11 @@ where
         let first_set = ruleset.first_set();
 
         // 2. Generate dummy nonterm
-        let top_dummy: Rule<Sl::Tag> = Rule::from((
+        let top_dummy: Rule<Sl::Tag, Sp::Tag> = Rule::new(
+            None,
             RuleElem::new_nonterm("__top_dummy"),
             vec![RuleElem::new_nonterm(&ruleset.top)],
-        ));
+        );
         let top_dummy = vec![LRItem::new(
             &top_dummy,
             HashSet::from_iter(vec![&RuleElem::EOF]),
@@ -69,10 +71,10 @@ where
             }
         }
 
-        let mut action_table: Vec<HashMap<Sl::Tag, LRAction<Sp::Tag>>> = Vec::with_capacity(dfa.0.len());
-        let mut eof_action_table: Vec<LRAction<Sp::Tag>> = Vec::with_capacity(dfa.0.len());
-        let mut goto_table: Vec<Vec<usize>> = Vec::with_capacity(dfa.0.len());
-        for _ in 0..dfa.0.len() {
+        let mut action_table: Vec<HashMap<Sl::Tag, LRAction<Sp::Tag>>> = Vec::with_capacity(dfa.sets.len());
+        let mut eof_action_table: Vec<LRAction<Sp::Tag>> = Vec::with_capacity(dfa.sets.len());
+        let mut goto_table: Vec<Vec<usize>> = Vec::with_capacity(dfa.sets.len());
+        for _ in 0..dfa.sets.len() {
             action_table.push(HashMap::from_iter(
                 source_l.iter()
                     .map(|token| (token, LRAction::None))
@@ -84,7 +86,7 @@ where
 
         // 5. Setup tables
         let rule_tags = source_p.iter().collect::<Vec<_>>();
-        for lritem_set in &dfa.0 {
+        for lritem_set in &dfa.sets {
             for (token, next) in &lritem_set.next {
                 match &token {
                     RuleElem::NonTerm(s) => {
@@ -142,17 +144,26 @@ where
 }
 
 #[derive(Debug)]
-struct LRItemDFA<'a, T: TokenTag> (
-    Vec<LRItemSet<'a, T>>
-);
+struct LRItemDFA<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    sets: Vec<LRItemSet<'a, T, R>>,
+    _phantom: PhantomData<R>,
+}
 
-impl<'a, T: TokenTag> LRItemDFA<'a, T> {
+impl<'a, T, R> LRItemDFA<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
     fn r#gen(
-        init_set: LRItemSet<'a, T>,
-        ruleset: &'a RuleSet<T>,
+        init_set: LRItemSet<'a, T, R>,
+        ruleset: &'a RuleSet<T, R>,
         first_set: &HashMap<&'a RuleElem<T>, Vec<&'a RuleElem<T>>>,
-    ) -> LRItemDFA<'a, T> {
-        let issue_id = |old_sets: &Vec<LRItemSet<'a, T>>, set: &LRItemSet<'a, T>| {
+    ) -> LRItemDFA<'a, T, R> {
+        let issue_id = |old_sets: &Vec<LRItemSet<'a, T, R>>, set: &LRItemSet<'a, T, R>| {
             if let Some(ex_set) = old_sets.iter().find(|&set0| set0.strict_eq(set)) {
                 Err(ex_set.id)
             } else {
@@ -184,31 +195,50 @@ impl<'a, T: TokenTag> LRItemDFA<'a, T> {
             loop_idx = (loop_idx.1, loop_idx.1 + new_found_cnt);
         }
 
-        LRItemDFA(lritem_sets)
+        LRItemDFA {
+            sets: lritem_sets,
+            _phantom: PhantomData,
+        }
     }
 }
 
 #[derive(Clone, Debug, Eq)]
-struct LRItemSet<'a, T: TokenTag> {
+struct LRItemSet<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
     id: i32,
     next: HashMap<&'a RuleElem<T>, i32>,
-    lr_items: HashSet<LRItem<'a, T>>,
+    lr_items: HashSet<LRItem<'a, T, R>>,
 }
 
-impl<'a, T: TokenTag> PartialEq for LRItemSet<'a, T> {
-    fn eq(&self, other: &LRItemSet<'a, T>) -> bool {
+impl<'a, T, R> PartialEq for LRItemSet<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn eq(&self, other: &LRItemSet<'a, T, R>) -> bool {
         self.lr_items == other.lr_items
     }
 }
 
-impl<'a, T: TokenTag> PartialEq<HashSet<LRItem<'a, T>>> for LRItemSet<'a, T> {
-    fn eq(&self, other: &HashSet<LRItem<'a, T>>) -> bool {
+impl<'a, T, R> PartialEq<HashSet<LRItem<'a, T, R>>> for LRItemSet<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn eq(&self, other: &HashSet<LRItem<'a, T, R>>) -> bool {
         &self.lr_items == other
     }
 }
 
-impl<'a, T: TokenTag> LRItemSet<'a, T> {
-    fn new(id: i32, lr_items: HashSet<LRItem<'a, T>>) -> Self {
+impl<'a, T, R> LRItemSet<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn new(id: i32, lr_items: HashSet<LRItem<'a, T, R>>) -> Self {
         LRItemSet {
             id,
             next: HashMap::new(),
@@ -227,21 +257,21 @@ impl<'a, T: TokenTag> LRItemSet<'a, T> {
 
     fn expand_closure<'b>(
         mut self,
-        ruleset: &'a RuleSet<T>,
+        ruleset: &'a RuleSet<T, R>,
         first_set: &'b HashMap<&'a RuleElem<T>, Vec<&'a RuleElem<T>>>,
-    ) -> LRItemSet<'a, T> {
+    ) -> LRItemSet<'a, T, R> {
         let mut lr_items = self.lr_items.clone();
         let mut lr_items_fetched = self.lr_items;
         loop {
-            let new_items: Vec<LRItem<'_, _>> = lr_items_fetched
+            let new_items: Vec<LRItem<'_, _, _>> = lr_items_fetched
                 .iter()
                 .flat_map(|item| item.expand_closure(ruleset, first_set))
                 .collect();
-            let new_items = LRItem::<'_, _>::unify_all(new_items);
+            let new_items = LRItem::<'_, _, _>::unify_all(new_items);
             let new_items = HashSet::from_iter(new_items);
 
             let bef_len = lr_items.len();
-            lr_items = LRItem::<'_, _>::unity_set(lr_items, new_items.clone());
+            lr_items = LRItem::<'_, _, _>::unity_set(lr_items, new_items.clone());
             let af_len = lr_items.len();
             if bef_len == af_len {
                 break;
@@ -255,16 +285,16 @@ impl<'a, T: TokenTag> LRItemSet<'a, T> {
 
     fn gen_next_sets<'b>(
         &self,
-        ruleset: &'a RuleSet<T>,
+        ruleset: &'a RuleSet<T, R>,
         first_set: &'b HashMap<&'a RuleElem<T>, Vec<&'a RuleElem<T>>>,
-    ) -> HashMap<&'a RuleElem<T>, LRItemSet<'a, T>> {
-        let new_items: Vec<(&'a RuleElem<T>, LRItem<'a, T>)> = self
+    ) -> HashMap<&'a RuleElem<T>, LRItemSet<'a, T, R>> {
+        let new_items: Vec<(&'a RuleElem<T>, LRItem<'a, T, R>)> = self
             .lr_items
             .iter()
             .filter_map(|lr_item| lr_item.next_dot())
             .collect();
 
-        let mut new_sets: HashMap<&RuleElem<T>, HashSet<LRItem<'_, _>>> = HashMap::new();
+        let mut new_sets: HashMap<&RuleElem<T>, HashSet<LRItem<'_, _, _>>> = HashMap::new();
         for (bef_token, lr_item) in new_items {
             if new_sets.get(&bef_token).is_none() {
                 new_sets.insert(bef_token, HashSet::new());
@@ -272,7 +302,7 @@ impl<'a, T: TokenTag> LRItemSet<'a, T> {
             new_sets.get_mut(&bef_token).unwrap().insert(lr_item);
         }
 
-        let mut new_sets_expanded: HashMap<&'a RuleElem<T>, LRItemSet<'_, _>> = HashMap::new();
+        let mut new_sets_expanded: HashMap<&'a RuleElem<T>, LRItemSet<'_, _, _>> = HashMap::new();
         for (ktoken, new_set) in new_sets {
             let new_set = LRItemSet::new(0, new_set);
             let new_set = new_set.expand_closure(ruleset, first_set);
@@ -284,27 +314,43 @@ impl<'a, T: TokenTag> LRItemSet<'a, T> {
 }
 
 #[derive(Clone, Debug, Eq)]
-struct LRItem<'a, T: TokenTag> {
-    rule: &'a Rule<T>,
+struct LRItem<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    rule: &'a Rule<T, R>,
     dot_pos: usize,
     la_tokens: HashSet<&'a RuleElem<T>>,
 }
 
-impl<'a, T: TokenTag> Hash for LRItem<'a, T> {
+impl<'a, T, R> Hash for LRItem<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.rule.hash(state);
         self.dot_pos.hash(state);
     }
 }
 
-impl<'a, T: TokenTag> PartialEq for LRItem<'a, T> {
+impl<'a, T, R> PartialEq for LRItem<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
     fn eq(&self, other: &Self) -> bool {
         self.rule == other.rule && self.dot_pos == other.dot_pos
     }
 }
 
-impl<'a, T: TokenTag> LRItem<'a, T> {
-    fn new(rule: &'a Rule<T>, la_tokens: HashSet<&'a RuleElem<T>>) -> LRItem<'a, T> {
+impl<'a, T, R> LRItem<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn new(rule: &'a Rule<T, R>, la_tokens: HashSet<&'a RuleElem<T>>) -> LRItem<'a, T, R> {
         LRItem {
             rule,
             dot_pos: 0,
@@ -320,9 +366,9 @@ impl<'a, T: TokenTag> LRItem<'a, T> {
 
     fn expand_closure<'b>(
         &self,
-        ruleset: &'a RuleSet<T>,
+        ruleset: &'a RuleSet<T, R>,
         first_set: &'b HashMap<&'a RuleElem<T>, Vec<&'a RuleElem<T>>>,
-    ) -> HashSet<LRItem<'a, T>> {
+    ) -> HashSet<LRItem<'a, T, R>> {
         let af_la_tokens = if self.dot_pos + 1 < self.rule.rhs.len() {
             HashSet::from_iter(
                 first_set
@@ -340,7 +386,7 @@ impl<'a, T: TokenTag> LRItem<'a, T> {
             ruleset
                 .find_rule(&self.rule.rhs[self.dot_pos])
                 .into_iter()
-                .map(|rule| LRItem::<'_,  _>::new(rule, af_la_tokens.clone()))
+                .map(|rule| LRItem::<'_,  _, _>::new(rule, af_la_tokens.clone()))
                 .collect()
         } else {
             HashSet::new()
@@ -348,7 +394,7 @@ impl<'a, T: TokenTag> LRItem<'a, T> {
     }
 
     #[allow(clippy::int_plus_one)]
-    fn next_dot(&self) -> Option<(&'a RuleElem<T>, LRItem<'a, T>)> {
+    fn next_dot(&self) -> Option<(&'a RuleElem<T>, LRItem<'a, T, R>)> {
         if self.dot_pos + 1 <= self.rule.rhs.len() {
             let bef_token = &self.rule.rhs[self.dot_pos];
             let item = LRItem {
@@ -362,7 +408,7 @@ impl<'a, T: TokenTag> LRItem<'a, T> {
         }
     }
 
-    fn unify(&mut self, other: LRItem<'a, T>) {
+    fn unify(&mut self, other: LRItem<'a, T, R>) {
         if self != &other {
             return;
         }
@@ -373,7 +419,7 @@ impl<'a, T: TokenTag> LRItem<'a, T> {
         });
     }
 
-    fn unify_all(mut items: Vec<LRItem<'a, T>>) -> Vec<LRItem<'a, T>> {
+    fn unify_all(mut items: Vec<LRItem<'a, T, R>>) -> Vec<LRItem<'a, T, R>> {
         for idx in (0..items.len()).permutations(2) {
             let (a_idx, b_idx) = (idx[0], idx[1]);
             let tmp = items[b_idx].clone();
@@ -383,9 +429,9 @@ impl<'a, T: TokenTag> LRItem<'a, T> {
     }
 
     fn unity_set(
-        items_a: HashSet<LRItem<'a, T>>,
-        items_b: HashSet<LRItem<'a, T>>,
-    ) -> HashSet<LRItem<'a, T>> {
+        items_a: HashSet<LRItem<'a, T, R>>,
+        items_b: HashSet<LRItem<'a, T, R>>,
+    ) -> HashSet<LRItem<'a, T, R>> {
         let mut items_a = Vec::from_iter(items_a);
         let items_b = Vec::from_iter(items_b);
         items_a.extend(items_b);

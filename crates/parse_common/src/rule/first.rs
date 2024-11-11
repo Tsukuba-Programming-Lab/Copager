@@ -1,15 +1,24 @@
 use std::collections::{HashMap, HashSet};
+use std::marker::PhantomData;
 
 use copager_cfg::token::TokenTag;
-use copager_cfg::rule::{RuleElem, RuleSet};
+use copager_cfg::rule::{RuleElem, RuleSet, RuleTag};
 
-pub struct FirstSet<'a, T: TokenTag> {
+pub struct FirstSet<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
     map: HashMap<String, Vec<&'a RuleElem<T>>>,
-    _ruleset: &'a RuleSet<T>,
+    _phantom: PhantomData<R>,
 }
 
-impl<'a, T: TokenTag> From<&'a RuleSet<T>> for FirstSet<'a, T> {
-    fn from(ruleset: &'a RuleSet<T>) -> Self {
+impl<'a, T, R> From<&'a RuleSet<T, R>> for FirstSet<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn from(ruleset: &'a RuleSet<T, R>) -> Self {
         let build = FirstSetBuilder::from(ruleset).expand();
         let map = build.map
             .into_iter()
@@ -18,25 +27,37 @@ impl<'a, T: TokenTag> From<&'a RuleSet<T>> for FirstSet<'a, T> {
 
         FirstSet {
             map,
-            _ruleset: ruleset,
+            _phantom: PhantomData,
         }
     }
 }
 
-impl<'a, T: TokenTag> FirstSet<'a, T> {
+impl<'a, T, R> FirstSet<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
     pub fn get(&self, nonterm: &str) -> Option<&[&'a RuleElem<T>]> {
         self.map.get(nonterm).map(|terms| terms.as_slice())
     }
 }
 
-struct FirstSetBuilder<'a, T: TokenTag> {
+struct FirstSetBuilder<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
     map: HashMap<String, HashSet<&'a RuleElem<T>>>,
-    ruleset: &'a RuleSet<T>,
+    ruleset: &'a RuleSet<T, R>,
     nonterms: Vec<&'a str>,
 }
 
-impl<'a, T: TokenTag> From<&'a RuleSet<T>> for FirstSetBuilder<'a, T> {
-    fn from(ruleset: &'a RuleSet<T>) -> Self {
+impl<'a, T, R> From<&'a RuleSet<T, R>> for FirstSetBuilder<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn from(ruleset: &'a RuleSet<T, R>) -> Self {
         let mut map = HashMap::new();
         for nonterm in ruleset.nonterms() {
             if let RuleElem::NonTerm(nonterm) = nonterm {
@@ -61,7 +82,11 @@ impl<'a, T: TokenTag> From<&'a RuleSet<T>> for FirstSetBuilder<'a, T> {
     }
 }
 
-impl<'a, T: TokenTag> FirstSetBuilder<'a, T> {
+impl<'a, T, R> FirstSetBuilder<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
     fn expand(mut self) -> Self {
         while self.expand_child() {}
         self
@@ -86,9 +111,10 @@ impl<'a, T: TokenTag> FirstSetBuilder<'a, T> {
     }
 }
 
-fn rhs_first_symbol<'a, T>(ruleset: &'a RuleSet<T>, nonterm: &str) -> impl Iterator<Item = &'a RuleElem<T>>
+fn rhs_first_symbol<'a, T, R>(ruleset: &'a RuleSet<T, R>, nonterm: &str) -> impl Iterator<Item = &'a RuleElem<T>>
 where
     T: TokenTag,
+    R: RuleTag<T>,
 {
     let cmp_nonterm = |relem: &RuleElem<T>, lhs: &str| match relem {
         RuleElem::NonTerm(nonterm) => nonterm == lhs,

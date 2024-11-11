@@ -1,17 +1,25 @@
 use std::collections::{HashMap, HashSet};
 
 use copager_cfg::token::TokenTag;
-use copager_cfg::rule::{RuleElem, RuleSet};
+use copager_cfg::rule::{RuleElem, RuleSet, RuleTag};
 
 use crate::rule::FirstSet;
 
-pub struct FollowSet<'a, T: TokenTag> {
+pub struct FollowSet<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
     map: HashMap<String, Vec<&'a RuleElem<T>>>,
-    _ruleset: &'a RuleSet<T>,
+    _ruleset: &'a RuleSet<T, R>,
 }
 
-impl<'a, T: TokenTag> From<&'a RuleSet<T>> for FollowSet<'a, T> {
-    fn from(ruleset: &'a RuleSet<T>) -> Self {
+impl<'a, T, R> From<&'a RuleSet<T, R>> for FollowSet<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn from(ruleset: &'a RuleSet<T, R>) -> Self {
         let build = FollowSetBuilder::from(ruleset).expand();
         let map = build.map
             .into_iter()
@@ -25,19 +33,31 @@ impl<'a, T: TokenTag> From<&'a RuleSet<T>> for FollowSet<'a, T> {
     }
 }
 
-impl<'a, T: TokenTag> FollowSet<'a, T> {
+impl<'a, T, R> FollowSet<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
     pub fn get(&self, nonterm: &str) -> Option<&[&'a RuleElem<T>]> {
         self.map.get(nonterm).map(|terms| terms.as_slice())
     }
 }
 
-pub struct FollowSetBuilder<'a, T: TokenTag> {
+pub struct FollowSetBuilder<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
     map: HashMap<String, HashSet<&'a RuleElem<T>>>,
-    ruleset: &'a RuleSet<T>,
+    ruleset: &'a RuleSet<T, R>,
 }
 
-impl<'a, T: TokenTag> From<&'a RuleSet<T>> for FollowSetBuilder<'a, T> {
-    fn from(ruleset: &'a RuleSet<T>) -> Self {
+impl<'a, T, R> From<&'a RuleSet<T, R>> for FollowSetBuilder<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn from(ruleset: &'a RuleSet<T, R>) -> Self {
         let mut map = HashMap::new();
         for nonterm in ruleset.nonterms() {
             if let RuleElem::NonTerm(nonterm) = nonterm {
@@ -53,7 +73,11 @@ impl<'a, T: TokenTag> From<&'a RuleSet<T>> for FollowSetBuilder<'a, T> {
     }
 }
 
-impl<'a, T: TokenTag> FollowSetBuilder<'a, T> {
+impl<'a, T, R> FollowSetBuilder<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
     fn expand(mut self) -> Self {
         while self.expand_child() {}
         self
@@ -104,7 +128,11 @@ impl<'a, T: TokenTag> FollowSetBuilder<'a, T> {
     }
 }
 
-fn first_by<'a, T: TokenTag>(first_set: &FirstSet<'a, T>, relems: &'a [RuleElem<T>]) -> Vec<&'a RuleElem<T> > {
+fn first_by<'a, T, R>(first_set: &FirstSet<'a, T, R>, relems: &'a [RuleElem<T>]) -> Vec<&'a RuleElem<T>>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
     if relems.is_empty() {
         vec![&RuleElem::Epsilon]
     } else {

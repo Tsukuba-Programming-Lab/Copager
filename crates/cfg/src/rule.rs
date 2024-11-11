@@ -8,36 +8,52 @@ pub trait RuleTag<T: TokenTag>
 where
     Self: Debug + Copy + Clone + Hash + Eq,
 {
-    fn as_rules(&self) -> Vec<Rule<T>>;
+    fn as_rules(&self) -> Vec<Rule<T, Self>>;
 }
 
 #[derive(Debug, Clone, Eq)]
-pub struct Rule<T: TokenTag> {
+pub struct Rule<T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
     pub id: usize,
+    pub tag: Option<R>,
     pub lhs: RuleElem<T>,
     pub rhs: Vec<RuleElem<T>>,
 }
 
-impl<T: TokenTag> From<(RuleElem<T>, Vec<RuleElem<T>>)> for Rule<T> {
-    fn from((lhs, rhs): (RuleElem<T>, Vec<RuleElem<T>>)) -> Self {
-        Rule { id: 0, lhs, rhs }
-    }
-}
-
-impl<T: TokenTag> PartialEq for Rule<T> {
+impl<T, R> PartialEq for Rule<T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
     fn eq(&self, other: &Self) -> bool {
-        self.lhs == other.lhs && self.rhs == other.rhs
+        self.tag == other.tag && self.lhs == other.lhs && self.rhs == other.rhs
     }
 }
 
-impl<T: TokenTag> Hash for Rule<T> {
+impl<T, R> Hash for Rule<T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.tag.hash(state);
         self.lhs.hash(state);
         self.rhs.hash(state);
     }
 }
 
-impl<T: TokenTag> Rule<T> {
+impl<T, R> Rule<T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    pub fn new(tag: Option<R>, lhs: RuleElem<T>, rhs: Vec<RuleElem<T>>) -> Self {
+        Rule { id: 0, tag, lhs, rhs }
+    }
+
     pub fn nonterms<'a>(&'a self) -> Vec<&'a RuleElem<T>> {
         let mut l_nonterms = vec![&self.lhs];
         let r_nonterms: Vec<&RuleElem<T>> = self
@@ -88,15 +104,23 @@ impl<T: TokenTag> RuleElem<T> {
 }
 
 #[derive(Debug, Clone)]
-pub struct RuleSet<T: TokenTag> {
+pub struct RuleSet<T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
     pub top: String,
-    pub rules: Vec<Rule<T>>,
+    pub rules: Vec<Rule<T, R>>,
 }
 
-impl<T: TokenTag> FromIterator<Rule<T>> for RuleSet<T> {
+impl<T, R> FromIterator<Rule<T, R>> for RuleSet<T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
     fn from_iter<I>(rules: I) -> Self
     where
-        I: IntoIterator<Item = Rule<T>>,
+        I: IntoIterator<Item = Rule<T, R>>,
     {
         let rules = rules.into_iter().collect::<Vec<_>>();
         let top = match &rules[0].lhs {
@@ -107,7 +131,11 @@ impl<T: TokenTag> FromIterator<Rule<T>> for RuleSet<T> {
     }
 }
 
-impl<T: TokenTag> RuleSet<T> {
+impl<T, R> RuleSet<T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
     pub fn nonterms<'a>(&'a self) -> HashSet<&'a RuleElem<T>> {
         self.rules.iter().flat_map(|rule| rule.nonterms()).collect()
     }
@@ -116,7 +144,7 @@ impl<T: TokenTag> RuleSet<T> {
         self.rules.iter().flat_map(|rule| rule.terms()).collect()
     }
 
-    pub fn find_rule<'a>(&'a self, target: &RuleElem<T>) -> Vec<&'a Rule<T>> {
+    pub fn find_rule<'a>(&'a self, target: &RuleElem<T>) -> Vec<&'a Rule<T, R>> {
         self.rules
             .iter()
             .filter(|rule| &rule.lhs == target)

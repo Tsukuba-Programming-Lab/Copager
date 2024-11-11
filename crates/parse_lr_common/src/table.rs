@@ -12,7 +12,7 @@ where
     R: RuleTag<T>,
 {
     Shift(usize),
-    Reduce(R, Rule<T>), // elems_cnt, rule
+    Reduce(Rule<T, R>),
     Accept,
     None,
 }
@@ -92,6 +92,14 @@ where
             action_table,
             eof_action_table,
             goto_table,
+        }
+    }
+
+    pub fn set_reduce(&mut self, state: usize, token: Option<T>, rule: Rule<T, R>) {
+        if let Some(token) = token {
+            self.action_table[state].insert(token, LRAction::Reduce(rule));
+        } else {
+            self.eof_action_table[state] = LRAction::Reduce(rule);
         }
     }
 

@@ -1,16 +1,24 @@
 use std::collections::{HashMap, HashSet};
 
 use copager_cfg::token::TokenTag;
-use copager_cfg::rule::{Rule, RuleElem, RuleSet};
+use copager_cfg::rule::{Rule, RuleElem, RuleSet, RuleTag};
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
-pub struct LR0Item<'a, T: TokenTag> {
-    pub rule: &'a Rule<T>,
+pub struct LR0Item<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    pub rule: &'a Rule<T, R>,
     pub dot_pos: usize,
 }
 
-impl<'a, T: TokenTag> From<&'a Rule<T>> for LR0Item<'a, T> {
-    fn from(rule: &'a Rule<T>) -> Self {
+impl<'a, T, R> From<&'a Rule<T, R>> for LR0Item<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn from(rule: &'a Rule<T, R>) -> Self {
         if rule.rhs[0] == RuleElem::Epsilon {
             LR0Item { rule, dot_pos: 1 }
         } else {
@@ -19,7 +27,11 @@ impl<'a, T: TokenTag> From<&'a Rule<T>> for LR0Item<'a, T> {
     }
 }
 
-impl<'a, T: TokenTag> LR0Item<'a, T> {
+impl<'a, T, R> LR0Item<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
     pub fn gen_next(&self) -> Self {
         assert!(self.dot_pos + 1 <= self.rule.rhs.len());
         LR0Item {
@@ -38,13 +50,21 @@ impl<'a, T: TokenTag> LR0Item<'a, T> {
 }
 
 #[derive(Debug)]
-pub struct LR0ItemSet<'a, T: TokenTag> {
-    pub items: HashSet<LR0Item<'a, T>>,
-    ruleset: &'a RuleSet<T>,
+pub struct LR0ItemSet<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    pub items: HashSet<LR0Item<'a, T, R>>,
+    ruleset: &'a RuleSet<T, R>,
 }
 
-impl<'a, T: TokenTag> From<&'a RuleSet<T>> for LR0ItemSet<'a, T> {
-    fn from(ruleset: &'a RuleSet<T>) -> Self {
+impl<'a, T, R> From<&'a RuleSet<T, R>> for LR0ItemSet<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn from(ruleset: &'a RuleSet<T, R>) -> Self {
         LR0ItemSet {
             items: HashSet::new(),
             ruleset,
@@ -52,13 +72,17 @@ impl<'a, T: TokenTag> From<&'a RuleSet<T>> for LR0ItemSet<'a, T> {
     }
 }
 
-impl<'a, T: TokenTag> LR0ItemSet<'a, T> {
-    pub fn init(mut self, rule: &'a Rule<T>) -> Self {
+impl<'a, T, R> LR0ItemSet<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    pub fn init(mut self, rule: &'a Rule<T, R>) -> Self {
         self.items.insert(LR0Item::from(rule));
         self
     }
 
-    pub fn gen_next_sets(&mut self) -> impl Iterator<Item = (&'a RuleElem<T>, LR0ItemSet<'a, T>)> {
+    pub fn gen_next_sets(&mut self) -> impl Iterator<Item = (&'a RuleElem<T>, LR0ItemSet<'a, T, R>)> {
         self.expand();
 
         let mut next_set_candidates = HashMap::new();
@@ -94,7 +118,7 @@ impl<'a, T: TokenTag> LR0ItemSet<'a, T> {
         }
     }
 
-    fn expand_once(&self, item: &LR0Item<'a, T>) -> Option<impl Iterator<Item = LR0Item<'a, T>>> {
+    fn expand_once(&self, item: &LR0Item<'a, T, R>) -> Option<impl Iterator<Item = LR0Item<'a, T, R>>> {
         if let Some(nonterm@RuleElem::NonTerm(..)) = item.check_next_elem() {
             Some(self.ruleset
                 .find_rule(nonterm)

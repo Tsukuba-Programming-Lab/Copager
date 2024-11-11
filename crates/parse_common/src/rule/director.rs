@@ -1,45 +1,61 @@
 use std::collections::{HashMap, HashSet};
 
 use copager_cfg::token::TokenTag;
-use copager_cfg::rule::{Rule, RuleElem, RuleSet};
+use copager_cfg::rule::{Rule, RuleElem, RuleSet, RuleTag};
 
 use crate::rule::{FirstSet, FollowSet};
 
-pub struct DirectorSet<'a, T: TokenTag> {
-    map: HashMap<&'a Rule<T>, Vec<&'a RuleElem<T>>>,
-    _ruleset: &'a RuleSet<T>,
+pub struct DirectorSet<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    map: HashMap<&'a Rule<T, R>, Vec<&'a RuleElem<T>>>,
 }
 
-impl<'a, T: TokenTag> From<&'a RuleSet<T>> for DirectorSet<'a, T> {
-    fn from(ruleset: &'a RuleSet<T>) -> Self {
+impl<'a, T, R> From<&'a RuleSet<T, R>> for DirectorSet<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn from(ruleset: &'a RuleSet<T, R>) -> Self {
         let build = DirectorSetBuilder::from(ruleset).calc();
         let map = build.map
             .into_iter()
             .map(|(k, v)| (k, v.into_iter().collect()))
             .collect();
 
-        DirectorSet {
-            map,
-            _ruleset: ruleset,
-        }
+        DirectorSet { map }
     }
 }
 
-impl <'a, T: TokenTag> DirectorSet<'a, T> {
-    pub fn get(&self, rule: &Rule<T>) -> Option<&[&'a RuleElem<T>]> {
+impl <'a, T, R> DirectorSet<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    pub fn get(&self, rule: &Rule<T, R>) -> Option<&[&'a RuleElem<T>]> {
         self.map.get(rule).map(|elems| elems.as_slice())
     }
 }
 
-struct DirectorSetBuilder<'a, T: TokenTag> {
-    map: HashMap<&'a Rule<T>, HashSet<&'a RuleElem<T>>>,
-    ruleset: &'a RuleSet<T>,
-    first_set: FirstSet<'a, T>,
-    follow_set: FollowSet<'a, T>,
+struct DirectorSetBuilder<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    map: HashMap<&'a Rule<T, R>, HashSet<&'a RuleElem<T>>>,
+    ruleset: &'a RuleSet<T, R>,
+    first_set: FirstSet<'a, T, R>,
+    follow_set: FollowSet<'a, T, R>,
 }
 
-impl<'a, T: TokenTag> From<&'a RuleSet<T>> for DirectorSetBuilder<'a, T> {
-    fn from(ruleset: &'a RuleSet<T>) -> Self {
+impl<'a, T, R> From<&'a RuleSet<T, R>> for DirectorSetBuilder<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn from(ruleset: &'a RuleSet<T, R>) -> Self {
         let first_set = FirstSet::from(ruleset);
         let follow_set = FollowSet::from(ruleset);
 
@@ -52,7 +68,11 @@ impl<'a, T: TokenTag> From<&'a RuleSet<T>> for DirectorSetBuilder<'a, T> {
     }
 }
 
-impl<'a, T: TokenTag> DirectorSetBuilder<'a, T> {
+impl<'a, T, R> DirectorSetBuilder<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
     fn calc(mut self) -> Self {
         for rule in &self.ruleset.rules {
             self.calc_once(rule);
@@ -60,7 +80,7 @@ impl<'a, T: TokenTag> DirectorSetBuilder<'a, T> {
         self
     }
 
-    fn calc_once(&mut self, rule: &'a Rule<T>) {
+    fn calc_once(&mut self, rule: &'a Rule<T, R>) {
         let lhs = match &rule.lhs {
             RuleElem::NonTerm(s) => s.as_str(),
             _ => unreachable!(),

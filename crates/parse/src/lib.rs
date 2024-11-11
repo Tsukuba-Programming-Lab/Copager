@@ -9,7 +9,7 @@ pub trait ParseSource<T: TokenTag> {
 
     fn iter(&self) -> impl Iterator<Item = Self::Tag>;
 
-    fn into_ruleset(&self) -> RuleSet<T> {
+    fn into_ruleset(&self) -> RuleSet<T, Self::Tag> {
         let set_id_for_all = |(id, tag): (usize, Self::Tag)| {
             tag.as_rules()
                 .into_iter()
@@ -22,7 +22,7 @@ pub trait ParseSource<T: TokenTag> {
         self.iter()
             .enumerate()
             .flat_map(set_id_for_all)
-            .collect::<RuleSet<_>>()
+            .collect::<RuleSet<_, _>>()
     }
 }
 

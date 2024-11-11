@@ -44,12 +44,13 @@ where
                     yield ParseEvent::Read(token);
                     break;
                 },
-                (LRAction::Reduce(tag, rule), _) => {
+                (LRAction::Reduce(rule), _) => {
+                    let tag = rule.tag.unwrap();
                     let lhs = lhs_as_str(&rule.lhs);
                     let rhs_len = rule.rhs.len();
                     self.stack.truncate(self.stack.len() - rhs_len);
                     self.stack.push(self.table.get_goto(self.stack.len()-1, lhs).unwrap());
-                    yield ParseEvent::Parse { rule: *tag, len: rhs_len };
+                    yield ParseEvent::Parse { rule: tag, len: rhs_len };
                 },
                 (LRAction::Accept, _) => {
                     return;
