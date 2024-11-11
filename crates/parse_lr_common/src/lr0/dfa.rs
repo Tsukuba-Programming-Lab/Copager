@@ -1,6 +1,8 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, BTreeMap};
 use std::fmt::Debug;
+use std::hash::Hash;
 use std::rc::Rc;
+use std::sync::RwLock;
 use std::marker::PhantomData;
 
 use copager_cfg::token::TokenTag;
@@ -9,7 +11,7 @@ use copager_cfg::rule::{Rule, RuleElem, RuleSet, RuleTag};
 use crate::automaton::Automaton;
 use crate::lr0::item::{LR0Item, LR0ItemSet};
 
-#[derive(Clone, Hash, PartialEq, Eq)]
+#[derive(Clone)]
 pub struct LR0DFANode<'a, T, R>
 where
     T: TokenTag,
@@ -17,7 +19,7 @@ where
 {
     pub id: usize,
     pub itemset: LR0ItemSet<'a, T, R>,
-    pub next: Vec<(&'a RuleElem<T>, Rc<Self>)>,  // (cond, next_node)
+    pub next: Vec<(&'a RuleElem<T>, Rc<RwLock<Self>>)>,  // (cond, next_node)
 }
 
 impl<'a, T, R> Debug for LR0DFANode<'a, T, R>
@@ -42,7 +44,7 @@ where
         let itemset = &self.itemset;
         let next = self.next
             .iter()
-            .map(|(cond, next_node)| (*cond, next_node.id))
+            .map(|(cond, next_node)| (*cond, next_node.read().unwrap().id))
             .collect::<Vec<_>>();
 
         if f.alternate() {
@@ -52,6 +54,33 @@ where
         }
     }
 }
+
+impl<'a, T, R> Hash for LR0DFANode<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.id.hash(state);
+        self.itemset.hash(state);
+    }
+}
+
+impl<'a, T, R> PartialEq for LR0DFANode<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id && self.itemset == other.itemset
+    }
+}
+
+impl<'a, T, R> Eq for LR0DFANode<'a, T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{}
 
 impl<'a, T, R> LR0DFANode<'a, T, R>
 where
@@ -80,7 +109,7 @@ where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    pub nodes: Vec<Rc<LR0DFANode<'a, T, R>>>,
+    pub nodes: Vec<Rc<RwLock<LR0DFANode<'a, T, R>>>>,
     pub edges: Vec<(usize, usize, &'a RuleElem<T>)>,
 }
 
@@ -92,17 +121,26 @@ where
     fn from(ruleset: &'a RuleSet<T, R>) -> Self {
         let dfa_top = LR0DFABuilder::new().start(ruleset);
 
-        let mut nodes = vec![];
+        let mut nodes = BTreeMap::new();
         let mut edges = vec![];
-        let mut stack = vec![Rc::new(dfa_top)];
+        let mut stack = vec![dfa_top];
         while let Some(node) = stack.pop() {
-            println!("{:#?}", node);
-            nodes.push(Rc::clone(&node));
-            for (cond, next_node) in &node.next {
-                edges.push((node.id, next_node.id, *cond));
+            let from = node.read().unwrap().id;
+            if nodes.contains_key(&from) {
+                continue;
+            }
+            for (cond, next_node) in &node.read().unwrap().next {
+                let to = next_node.read().unwrap().id;
+                edges.push((from, to, *cond));
                 stack.push(Rc::clone(next_node));
             }
+            nodes.insert(from, Rc::clone(&node));
         }
+
+        let nodes = nodes
+            .into_iter()
+            .map(|(_, node)| node)
+            .collect();
 
         LR0DFA { nodes, edges }
     }
@@ -128,7 +166,7 @@ where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    itemsets: HashSet<LR0ItemSet<'a, T, R>>,
+    itemsets: HashMap<LR0ItemSet<'a, T, R>, Rc<RwLock<LR0DFANode<'a, T, R>>>>,
     _phantom_t: PhantomData<T>,
     _phantom_r: PhantomData<R>,
 }
@@ -140,13 +178,13 @@ where
 {
     fn new() -> Self {
         LR0DFABuilder {
-            itemsets: HashSet::new(),
+            itemsets: HashMap::new(),
             _phantom_t: PhantomData,
             _phantom_r: PhantomData,
         }
     }
 
-    fn start(mut self, ruleset: &'a RuleSet<T, R>) -> LR0DFANode<'a, T, R> {
+    fn start(mut self, ruleset: &'a RuleSet<T, R>) -> Rc<RwLock<LR0DFANode<'a, T, R>>> {
         let top = RuleElem::NonTerm(ruleset.top.clone());
         let top = ruleset.rules
             .iter()
@@ -154,29 +192,29 @@ where
             .unwrap();
         let top = LR0ItemSet::from(ruleset).init(top);
 
-        self.gen_recursive(top).unwrap()
+        self.gen_recursive(top)
     }
 
-    fn gen_recursive(&mut self, mut itemset: LR0ItemSet<'a, T, R>) -> Option<LR0DFANode<'a, T, R>>
+    fn gen_recursive(&mut self, mut itemset: LR0ItemSet<'a, T, R>) -> Rc<RwLock<LR0DFANode<'a, T, R>>>
     where
         T: TokenTag,
     {
-        if self.itemsets.contains(&itemset) {
-            return None;
+        if let Some(node) = self.itemsets.get(&itemset) {
+            return Rc::clone(node);
         }
 
         let id = self.itemsets.len();
-        self.itemsets.insert(itemset.clone());
+        let node = LR0DFANode { id, itemset: itemset.clone(), next: vec![] };
+        let node = Rc::new(RwLock::new(node));
+        self.itemsets.insert(itemset.clone(), Rc::clone(&node));
 
-        let next = itemset
-            .gen_next_sets()
-            .filter_map(|(cond, next_items) | {
-                let next_node = self.gen_recursive(next_items);
-                next_node.map(|next_node| (cond, Rc::new(next_node)))
-            })
-            .collect();
+        let mut next = vec![];
+        for (cond, nextset) in itemset.gen_next_sets() {
+            next.push((cond, self.gen_recursive(nextset)));
+        }
+        node.write().unwrap().next = next;
 
-        Some(LR0DFANode { id, itemset, next })
+        Rc::clone(&node)
     }
 }
 
