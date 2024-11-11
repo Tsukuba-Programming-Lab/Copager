@@ -13,7 +13,7 @@ where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    id: usize,
+    pub id: usize,
     pub itemset: LR0ItemSet<'a, T, R>,
     pub next: Vec<(&'a RuleElem<T>, Rc<Self>)>,  // (cond, next_node)
 }
@@ -23,18 +23,19 @@ where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    pub fn contains(&self, rule: &Rule<T, R>) -> bool {
-        self.contains_by(|item| item.rule == rule)
+    pub fn find_all(&self, rule: &Rule<T, R>) -> impl Iterator<Item = &'a Rule<T, R>> {
+        self.find_all_by(move |item| item.rule == rule)
     }
 
-    pub fn contains_by<F>(&self, cond: F) -> bool
+    pub fn find_all_by<F>(&self, cond: F) -> impl Iterator<Item = &'a Rule<T, R>>
     where
-        F: Fn(&LR0Item<'a, T, R>) -> bool
+        F: Fn(&&LR0Item<'a, T, R>) -> bool
     {
         self.itemset
             .items
             .iter()
-            .any(cond)
+            .filter(cond)
+            .map(|item| item.rule)
     }
 }
 
