@@ -12,3 +12,4 @@ pub use driver::LRDriver;
 // LR オートマトン
 pub use automaton::lr0;
 pub use automaton::lr1;
+pub use automaton::lalr1;
