@@ -204,6 +204,7 @@ version = "0.2.0"
 dependencies = [
  "anyhow",
  "copager_cfg",
+ "copager_core",
  "copager_parse",
  "copager_parse_common",
  "serde",

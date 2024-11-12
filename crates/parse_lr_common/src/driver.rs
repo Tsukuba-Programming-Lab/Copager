@@ -2,6 +2,7 @@ use copager_cfg::token::{TokenTag, Token};
 use copager_cfg::rule::{RuleElem, RuleTag};
 use copager_parse::ParseEvent;
 
+use crate::error::LRError;
 use crate::table::{LRAction, LRTable};
 
 pub struct LRDriver<'table, T, R>
@@ -60,15 +61,11 @@ where
                     return;
                 }
                 (LRAction::None, Some(token)) => {
-                    // TODO
-                    // yield ParseEvent::Err(ParseError::new_unexpected_token(token).into());
-                    yield ParseEvent::Err(anyhow::anyhow!("unexpected token {}", token.as_str()).into());
+                    yield ParseEvent::Err(LRError::new_unexpected_token(token).into());
                     return;
                 }
                 (LRAction::None, None) => {
-                    // TODO
-                    // yield ParseEvent::Err(ParseError::UnexpectedEOF.into());
-                    yield ParseEvent::Err(anyhow::anyhow!("unexpected EOF").into());
+                    yield ParseEvent::Err(LRError::new_unexpected_eof().into());
                     return;
                 }
                 _ => unreachable!(),

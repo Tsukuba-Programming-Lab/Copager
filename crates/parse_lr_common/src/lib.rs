@@ -1,8 +1,9 @@
 #![feature(gen_blocks)]
 
 mod automaton;
-mod table;
+mod error;
 mod driver;
+mod table;
 
 // LR 共通部品
 pub use table::{LRAction, LRTable, LRTableBuilder};
