@@ -1,4 +1,4 @@
-use copager_core::{Grammar, Processor};
+use copager_core::{Language, Processor};
 use copager_cfg::token::TokenTag;
 use copager_cfg::rule::{RuleTag, Rule, RuleElem};
 use copager_lex::LexSource;
@@ -64,7 +64,7 @@ fn simple_eval() {
 }
 
 fn parse<'input>(input: &'input str) -> anyhow::Result<SExp<'input, ExprToken, ExprRule>> {
-    type TestLang = Grammar<ExprToken, ExprRule>;
+    type TestLang = Language<ExprToken, ExprRule>;
     type TestLexer = RegexLexer<ExprToken>;
     type TestParser = LR1<ExprToken, ExprRule>;
     type TestProcessor = Processor<TestLang, TestLexer, TestParser>;

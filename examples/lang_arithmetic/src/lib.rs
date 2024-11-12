@@ -1,7 +1,7 @@
 use copager::lex::LexSource;
 use copager::parse::ParseSource;
 use copager::prelude::*;
-use copager::Grammar;
+use copager::Language;
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, LexSource)]
 pub enum ArithmeticToken {
@@ -40,4 +40,4 @@ pub enum ArithmeticRule {
     Num,
 }
 
-pub type Arithmetic = Grammar<ArithmeticToken, ArithmeticRule>;
+pub type Arithmetic = Language<ArithmeticToken, ArithmeticRule>;

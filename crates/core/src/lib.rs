@@ -11,12 +11,12 @@ use copager_parse::{ParseSource, BaseParser, ParseEvent};
 use copager_ir::{IR, IRBuilder};
 use copager_utils::cache::Cacheable;
 
-pub trait GrammarDesign {
+pub trait LanguageDesign {
     type Lex: LexSource;
     type Parse: ParseSource<<Self::Lex as LexSource>::Tag>;
 }
 
-pub struct Grammar<Sl, Sp>
+pub struct Language<Sl, Sp>
 where
     Sl: LexSource,
     Sp: ParseSource<Sl::Tag>,
@@ -25,7 +25,7 @@ where
     _phantom_sp: PhantomData<Sp>,
 }
 
-impl<Sl, Sp> GrammarDesign for Grammar<Sl, Sp>
+impl<Sl, Sp> LanguageDesign for Language<Sl, Sp>
 where
     Sl: LexSource,
     Sp: ParseSource<Sl::Tag>,
@@ -37,7 +37,7 @@ where
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Processor<G, Dl, Dp>
 where
-    G: GrammarDesign,
+    G: LanguageDesign,
     Dl: BaseLexer<G::Lex>,
     Dp: BaseParser<G::Lex, G::Parse>,
 {
@@ -62,7 +62,7 @@ where
 
 impl<G, Dl, Dp> Processor<G, Dl, Dp>
 where
-    G: GrammarDesign,
+    G: LanguageDesign,
     Dl: BaseLexer<G::Lex>,
     Dp: BaseParser<G::Lex, G::Parse>,
 {
@@ -129,7 +129,7 @@ where
 
 impl<G, Dl, Dp> Processor<G, Dl, Dp>
 where
-    G: GrammarDesign,
+    G: LanguageDesign,
     Dl: BaseLexer<G::Lex> + Cacheable<G::Lex>,
     Dp: BaseParser<G::Lex, G::Parse>,
 {
@@ -159,7 +159,7 @@ where
 
 impl<G, Dl, Dp> Processor<G, Dl, Dp>
 where
-    G: GrammarDesign,
+    G: LanguageDesign,
     Dl: BaseLexer<G::Lex>,
     Dp: BaseParser<G::Lex, G::Parse> + Cacheable<(G::Lex, G::Parse)>,
 {

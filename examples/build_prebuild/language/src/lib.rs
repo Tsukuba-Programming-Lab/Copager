@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use copager::lex::{LexSource, RegexLexer};
 use copager::parse::{ParseSource, LR1};
 use copager::prelude::*;
-use copager::{Grammar, Processor};
+use copager::{Language, Processor};
 
 #[derive(
     Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
@@ -48,7 +48,7 @@ pub enum ExprRule {
     Num,
 }
 
-pub type MyGrammar = Grammar<ExprToken, ExprRule>;
+pub type MyLanguage = Language<ExprToken, ExprRule>;
 pub type MyLexer = RegexLexer<ExprToken>;
 pub type MyParser = LR1<ExprToken, ExprRule>;
-pub type MyProcessor = Processor<MyGrammar, MyLexer, MyParser>;
+pub type MyProcessor = Processor<MyLanguage, MyLexer, MyParser>;

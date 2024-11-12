@@ -1,7 +1,7 @@
 use copager::lex::LexSource;
 use copager::parse::ParseSource;
 use copager::prelude::*;
-use copager::Grammar;
+use copager::Language;
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, LexSource)]
 pub enum JsonToken {
@@ -89,4 +89,4 @@ pub enum JsonRule {
     Value,
 }
 
-pub type Json = Grammar<JsonToken, JsonRule>;
+pub type Json = Language<JsonToken, JsonRule>;
