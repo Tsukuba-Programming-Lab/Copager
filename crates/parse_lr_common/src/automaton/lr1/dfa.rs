@@ -1,6 +1,5 @@
-use std::collections::{HashMap, BTreeMap};
+use std::collections::BTreeMap;
 use std::fmt::Debug;
-use std::hash::Hash;
 use std::rc::Rc;
 use std::sync::RwLock;
 use std::marker::PhantomData;
@@ -53,17 +52,6 @@ where
         } else {
             write!(f, "{:?}", LR1DFANode { id, itemset, next })
         }
-    }
-}
-
-impl<'a, 'b, T, R> Hash for LR1DFANode<'a, 'b, T, R>
-where
-    T: TokenTag,
-    R: RuleTag<T>,
-{
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        self.id.hash(state);
-        self.itemset.hash(state);
     }
 }
 
@@ -167,7 +155,8 @@ where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    itemsets: HashMap<LR1ItemSet<'a, 'b, T, R>, Rc<RwLock<LR1DFANode<'a, 'b, T, R>>>>,
+    managed_itemsets: Vec<LR1ItemSet<'a, 'b, T, R>>,
+    managed_nodes: Vec<Rc<RwLock<LR1DFANode<'a, 'b, T, R>>>>,
     _phantom_t: PhantomData<T>,
     _phantom_r: PhantomData<R>,
 }
@@ -179,7 +168,8 @@ where
 {
     fn new() -> Self {
         LR1DFABuilder {
-            itemsets: HashMap::new(),
+            managed_itemsets: vec![],
+            managed_nodes: vec![],
             _phantom_t: PhantomData,
             _phantom_r: PhantomData,
         }
@@ -200,14 +190,16 @@ where
     where
         T: TokenTag,
     {
-        if let Some(node) = self.itemsets.get(&itemset) {
-            return Rc::clone(node);
+        let managed_idx = self.managed_itemsets.iter().position(|set| set == &itemset);
+        if let Some(managed_idx) = managed_idx {
+            return Rc::clone(&self.managed_nodes[managed_idx]);
         }
 
-        let id = self.itemsets.len();
+        let id = self.managed_itemsets.len();
         let node = LR1DFANode { id, itemset: itemset.clone(), next: vec![] };
         let node = Rc::new(RwLock::new(node));
-        self.itemsets.insert(itemset.clone(), Rc::clone(&node));
+        self.managed_itemsets.push(itemset.clone());
+        self.managed_nodes.push(Rc::clone(&node));
 
         let mut next = vec![];
         for (cond, nextset) in itemset.gen_next_sets() {

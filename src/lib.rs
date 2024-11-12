@@ -22,6 +22,10 @@ pub mod parse {
     pub use copager_parse_lr_lr0::*;
     #[cfg(feature = "lr1")]
     pub use copager_parse_lr_lr1::*;
+    #[cfg(feature = "slr1")]
+    pub use copager_parse_lr_slr1::*;
+    #[cfg(feature = "lalr1")]
+    pub use copager_parse_lr_lalr1::*;
 }
 
 pub mod ir {

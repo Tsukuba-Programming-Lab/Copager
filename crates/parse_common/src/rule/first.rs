@@ -53,8 +53,9 @@ where
                     firsts.remove(&RuleElem::Epsilon);
                     continue
                 }
-                break
+                return firsts.into_iter().collect();
             }
+            firsts.insert(&RuleElem::EOF);
             firsts.into_iter().collect()
         }
     }

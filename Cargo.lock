@@ -34,6 +34,7 @@ dependencies = [
  "copager_parse",
  "copager_parse_common",
  "copager_parse_lr_common",
+ "copager_parse_lr_lalr1",
  "copager_parse_lr_lr0",
  "copager_parse_lr_lr1",
  "copager_parse_lr_slr1",
@@ -207,6 +208,24 @@ dependencies = [
  "copager_core",
  "copager_parse",
  "copager_parse_common",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
+name = "copager_parse_lr_lalr1"
+version = "0.2.0"
+dependencies = [
+ "anyhow",
+ "copager_cfg",
+ "copager_core",
+ "copager_ir_void",
+ "copager_lex",
+ "copager_lex_regex",
+ "copager_parse",
+ "copager_parse_common",
+ "copager_parse_lr_common",
+ "copager_utils",
  "serde",
  "thiserror",
 ]
