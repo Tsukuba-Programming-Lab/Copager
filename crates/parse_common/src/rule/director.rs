@@ -86,11 +86,11 @@ where
             _ => unreachable!(),
         };
 
-        let rhs_firsts = self.first_set.get_by(&rule.rhs);
+        let rhs_firsts = self.first_set.get_by(&rule.rhs).to_vec();
         let cand_elems = if !rhs_firsts.contains(&&RuleElem::Epsilon) {
             rhs_firsts
         } else {
-            let mut cand_elems = rhs_firsts;
+            let mut cand_elems = rhs_firsts.to_vec();
             cand_elems.extend_from_slice(self.follow_set.get(&lhs).unwrap());
             cand_elems
         };

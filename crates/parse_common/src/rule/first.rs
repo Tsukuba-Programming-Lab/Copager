@@ -41,13 +41,21 @@ where
         self.map.get(relem).map(|terms| terms.as_slice())
     }
 
-    pub fn get_by(&self, relems: &'a [RuleElem<T>]) -> Vec<&'a RuleElem<T>> {
+    pub fn get_by(&self, relems: &[RuleElem<T>]) -> Vec<&'a RuleElem<T>> {
         if relems.is_empty() {
-            vec![&RuleElem::Epsilon]
-        } else if let Some(first) = self.map.get(&relems[0]) {
-            first.to_vec()
+            vec![&RuleElem::EOF]
         } else {
-            vec![]
+            let mut firsts: HashSet<&'a RuleElem<T>> = HashSet::new();
+            for relem in relems {
+                let first_candidates = self.map.get(relem).unwrap();
+                firsts.extend(first_candidates);
+                if firsts.contains(&RuleElem::Epsilon) {
+                    firsts.remove(&RuleElem::Epsilon);
+                    continue
+                }
+                break
+            }
+            firsts.into_iter().collect()
         }
     }
 }
@@ -76,6 +84,8 @@ where
             map.insert(term, HashSet::new());
             map.get_mut(term).unwrap().insert(term);
         });
+        map.insert(&RuleElem::EOF, HashSet::new());
+        map.get_mut(&RuleElem::EOF).unwrap().insert(&RuleElem::EOF);
 
         let nonterms = ruleset.nonterms().into_iter().collect();
 
