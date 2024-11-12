@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::fmt::{Display, Debug};
 use std::hash::Hash;
 
@@ -183,86 +183,5 @@ where
             .iter()
             .filter(|rule| &rule.lhs == target)
             .collect()
-    }
-
-    pub fn first_set<'a>(&'a self) -> HashMap<&'a RuleElem<T>, Vec<&'a RuleElem<T>>> {
-        // 1. Calc a null set
-        let nulls_set = self.nulls_set();
-
-        // 2. Initialize a first set
-        let mut first_set: HashMap<&RuleElem<T>, Vec<&RuleElem<T>>> = HashMap::new();
-        first_set.insert(&RuleElem::EOF, vec![&RuleElem::EOF]);
-        self.terms().into_iter().for_each(|relem| {
-            first_set.insert(relem, vec![relem]);
-        });
-        self.nonterms().into_iter().for_each(|relem| {
-            first_set.insert(relem, vec![]);
-        });
-
-        // 3. List up candidates from a nonterm set
-        let mut candidates = vec![];
-        for nonterm in self.nonterms() {
-            let rules = self.find_rule(nonterm);
-            for rule in rules {
-                for relem in &rule.rhs {
-                    if &rule.lhs != relem {
-                        candidates.push((nonterm, relem))
-                    }
-                    if !nulls_set.contains(&relem) {
-                        break;
-                    }
-                }
-            }
-        }
-
-        // 4. Find first set with recursive
-        let mut updated = true;
-        while updated {
-            updated = false;
-            for (nonterm, candidate) in &candidates {
-                let found_elems: Vec<&RuleElem<T>> = first_set
-                    .get(candidate)
-                    .unwrap()
-                    .iter()
-                    .filter(|relem| !first_set.get(nonterm).unwrap().contains(relem))
-                    .copied()
-                    .collect();
-                updated = !found_elems.is_empty();
-                first_set
-                    .get_mut(nonterm)
-                    .unwrap()
-                    .extend(found_elems.into_iter());
-            }
-        }
-
-        first_set
-    }
-
-    fn nulls_set<'a>(&'a self) -> Vec<&'a RuleElem<T>> {
-        // 1. Find null rules
-        let mut nulls_set: Vec<&RuleElem<T>> = self
-            .rules
-            .iter()
-            .filter(|rule| rule.rhs.is_empty())
-            .map(|rule| &rule.lhs)
-            .collect();
-
-        // 2. Find null rules with recursive
-        let mut updated = true;
-        while updated {
-            updated = false;
-            for rule in &self.rules {
-                if nulls_set.contains(&&rule.lhs) {
-                    continue;
-                } else if rule.rhs.iter().all(|relem| nulls_set.contains(&relem)) {
-                    nulls_set.push(&rule.lhs);
-                    updated = true;
-                } else {
-                    continue;
-                }
-            }
-        }
-
-        nulls_set
     }
 }
