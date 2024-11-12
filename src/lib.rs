@@ -37,7 +37,7 @@ pub mod ir {
 }
 
 pub mod prelude {
-    pub use copager_cfg::rule::{RuleTag, Rule, RuleElem};
+    pub use copager_cfg::rule::{Rule, RuleElem, RuleTag};
     pub use copager_cfg::token::TokenTag;
 }
 
