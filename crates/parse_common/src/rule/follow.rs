@@ -95,7 +95,7 @@ where
             for rhs_idx in 0..rule.rhs.len() {
                 let target = &rule.rhs[rhs_idx];
                 let follow_symbols = &rule.rhs[rhs_idx+1..];
-                let prob_first_symbols = first_by(&first_set, follow_symbols);
+                let prob_first_symbols = first_set.get_by(follow_symbols);
                 modified |= self.append_by_first(target, &prob_first_symbols);
                 if prob_first_symbols.contains(&&RuleElem::Epsilon) {
                     modified |= self.append_when_nullable(target, lhs);
@@ -124,22 +124,6 @@ where
             old_idx != self.map.get(nonterm).unwrap().len()
         } else {
             false
-        }
-    }
-}
-
-fn first_by<'a, T, R>(first_set: &FirstSet<'a, T, R>, relems: &'a [RuleElem<T>]) -> Vec<&'a RuleElem<T>>
-where
-    T: TokenTag,
-    R: RuleTag<T>,
-{
-    if relems.is_empty() {
-        vec![&RuleElem::Epsilon]
-    } else {
-        if let Some(first) = first_set.get(&relems[0]) {
-            first.to_vec()
-        } else {
-            vec![]
         }
     }
 }

@@ -86,7 +86,7 @@ where
             _ => unreachable!(),
         };
 
-        let rhs_firsts = self.first_by(&rule.rhs);
+        let rhs_firsts = self.first_set.get_by(&rule.rhs);
         let cand_elems = if !rhs_firsts.contains(&&RuleElem::Epsilon) {
             rhs_firsts
         } else {
@@ -100,18 +100,6 @@ where
             .filter(|&e| *e != RuleElem::Epsilon)
             .collect();
         self.map.insert(rule, director_elems);
-    }
-
-    fn first_by(&self, relems: &'a [RuleElem<T>]) -> Vec<&'a RuleElem<T> > {
-        if relems.is_empty() {
-            vec![&RuleElem::Epsilon]
-        } else {
-            if let Some(first) = self.first_set.get(&relems[0]) {
-                first.to_vec()
-            } else {
-                vec![]
-            }
-        }
     }
 }
 

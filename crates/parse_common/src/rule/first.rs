@@ -40,6 +40,16 @@ where
     pub fn get(&self, relem: &RuleElem<T>) -> Option<&[&'a RuleElem<T>]> {
         self.map.get(relem).map(|terms| terms.as_slice())
     }
+
+    pub fn get_by(&self, relems: &'a [RuleElem<T>]) -> Vec<&'a RuleElem<T>> {
+        if relems.is_empty() {
+            vec![&RuleElem::Epsilon]
+        } else if let Some(first) = self.map.get(&relems[0]) {
+            first.to_vec()
+        } else {
+            vec![]
+        }
+    }
 }
 
 struct FirstSetBuilder<'a, T, R>
