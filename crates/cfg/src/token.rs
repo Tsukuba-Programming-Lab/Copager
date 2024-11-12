@@ -1,6 +1,8 @@
 use std::fmt::Debug;
 use std::hash::Hash;
 
+use serde::{Serialize, Deserialize};
+
 pub trait TokenTag
 where
     Self: Debug + Copy + Clone + Hash + Eq,
@@ -8,7 +10,7 @@ where
     fn as_str<'a, 'b>(&'a self) -> &'b str;
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub struct Token<'input, T: TokenTag> {
     pub kind: T,
     pub src: &'input str,

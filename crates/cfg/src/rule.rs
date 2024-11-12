@@ -2,6 +2,8 @@ use std::collections::{HashMap, HashSet};
 use std::fmt::{Display, Debug};
 use std::hash::Hash;
 
+use serde::{Serialize, Deserialize};
+
 use crate::token::TokenTag;
 
 pub trait RuleTag<T: TokenTag>
@@ -11,12 +13,16 @@ where
     fn as_rules(&self) -> Vec<Rule<T, Self>>;
 }
 
-#[derive(Debug, Clone, Eq)]
+#[derive(Debug, Clone, Eq, Serialize, Deserialize)]
 pub struct Rule<T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,
 {
+    #[serde(bound(
+        serialize = "T: Serialize, R: Serialize",
+        deserialize = "T: Deserialize<'de>, R: Deserialize<'de>",
+    ))]
     pub id: usize,
     pub tag: Option<R>,
     pub lhs: RuleElem<T>,
@@ -73,8 +79,12 @@ where
     }
 }
 
-#[derive(Clone, Hash, Eq)]
+#[derive(Clone, Hash, Eq, Serialize, Deserialize)]
 pub enum RuleElem<T: TokenTag> {
+    #[serde(bound(
+        serialize = "T: Serialize",
+        deserialize = "T: Deserialize<'de>",
+    ))]
     NonTerm(String),
     Term(T),
     Epsilon,
