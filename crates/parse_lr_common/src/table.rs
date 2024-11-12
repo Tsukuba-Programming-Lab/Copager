@@ -23,9 +23,9 @@ where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    action_table: Vec<HashMap<T, LRAction<T, R>>>,
-    eof_action_table: Vec<LRAction<T, R>>,
-    goto_table: Vec<HashMap<String, usize>>,
+    pub action_table: Vec<HashMap<T, LRAction<T, R>>>,
+    pub eof_action_table: Vec<LRAction<T, R>>,
+    pub goto_table: Vec<HashMap<String, usize>>,
 }
 
 impl<T, R> LRTable<T, R>
