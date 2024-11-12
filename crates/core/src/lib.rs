@@ -6,7 +6,7 @@ use serde::{Serialize, Deserialize};
 use serde_cbor::ser::to_vec_packed;
 use serde_cbor::de::from_slice;
 
-use copager_lex::{LexSource, LexDriver};
+use copager_lex::{LexSource, BaseLexer};
 use copager_parse::{ParseSource, ParseDriver, ParseEvent};
 use copager_ir::{IR, IRBuilder};
 use copager_utils::cache::Cacheable;
@@ -38,7 +38,7 @@ where
 pub struct Processor<G, Dl, Dp>
 where
     G: GrammarDesign,
-    Dl: LexDriver<G::Lex>,
+    Dl: BaseLexer<G::Lex>,
     Dp: ParseDriver<G::Lex, G::Parse>,
 {
     // Cache
@@ -63,7 +63,7 @@ where
 impl<G, Dl, Dp> Processor<G, Dl, Dp>
 where
     G: GrammarDesign,
-    Dl: LexDriver<G::Lex>,
+    Dl: BaseLexer<G::Lex>,
     Dp: ParseDriver<G::Lex, G::Parse>,
 {
     pub fn new() -> Self {
@@ -130,7 +130,7 @@ where
 impl<G, Dl, Dp> Processor<G, Dl, Dp>
 where
     G: GrammarDesign,
-    Dl: LexDriver<G::Lex> + Cacheable<G::Lex>,
+    Dl: BaseLexer<G::Lex> + Cacheable<G::Lex>,
     Dp: ParseDriver<G::Lex, G::Parse>,
 {
     pub fn prebuild_lexer(self) -> anyhow::Result<Self>
@@ -160,7 +160,7 @@ where
 impl<G, Dl, Dp> Processor<G, Dl, Dp>
 where
     G: GrammarDesign,
-    Dl: LexDriver<G::Lex>,
+    Dl: BaseLexer<G::Lex>,
     Dp: ParseDriver<G::Lex, G::Parse> + Cacheable<(G::Lex, G::Parse)>,
 {
     pub fn prebuild_parser(self) -> anyhow::Result<Self>
