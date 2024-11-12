@@ -1,6 +1,6 @@
 # Copager
 
-Rust製パーサジェネレータ
+「言語処理系生成系」の生成系（**Constructible** **Pa**rser **Ge**nerator on **R**ust）
 
 ## Features
 
@@ -26,6 +26,14 @@ Rust製パーサジェネレータ
 
 - `void` : [crates/ir_void](crates/ir_void)
 - `sexp` : [crates/ir_sexp](crates/ir_sexp)
+
+```
+// RegexLex(lex) + LR1(parse) + SExp(ir)
+copager = { ..., features = ["derive", "regexlex", "lr1", "sexp"] }
+
+// RegexLex(lex) + LALR1(parse) + Void(ir)
+copager = { ..., features = ["derive", "regexlex", "lalr1", "void"] }
+```
 
 ## Examples
 
