@@ -105,17 +105,17 @@ where
                 // A -> α β . を含むノードに対して Reduce をマーク
                 match la_token {
                     RuleElem::Term(term) => {
-                        builder.set(node.id, Some(*term), LRAction::Reduce(rule.clone()));
+                        builder.try_set(node.id, Some(*term), LRAction::Reduce(rule.clone()))?;
                     }
                     RuleElem::EOF => {
-                        builder.set(node.id, None, LRAction::Reduce(rule.clone()));
+                        builder.try_set(node.id, None, LRAction::Reduce(rule.clone()))?;
                     }
                     _ => {}
                 }
 
                 // S -> Top . を含むノードに対して Accept をマーク
                 if let Some(_) = node.find_all(&top_dummy).next() {
-                    builder.set(node.id, None, LRAction::Accept);
+                    builder.try_set(node.id, None, LRAction::Accept)?;
                     continue;
                 }
             }

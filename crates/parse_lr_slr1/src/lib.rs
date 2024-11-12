@@ -104,7 +104,7 @@ where
             if let Some(rule) = node.find_all_by(is_slr1_reduce_state).next() {
                 // S -> Top . を含むノードに対して Accept をマーク
                 if let Some(_) = node.find_all(&top_dummy).next() {
-                    builder.set(node.id, None, LRAction::Accept);
+                    builder.try_set(node.id, None, LRAction::Accept)?;
                     continue;
                 }
 
@@ -113,10 +113,10 @@ where
                 for term in follow_set.get(lhs).unwrap() {
                     match term {
                         RuleElem::Term(term) => {
-                            builder.set(node.id, Some(*term), LRAction::Reduce(rule.clone()));
+                            builder.try_set(node.id, Some(*term), LRAction::Reduce(rule.clone()))?;
                         }
                         RuleElem::EOF => {
-                            builder.set(node.id, None, LRAction::Reduce(rule.clone()));
+                            builder.try_set(node.id, None, LRAction::Reduce(rule.clone()))?;
                         }
                         _ => {}
                     }

@@ -102,14 +102,14 @@ where
             if let Some(rule) = node.find_all_by(is_lr0_reduce_state).next() {
                 // S -> Top . を含むノードに対して Accept をマーク
                 if let Some(_) = node.find_all(&top_dummy).next() {
-                    builder.set(node.id, None, LRAction::Accept);
+                    builder.try_set(node.id, None, LRAction::Accept)?;
                     continue;
                 }
 
                 // A -> α β . を含むノードに対して Reduce をマーク
-                builder.set(node.id, None, LRAction::Reduce(rule.clone()));
+                builder.try_set(node.id, None, LRAction::Reduce(rule.clone()))?;
                 for token in source_l.iter() {
-                    builder.set(node.id, Some(token), LRAction::Reduce(rule.clone()));
+                    builder.try_set(node.id, Some(token), LRAction::Reduce(rule.clone()))?;
                 }
             }
         }

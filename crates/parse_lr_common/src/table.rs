@@ -6,8 +6,9 @@ use copager_cfg::token::{Token, TokenTag};
 use copager_cfg::rule::{Rule, RuleElem, RuleTag};
 
 use crate::automaton::Automaton;
+use crate::error::LRError;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum LRAction<T, R>
 where
     T: TokenTag,
@@ -98,11 +99,22 @@ where
     }
 
     pub fn set(&mut self, state: usize, token: Option<T>, action: LRAction<T, R>) {
+        let _ = self.try_set(state, token, action);
+    }
+
+    pub fn try_set(&mut self, state: usize, token: Option<T>, action: LRAction<T, R>) -> anyhow::Result<()>{
         if let Some(token) = token {
+            if self.action_table[state].contains_key(&token) {
+                return Err(LRError::new_conflict(&action).into());
+            }
             self.action_table[state].insert(token, action);
         } else {
+            if self.eof_action_table[state] != LRAction::None {
+                return Err(LRError::new_conflict(&action).into());
+            }
             self.eof_action_table[state] = action;
         }
+        Ok(())
     }
 
     pub fn build(self) -> LRTable<T, R> {
