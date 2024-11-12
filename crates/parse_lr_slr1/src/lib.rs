@@ -11,8 +11,7 @@ use copager_parse::{ParseDriver, ParseSource, ParseEvent};
 use copager_parse_common::rule::FollowSet;
 use copager_parse_lr_common::lr0::item::LR0Item;
 use copager_parse_lr_common::lr0::LR0DFA;
-use copager_parse_lr_common::table::{LRAction, LRTable, LRTableBuilder};
-use copager_parse_lr_common::driver::LRDriver;
+use copager_parse_lr_common::{LRDriver, LRAction, LRTable, LRTableBuilder};
 use copager_utils::cache::Cacheable;
 
 pub struct SLR1<T, R>
