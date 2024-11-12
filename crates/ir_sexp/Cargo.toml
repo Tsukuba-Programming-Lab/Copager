@@ -12,6 +12,7 @@ copager_parse = { path = "../parse" }
 copager_ir = { path = "../ir" }
 
 [dev-dependencies]
+copager_core = { path = "../core" }
 copager_lex = { path = "../lex", features = ["derive"] }
 copager_lex_regex = { path = "../lex_regex" }
 copager_parse = { path = "../parse", features = ["derive"] }
