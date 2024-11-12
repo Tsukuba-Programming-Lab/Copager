@@ -2,6 +2,8 @@
 
 use std::marker::PhantomData;
 
+use serde::{Serialize, Deserialize};
+
 use copager_cfg::token::{Token, TokenTag};
 use copager_cfg::rule::{Rule, RuleElem, RuleTag};
 use copager_lex::LexSource;
@@ -11,6 +13,7 @@ use copager_parse_lr_common::lr0::item::LR0Item;
 use copager_parse_lr_common::lr0::LR0DFA;
 use copager_parse_lr_common::table::{LRAction, LRTable, LRTableBuilder};
 use copager_parse_lr_common::driver::LRDriver;
+use copager_utils::cache::Cacheable;
 
 pub struct SLR1<T, R>
 where
@@ -40,6 +43,25 @@ where
                 yield event;
             }
         }
+    }
+}
+
+impl<Sl, Sp> Cacheable<(Sl, Sp)> for SLR1<Sl::Tag, Sp::Tag>
+where
+    Sl: LexSource,
+    Sl::Tag: Serialize + for<'de> Deserialize<'de>,
+    Sp: ParseSource<Sl::Tag>,
+    Sp::Tag: Serialize + for<'de> Deserialize<'de>,
+{
+    type Cache = LRTable<Sl::Tag, Sp::Tag>;
+
+    fn new((_, source_p): (Sl, Sp)) -> anyhow::Result<Self::Cache> {
+        let table = SLR1Table::try_from(source_p)?;
+        Ok(table)
+    }
+
+    fn restore(table: Self::Cache) -> Self {
+        SLR1 { table }
     }
 }
 

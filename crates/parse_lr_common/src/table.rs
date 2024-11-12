@@ -1,11 +1,13 @@
 use std::collections::HashMap;
 
+use serde::{Serialize, Deserialize};
+
 use copager_cfg::token::{Token, TokenTag};
 use copager_cfg::rule::{Rule, RuleElem, RuleTag};
 
 use crate::automaton::Automaton;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum LRAction<T, R>
 where
     T: TokenTag,
@@ -17,7 +19,7 @@ where
     None,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LRTable<T, R>
 where
     T: TokenTag,
