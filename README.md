@@ -9,6 +9,7 @@ Rust製パーサジェネレータ
 - `all`
 - `derive`
 - `prebuild`
+- `dev`
 
 ### Lex
 
@@ -16,6 +17,7 @@ Rust製パーサジェネレータ
 
 ### Parse
 
+- `lr0` : [crates/parse_lr0](crates/parse_lr0)
 - `lr1` : [crates/parse_lr1](crates/parse_lr1)
 
 ### IR

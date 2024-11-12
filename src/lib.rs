@@ -18,8 +18,10 @@ pub mod lex {
 
 pub mod parse {
     pub use copager_parse::*;
+    #[cfg(feature = "lr0")]
+    pub use copager_parse_lr_lr0::*;
     #[cfg(feature = "lr1")]
-    pub use copager_parse_lr1::*;
+    pub use copager_parse_lr_lr1::*;
 }
 
 pub mod ir {
@@ -33,4 +35,10 @@ pub mod ir {
 pub mod prelude {
     pub use copager_cfg::rule::{RuleTag, Rule, RuleElem};
     pub use copager_cfg::token::TokenTag;
+}
+
+#[cfg(feature = "dev")]
+pub mod dev {
+    pub use copager_parse_common::*;
+    pub use copager_parse_lr_common as lr;
 }

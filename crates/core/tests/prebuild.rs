@@ -8,7 +8,7 @@ use copager_cfg::rule::{RuleTag, Rule, RuleElem};
 use copager_lex::LexSource;
 use copager_lex_regex::RegexLexer;
 use copager_parse::ParseSource;
-use copager_parse_lr1::LR1;
+use copager_parse_lr_lr1::LR1;
 use copager_ir_void::Void;
 
 #[derive(
