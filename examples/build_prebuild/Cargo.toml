@@ -7,9 +7,9 @@ edition = "2021"
 anyhow = { workspace = true }
 thiserror = { workspace = true }
 copager = { path = "../..", features = ["prebuild", "sexp"] }
-grammar = { package = "example_prebuild_grammar", path = "./grammar" }
+language = { package = "example_prebuild_language", path = "./language" }
 
 [build-dependencies]
 serde = { workspace = true }
 copager = { path = "../..", features = ["prebuild"] }
-grammar = { package = "example_prebuild_grammar", path = "./grammar" }
+language = { package = "example_prebuild_language", path = "./language" }

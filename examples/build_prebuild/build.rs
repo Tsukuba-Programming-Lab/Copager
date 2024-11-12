@@ -1,4 +1,4 @@
-use grammar::MyProcessor;
+use language::MyProcessor;
 
 #[copager::prebuild]
 fn main() -> MyProcessor {

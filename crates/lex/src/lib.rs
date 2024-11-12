@@ -9,7 +9,7 @@ pub trait LexSource {
     fn iter(&self) -> impl Iterator<Item = Self::Tag>;
 }
 
-pub trait LexDriver<S>
+pub trait BaseLexer<S>
 where
     Self: Sized,
     S: LexSource,

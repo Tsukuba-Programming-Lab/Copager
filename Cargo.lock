@@ -288,7 +288,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "copager",
- "example_prebuild_grammar",
+ "example_prebuild_language",
  "serde",
  "thiserror",
 ]
@@ -330,7 +330,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "example_prebuild_grammar"
+name = "example_prebuild_language"
 version = "0.1.0"
 dependencies = [
  "anyhow",

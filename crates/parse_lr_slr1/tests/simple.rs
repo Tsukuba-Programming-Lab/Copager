@@ -1,4 +1,4 @@
-use copager_core::{Grammar, Processor};
+use copager_core::{Language, Processor};
 use copager_cfg::token::TokenTag;
 use copager_cfg::rule::{RuleTag, Rule, RuleElem};
 use copager_lex::LexSource;
@@ -44,10 +44,10 @@ enum TestRule {
     Num,
 }
 
-type TestGrammar = Grammar<TestToken, TestRule>;
+type TestLanguage = Language<TestToken, TestRule>;
 type TestLexer = RegexLexer<TestToken>;
 type TestParser = SLR1<TestToken, TestRule>;
-type TestProcessor = Processor<TestGrammar, TestLexer, TestParser>;
+type TestProcessor = Processor<TestLanguage, TestLexer, TestParser>;
 
 #[test]
 fn simple_success() {

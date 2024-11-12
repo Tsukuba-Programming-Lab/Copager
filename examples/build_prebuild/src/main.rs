@@ -2,11 +2,11 @@ use std::io::{stdin, stdout, Write};
 
 use copager::ir::SExp;
 
-use grammar::MyProcessor;
+use language::MyProcessor;
 
 #[copager::load]
 fn main(processor: MyProcessor) -> anyhow::Result<()> {
-    println!("Example <one-shot>");
+    println!("Example <pre-build>");
     print!("Input: ");
     stdout().flush()?;
 

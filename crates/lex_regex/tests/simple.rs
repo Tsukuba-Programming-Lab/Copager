@@ -1,5 +1,5 @@
 use copager_cfg::token::{TokenTag, Token};
-use copager_lex::{LexSource, LexDriver};
+use copager_lex::{LexSource, BaseLexer};
 use copager_lex_regex::RegexLexer;
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, LexSource)]
@@ -28,7 +28,7 @@ type MyLexer = RegexLexer<ExprToken>;
 #[test]
 fn simple_success() {
     let source = ExprToken::default();
-    let lexer = <MyLexer as LexDriver<ExprToken>>::try_from(source).unwrap();
+    let lexer = <MyLexer as BaseLexer<ExprToken>>::try_from(source).unwrap();
     let mut lexer = lexer.run("1 + 2 * 3");
     assert_eq_token(lexer.next(), "1");
     assert_eq_token(lexer.next(), "+");
@@ -42,7 +42,7 @@ fn simple_success() {
 #[should_panic]
 fn simple_failed() {
     let source = ExprToken::default();
-    let lexer = <MyLexer as LexDriver<ExprToken>>::try_from(source).unwrap();
+    let lexer = <MyLexer as BaseLexer<ExprToken>>::try_from(source).unwrap();
     let mut lexer = lexer.run("1 + 2 * stop 3");
     assert_eq_token(lexer.next(), "1");
     assert_eq_token(lexer.next(), "+");

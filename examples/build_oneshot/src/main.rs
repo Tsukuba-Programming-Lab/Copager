@@ -4,7 +4,7 @@ use copager::lex::{LexSource, RegexLexer};
 use copager::parse::{ParseSource, LR1};
 use copager::ir::SExp;
 use copager::prelude::*;
-use copager::{Grammar, Processor};
+use copager::{Language, Processor};
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, LexSource)]
 enum ExprToken {
@@ -43,10 +43,10 @@ enum ExprRule {
     Num,
 }
 
-type MyGrammar = Grammar<ExprToken, ExprRule>;
+type MyLanguage = Language<ExprToken, ExprRule>;
 type MyLexer = RegexLexer<ExprToken>;
 type MyParser = LR1<ExprToken, ExprRule>;
-type MyProcessor = Processor<MyGrammar, MyLexer, MyParser>;
+type MyProcessor = Processor<MyLanguage, MyLexer, MyParser>;
 
 fn main() -> anyhow::Result<()> {
     println!("Example <one-shot>");

@@ -1,7 +1,7 @@
 use copager::lex::LexSource;
 use copager::parse::ParseSource;
 use copager::prelude::*;
-use copager::Grammar;
+use copager::Language;
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, LexSource)]
 pub enum XmlToken {
@@ -67,4 +67,4 @@ pub enum XmlRule {
     Value,
 }
 
-pub type Xml = Grammar<XmlToken, XmlRule>;
+pub type Xml = Language<XmlToken, XmlRule>;

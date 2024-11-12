@@ -3,7 +3,7 @@
 use regex::{Regex, RegexSet};
 
 use copager_cfg::token::{TokenTag, Token};
-use copager_lex::{LexSource, LexDriver};
+use copager_lex::{LexSource, BaseLexer};
 
 #[derive(Debug)]
 pub struct RegexLexer<S: LexSource> {
@@ -12,7 +12,7 @@ pub struct RegexLexer<S: LexSource> {
     regex_map: Vec<(Regex, S::Tag)>,
 }
 
-impl<S: LexSource> LexDriver<S> for RegexLexer<S> {
+impl<S: LexSource> BaseLexer<S> for RegexLexer<S> {
     fn try_from(source: S) -> anyhow::Result<Self> {
         let regex_istr = Regex::new(source.ignore_token())?;
         let regex_set = source.iter()
