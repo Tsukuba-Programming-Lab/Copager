@@ -1,17 +1,14 @@
-use serde::{Serialize, Deserialize};
-
+use copager_core::{Grammar, Processor};
 use copager_cfg::token::TokenTag;
 use copager_cfg::rule::{RuleTag, Rule, RuleElem};
-use copager_lex::{LexSource, LexDriver};
+use copager_lex::LexSource;
 use copager_lex_regex::RegexLexer;
-use copager_parse::{ParseSource, ParseDriver, ParseEvent};
+use copager_parse::ParseSource;
 use copager_parse_lr_lr1::LR1;
+use copager_ir_void::Void;
 
-#[derive(
-    Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
-    LexSource, Serialize, Deserialize
-)]
-enum ExprToken {
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, LexSource)]
+enum TestToken {
     #[default]
     #[token(text = r"\+")]
     Plus,
@@ -31,11 +28,8 @@ enum ExprToken {
     _Whitespace,
 }
 
-#[derive(
-    Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
-    ParseSource, Serialize, Deserialize
-)]
-enum ExprRule {
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, ParseSource)]
+enum TestRule {
     #[default]
     #[rule("<expr> ::= <expr> Plus <term>")]
     #[rule("<expr> ::= <expr> Minus <term>")]
@@ -50,56 +44,57 @@ enum ExprRule {
     Num,
 }
 
-type MyLexer = RegexLexer<ExprToken>;
-type MyParser = LR1<ExprToken, ExprRule>;
-
-const OK_INPUTS: [&str; 10] = [
-    "10",
-    "10 + 20",
-    "10 - 20",
-    "10 * 20",
-    "10 / 20",
-    "10 + 20 * 30 - 40",
-    "(10)",
-    "((((10))))",
-    "10 * (20 - 30)",
-    "((10 + 20) * (30 / 40)) - 50",
-];
-
-const ERR_INPUTS: [&str; 7] = [
-    "()",
-    "(10 -",
-    "10 +",
-    "*",
-    "10 20 + 30",
-    "10 + 20 * 30 / 40 (",
-    "(((10))",
-];
+type TestGrammar = Grammar<TestToken, TestRule>;
+type TestLexer = RegexLexer<TestToken>;
+type TestParser = LR1<TestToken, TestRule>;
+type TestProcessor = Processor<TestGrammar, TestLexer, TestParser>;
 
 #[test]
 fn simple_success() {
+    const OK_INPUTS: [&str; 10] = [
+        "10",
+        "10 + 20",
+        "10 - 20",
+        "10 * 20",
+        "10 / 20",
+        "10 + 20 * 30 - 40",
+        "(10)",
+        "((((10))))",
+        "10 * (20 - 30)",
+        "((10 + 20) * (30 / 40)) - 50",
+    ];
+
+    let processor = TestProcessor::new()
+        .build_lexer()
+        .unwrap()
+        .build_parser()
+        .unwrap();
+
     for input in &OK_INPUTS {
-        assert!(parse(input), "{}", input);
+        println!("input: {}", input);
+        processor.process::<Void>(input).unwrap();
     }
 }
 
 #[test]
 fn simple_failure() {
+    const ERR_INPUTS: [&str; 7] = [
+        "()",
+        "(10 -",
+        "10 +",
+        "*",
+        "10 20 + 30",
+        "10 + 20 * 30 / 40 (",
+        "(((10))",
+    ];
+
+    let processor = TestProcessor::new()
+        .build_lexer()
+        .unwrap()
+        .build_parser()
+        .unwrap();
+
     for input in &ERR_INPUTS {
-        assert!(!parse(input), "{}", input);
+        assert!(processor.process::<Void>(input).is_err(), "input: {}", input);
     }
-}
-
-fn parse<'input>(input: &'input str) -> bool {
-    let source = ExprToken::default();
-    let lexer = <MyLexer as LexDriver<ExprToken>>::try_from(source).unwrap();
-
-    let source = (ExprToken::default(), ExprRule::default());
-    let parser = <MyParser as ParseDriver<ExprToken, ExprRule>>::try_from(source).unwrap();
-
-    let mut parse_itr = parser.run(lexer.run(input));
-    let is_err = |state| matches!(state, ParseEvent::Err(_));
-    let err_happened = parse_itr.any(is_err);
-
-    !err_happened
 }

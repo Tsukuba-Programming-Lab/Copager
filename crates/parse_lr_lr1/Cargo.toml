@@ -8,16 +8,15 @@ edition = "2024"
 [dependencies]
 anyhow = { workspace = true }
 thiserror = { workspace = true }
-serde = { workspace = true }
-itertools = "0.12.1"
-copager_core = { path = "../core" }
 copager_cfg = { path = "../cfg" }
 copager_lex = { path = "../lex" }
 copager_parse = { path = "../parse" }
-copager_utils = { path = "../utils" }
+copager_parse_common = { path = "../parse_common" }
+copager_parse_lr_common = { path = "../parse_lr_common" }
 
 [dev-dependencies]
+copager_core = { path = "../core" }
 copager_lex = { path = "../lex", features = ["derive"] }
-copager_lex_regex = { path = "../lex_regex"  }
+copager_lex_regex = { path = "../lex_regex" }
 copager_parse = { path = "../parse", features = ["derive"] }
-copager_parse_lr_lr1 = { path = "./" }
+copager_ir_void = { path = "../ir_void" }

@@ -1,98 +1,114 @@
 #![feature(gen_blocks)]
 
-mod error;
-mod builder;
+use std::marker::PhantomData;
 
-use std::collections::HashMap;
-
-use serde::{Serialize, Deserialize};
-
-use copager_cfg::token::Token;
+use copager_cfg::token::{Token, TokenTag};
+use copager_cfg::rule::{Rule, RuleElem, RuleTag};
 use copager_lex::LexSource;
-use copager_parse::{ParseSource, ParseDriver, ParseEvent};
-use copager_utils::cache::Cacheable;
+use copager_parse::{ParseDriver, ParseSource, ParseEvent};
+use copager_parse_common::rule::FirstSet;
+use copager_parse_lr_common::lr1::item::LR1Item;
+use copager_parse_lr_common::lr1::LR1DFA;
+use copager_parse_lr_common::table::{LRAction, LRTable, LRTableBuilder};
+use copager_parse_lr_common::driver::LRDriver;
 
-use builder::{LR1Configure, LRAction};
-use error::ParseError;
-
-#[derive(Debug)]
-pub struct LR1<Sl, Sp>
+pub struct LR1<T, R>
 where
-    Sl: LexSource,
-    Sp: ParseSource<Sl::Tag>,
+    T: TokenTag,
+    R: RuleTag<T>
 {
-    tables: LR1Configure<Sl, Sp>,
+    table: LRTable<T, R>,
 }
 
-impl<Sl, Sp> Cacheable<(Sl, Sp)> for LR1<Sl, Sp>
-where
-    Sl: LexSource,
-    Sl::Tag: Serialize + for<'de> Deserialize<'de>,
-    Sp: ParseSource<Sl::Tag>,
-    Sp::Tag: Serialize + for<'de> Deserialize<'de>,
-{
-    type Cache = LR1Configure<Sl, Sp>;
-
-    fn new((source_l, source_p): (Sl, Sp)) -> anyhow::Result<Self::Cache> {
-        Ok(LR1Configure::new(&source_l, &source_p)?)
-    }
-
-    fn restore(tables: Self::Cache) -> Self {
-        LR1 { tables }
-    }
-}
-
-impl<Sl, Sp> ParseDriver<Sl, Sp> for LR1<Sl, Sp>
+impl<Sl, Sp> ParseDriver<Sl, Sp> for LR1<Sl::Tag, Sp::Tag>
 where
     Sl: LexSource,
     Sp: ParseSource<Sl::Tag>,
 {
-    fn try_from((source_l, source_p): (Sl, Sp)) -> anyhow::Result<Self> {
-        let tables = LR1Configure::new(&source_l, &source_p)?;
-        Ok(LR1 { tables })
+    fn try_from((_, source_p): (Sl, Sp)) -> anyhow::Result<Self> {
+        let table = LR1Table::try_from(source_p)?;
+        Ok(LR1 { table })
     }
 
     gen fn run<'input, Il>(&self, mut lexer: Il) -> ParseEvent<'input, Sl::Tag, Sp::Tag>
     where
         Il: Iterator<Item = Token<'input, Sl::Tag>>,
     {
-        let mut stack = vec![0];
-        loop {
-            let token = lexer.next();
-            loop {
-                let top = stack[stack.len() - 1];
-                let action = match token {
-                    Some(token) => {
-                        let local_action_table: &HashMap<_, _> = &self.tables.action_table[top];
-                        (local_action_table.get(&token.kind).unwrap(), Some(token))
-                    },
-                    None => (&self.tables.eof_action_table[top], None),
-                };
-                match action {
-                    (LRAction::Shift(new_state), Some(token)) => {
-                        stack.push(*new_state);
-                        yield ParseEvent::Read(token);
-                        break;
-                    }
-                    (LRAction::Reduce(tag, goto, elems_cnt), _) => {
-                        stack.truncate(stack.len() - elems_cnt);
-                        stack.push(self.tables.goto_table[stack[stack.len() - 1]][*goto]);
-                        yield ParseEvent::Parse { rule: *tag, len: *elems_cnt };
-                    }
-                    (LRAction::Accept, _) => {
-                        return;
-                    }
-                    (LRAction::None, Some(token)) => {
-                        yield ParseEvent::Err(ParseError::new_unexpected_token(token).into());
-                        return;
-                    }
-                    (LRAction::None, None) => {
-                        yield ParseEvent::Err(ParseError::UnexpectedEOF.into());
-                        return;
-                    }
-                    _ => unreachable!(),
-                }
+        let mut driver = LRDriver::from(&self.table);
+        while !driver.accepted() {
+            for event in driver.consume(lexer.next()).collect::<Vec<_>>() {
+                yield event;
             }
         }
     }
+}
+
+pub struct LR1Table<T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>
+{
+    _phantom_t: PhantomData<T>,
+    _phantom_r: PhantomData<R>,
+}
+
+impl<T, R> LR1Table<T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn try_from<Sp>(source_p: Sp) -> anyhow::Result<LRTable<T, R>>
+    where
+        Sp: ParseSource<T, Tag = R>,
+    {
+        // 最上位規則を追加して RuleSet を更新
+        let mut ruleset = source_p.into_ruleset();
+        let top_dummy = Rule::new(
+            None,
+            RuleElem::new_nonterm("__top_dummy"),
+            vec![RuleElem::new_nonterm(&ruleset.top)],
+        );
+        ruleset.update_top(top_dummy.clone());
+
+        // First 集合作成
+        let first_set = FirstSet::from(&ruleset);
+
+        // LR(1) オートマトン作成
+        let dfa = LR1DFA::from((&ruleset, &first_set));
+
+        // LR(1) 構文解析表作成
+        let mut builder = LRTableBuilder::from(&dfa);
+        for node in &dfa.nodes {
+            let node = node.read().unwrap();
+            for (rule, la_token) in node.find_all_by(is_lr1_reduce_state) {
+                // A -> α β . を含むノードに対して Reduce をマーク
+                match la_token {
+                    RuleElem::Term(term) => {
+                        builder.set(node.id, Some(*term), LRAction::Reduce(rule.clone()));
+                    }
+                    RuleElem::EOF => {
+                        builder.set(node.id, None, LRAction::Reduce(rule.clone()));
+                    }
+                    _ => {}
+                }
+
+                // S -> Top . を含むノードに対して Accept をマーク
+                if let Some(_) = node.find_all(&top_dummy).next() {
+                    builder.set(node.id, None, LRAction::Accept);
+                    continue;
+                }
+            }
+        }
+        let table = builder.build();
+
+        Ok(table)
+    }
+}
+
+fn is_lr1_reduce_state<T, R>(item: &&LR1Item<T, R>) -> bool
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    item.check_next_elem().is_none()
 }
