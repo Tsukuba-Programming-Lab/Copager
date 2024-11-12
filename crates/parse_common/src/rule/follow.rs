@@ -136,10 +136,10 @@ where
     if relems.is_empty() {
         vec![&RuleElem::Epsilon]
     } else {
-        match &relems[0] {
-            RuleElem::NonTerm(s) => first_set.get(s.as_str()).unwrap().to_vec(),
-            t@RuleElem::Term(_) => vec![t],
-            _ => unreachable!(),
+        if let Some(first) = first_set.get(&relems[0]) {
+            first.to_vec()
+        } else {
+            vec![]
         }
     }
 }

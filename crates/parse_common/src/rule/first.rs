@@ -9,7 +9,7 @@ where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    map: HashMap<String, Vec<&'a RuleElem<T>>>,
+    map: HashMap<&'a RuleElem<T>, Vec<&'a RuleElem<T>>>,
     _phantom: PhantomData<R>,
 }
 
@@ -37,8 +37,8 @@ where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    pub fn get(&self, nonterm: &str) -> Option<&[&'a RuleElem<T>]> {
-        self.map.get(nonterm).map(|terms| terms.as_slice())
+    pub fn get(&self, relem: &RuleElem<T>) -> Option<&[&'a RuleElem<T>]> {
+        self.map.get(relem).map(|terms| terms.as_slice())
     }
 }
 
@@ -47,9 +47,9 @@ where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    map: HashMap<String, HashSet<&'a RuleElem<T>>>,
+    map: HashMap<&'a RuleElem<T>, HashSet<&'a RuleElem<T>>>,
     ruleset: &'a RuleSet<T, R>,
-    nonterms: Vec<&'a str>,
+    nonterms: Vec<&'a RuleElem<T>>,
 }
 
 impl<'a, T, R> From<&'a RuleSet<T, R>> for FirstSetBuilder<'a, T, R>
@@ -59,20 +59,15 @@ where
 {
     fn from(ruleset: &'a RuleSet<T, R>) -> Self {
         let mut map = HashMap::new();
-        for nonterm in ruleset.nonterms() {
-            if let RuleElem::NonTerm(nonterm) = nonterm {
-                map.insert(nonterm.clone(), HashSet::new());
-            }
-        }
+        ruleset.nonterms().iter().for_each(|&nonterm| {
+            map.insert(nonterm, HashSet::new());
+        });
+        ruleset.terms().iter().for_each(|&term| {
+            map.insert(term, HashSet::new());
+            map.get_mut(term).unwrap().insert(term);
+        });
 
-        let nonterms = ruleset.nonterms();
-        let nonterms = nonterms
-            .iter()
-            .map(|relem| match relem {
-                RuleElem::NonTerm(nonterm) => nonterm.as_str(),
-                _ => unreachable!(),
-            })
-            .collect::<Vec<_>>();
+        let nonterms = ruleset.nonterms().into_iter().collect();
 
         FirstSetBuilder {
             map,
@@ -97,12 +92,11 @@ where
         for &nonterm in &self.nonterms {
             let old_len = self.map.get(nonterm).unwrap().len();
             for first_symbol in rhs_first_symbol(self.ruleset, nonterm) {
-                match first_symbol {
-                    RuleElem::NonTerm(first_nonterm) => {
-                        let cand_terms = self.map.get(first_nonterm).unwrap().clone();
-                        self.map.get_mut(nonterm).unwrap().extend(cand_terms);
-                    },
-                    _ => { self.map.get_mut(nonterm).unwrap().insert(first_symbol); }
+                if matches!(first_symbol, RuleElem::NonTerm(_)) {
+                    let cand_terms = self.map.get(first_symbol).unwrap().clone();
+                    self.map.get_mut(nonterm).unwrap().extend(cand_terms);
+                } else {
+                    self.map.get_mut(nonterm).unwrap().insert(first_symbol);
                 }
             }
             modified |= old_len != self.map.get(nonterm).unwrap().len();
@@ -111,19 +105,14 @@ where
     }
 }
 
-fn rhs_first_symbol<'a, T, R>(ruleset: &'a RuleSet<T, R>, nonterm: &str) -> impl Iterator<Item = &'a RuleElem<T>>
+fn rhs_first_symbol<'a, T, R>(ruleset: &'a RuleSet<T, R>, nonterm: &RuleElem<T>) -> impl Iterator<Item = &'a RuleElem<T>>
 where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    let cmp_nonterm = |relem: &RuleElem<T>, lhs: &str| match relem {
-        RuleElem::NonTerm(nonterm) => nonterm == lhs,
-        _ => false,
-    };
-
     ruleset.rules
         .iter()
-        .filter(move |rule| cmp_nonterm(&rule.lhs, nonterm))
+        .filter(move |&rule| &rule.lhs == nonterm)
         .flat_map(|rule| rule.rhs.first())
 }
 
@@ -177,22 +166,25 @@ mod test {
     #[test]
     fn first_set() {
         macro_rules! term {
-            ($expr:ident) => { RuleElem::new_term(TestToken::$expr) };
+            ($ident:ident) => { RuleElem::new_term(TestToken::$ident) };
+        }
+        macro_rules! nonterm {
+            ($expr:expr) => { RuleElem::new_nonterm($expr) };
         }
 
         let ruleset = TestRule::default().into_ruleset();
         let first_set = FirstSet::from(&ruleset);
 
         let expected = vec![term!(A)];
-        assert!(eq_symbols(first_set.get("S").unwrap(), expected.as_slice()));
+        assert!(eq_symbols(first_set.get(&nonterm!("S")).unwrap(), expected.as_slice()));
 
         let expected = vec![term!(A)];
-        assert!(eq_symbols(first_set.get("A").unwrap(), expected.as_slice()));
+        assert!(eq_symbols(first_set.get(&nonterm!("A")).unwrap(), expected.as_slice()));
 
         let expected = vec![term!(A)];
-        assert!(eq_symbols(first_set.get("B").unwrap(), expected.as_slice()));
+        assert!(eq_symbols(first_set.get(&nonterm!("B")).unwrap(), expected.as_slice()));
 
         let expected = vec![RuleElem::Epsilon];
-        assert!(eq_symbols(first_set.get("C").unwrap(), expected.as_slice()));
+        assert!(eq_symbols(first_set.get(&nonterm!("C")).unwrap(), expected.as_slice()));
     }
 }
