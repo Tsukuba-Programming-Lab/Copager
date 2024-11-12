@@ -18,6 +18,7 @@ copager_parse_lr_common = { path = "./crates/parse_lr_common", optional = true }
 copager_parse_lr_lr0 = { path = "./crates/parse_lr_lr0", optional = true }
 copager_parse_lr_lr1 = { path = "./crates/parse_lr_lr1", optional = true }
 copager_parse_lr_slr1 = { path = "./crates/parse_lr_slr1", optional = true }
+copager_parse_lr_lalr1 = { path = "./crates/parse_lr_lalr1", optional = true }
 copager_ir = { path = "./crates/ir" }
 copager_ir_void = { path = "./crates/ir_void", optional = true }
 copager_ir_sexp = { path = "./crates/ir_sexp", optional = true }
@@ -54,6 +55,7 @@ regexlex = ["dep:copager_lex_regex"]
 lr0 = ["dep:copager_parse_lr_lr0"]
 lr1 = ["dep:copager_parse_lr_lr1"]
 slr1 = ["dep:copager_parse_lr_slr1"]
+lalr1 = ["dep:copager_parse_lr_lalr1"]
 
 # ir
 void = ["dep:copager_ir_void"]
@@ -76,6 +78,7 @@ members = [
     "./crates/parse_lr_lr0",
     "./crates/parse_lr_lr1",
     "./crates/parse_lr_slr1",
+    "./crates/parse_lr_lalr1",
     "./crates/ir",
     "./crates/ir_void",
     "./crates/ir_sexp",
