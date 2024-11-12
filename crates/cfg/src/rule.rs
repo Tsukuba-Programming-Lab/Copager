@@ -13,7 +13,7 @@ where
     fn as_rules(&self) -> Vec<Rule<T, Self>>;
 }
 
-#[derive(Debug, Clone, Eq, Serialize, Deserialize)]
+#[derive(Clone, Eq, Serialize, Deserialize)]
 pub struct Rule<T, R>
 where
     T: TokenTag,
@@ -27,6 +27,30 @@ where
     pub tag: Option<R>,
     pub lhs: RuleElem<T>,
     pub rhs: Vec<RuleElem<T>>,
+}
+
+impl<T, R> Display for Rule<T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} ->", self.lhs)?;
+        for elem in &self.rhs {
+            write!(f, " {}", elem)?;
+        }
+        write!(f, "")
+    }
+}
+
+impl<T, R> Debug for Rule<T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} ({})", self, self.id)
+    }
 }
 
 impl<T, R> PartialEq for Rule<T, R>
