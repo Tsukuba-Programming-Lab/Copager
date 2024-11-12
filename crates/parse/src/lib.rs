@@ -26,7 +26,7 @@ pub trait ParseSource<T: TokenTag> {
     }
 }
 
-pub trait ParseDriver<Sl, Sp>
+pub trait BaseParser<Sl, Sp>
 where
     Self: Sized,
     Sl: LexSource,

@@ -7,7 +7,7 @@ use serde::{Serialize, Deserialize};
 use copager_cfg::token::{Token, TokenTag};
 use copager_cfg::rule::{Rule, RuleElem, RuleTag};
 use copager_lex::LexSource;
-use copager_parse::{ParseDriver, ParseSource, ParseEvent};
+use copager_parse::{BaseParser, ParseSource, ParseEvent};
 use copager_parse_common::rule::FirstSet;
 use copager_parse_lr_common::lr1::item::LR1Item;
 use copager_parse_lr_common::lr1::LR1DFA;
@@ -22,7 +22,7 @@ where
     table: LRTable<T, R>,
 }
 
-impl<Sl, Sp> ParseDriver<Sl, Sp> for LR1<Sl::Tag, Sp::Tag>
+impl<Sl, Sp> BaseParser<Sl, Sp> for LR1<Sl::Tag, Sp::Tag>
 where
     Sl: LexSource,
     Sp: ParseSource<Sl::Tag>,

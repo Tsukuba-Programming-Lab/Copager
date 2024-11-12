@@ -7,7 +7,7 @@ use serde_cbor::ser::to_vec_packed;
 use serde_cbor::de::from_slice;
 
 use copager_lex::{LexSource, BaseLexer};
-use copager_parse::{ParseSource, ParseDriver, ParseEvent};
+use copager_parse::{ParseSource, BaseParser, ParseEvent};
 use copager_ir::{IR, IRBuilder};
 use copager_utils::cache::Cacheable;
 
@@ -39,7 +39,7 @@ pub struct Processor<G, Dl, Dp>
 where
     G: GrammarDesign,
     Dl: BaseLexer<G::Lex>,
-    Dp: ParseDriver<G::Lex, G::Parse>,
+    Dp: BaseParser<G::Lex, G::Parse>,
 {
     // Cache
     cache_lex: Option<Vec<u8>>,
@@ -64,7 +64,7 @@ impl<G, Dl, Dp> Processor<G, Dl, Dp>
 where
     G: GrammarDesign,
     Dl: BaseLexer<G::Lex>,
-    Dp: ParseDriver<G::Lex, G::Parse>,
+    Dp: BaseParser<G::Lex, G::Parse>,
 {
     pub fn new() -> Self {
         Processor {
@@ -131,7 +131,7 @@ impl<G, Dl, Dp> Processor<G, Dl, Dp>
 where
     G: GrammarDesign,
     Dl: BaseLexer<G::Lex> + Cacheable<G::Lex>,
-    Dp: ParseDriver<G::Lex, G::Parse>,
+    Dp: BaseParser<G::Lex, G::Parse>,
 {
     pub fn prebuild_lexer(self) -> anyhow::Result<Self>
     where
@@ -161,7 +161,7 @@ impl<G, Dl, Dp> Processor<G, Dl, Dp>
 where
     G: GrammarDesign,
     Dl: BaseLexer<G::Lex>,
-    Dp: ParseDriver<G::Lex, G::Parse> + Cacheable<(G::Lex, G::Parse)>,
+    Dp: BaseParser<G::Lex, G::Parse> + Cacheable<(G::Lex, G::Parse)>,
 {
     pub fn prebuild_parser(self) -> anyhow::Result<Self>
     where
