@@ -1,6 +1,6 @@
 [package]
 name = "copager_core"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 
 [dependencies]
@@ -19,5 +19,5 @@ copager_core = { path = "." }
 copager_lex = { path = "../lex", features = ["derive"]}
 copager_lex_regex = { path = "../lex_regex" }
 copager_parse = { path = "../parse", features = ["derive"] }
-copager_parse_lr1 = { path = "../parse_lr1" }
+copager_parse_lr_lr1 = { path = "../parse_lr_lr1" }
 copager_ir_void = { path = "../ir_void" }

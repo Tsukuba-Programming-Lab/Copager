@@ -1,8 +1,9 @@
 [package]
 name = "copager_cfg"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 
 [dependencies]
 anyhow = { workspace = true }
 thiserror = { workspace = true }
+serde = { workspace = true, features = ["derive"] }

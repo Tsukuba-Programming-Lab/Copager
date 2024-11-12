@@ -1,0 +1,15 @@
+[package]
+name = "example_build_prebuild"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+copager = { path = "../..", features = ["prebuild", "sexp"] }
+language = { package = "example_prebuild_language", path = "./language" }
+
+[build-dependencies]
+serde = { workspace = true }
+copager = { path = "../..", features = ["prebuild"] }
+language = { package = "example_prebuild_language", path = "./language" }

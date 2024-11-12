@@ -1,12 +1,12 @@
 use serde::{Serialize, Deserialize};
 
-use copager_core::{Grammar, Processor};
+use copager_core::{Language, Processor};
 use copager_cfg::token::TokenTag;
 use copager_cfg::rule::{RuleTag, Rule, RuleElem};
 use copager_lex::LexSource;
 use copager_lex_regex::RegexLexer;
 use copager_parse::ParseSource;
-use copager_parse_lr1::LR1;
+use copager_parse_lr_lr1::LR1;
 use copager_ir_void::Void;
 
 #[derive(
@@ -52,10 +52,10 @@ enum ExprRule {
     Num,
 }
 
-type MyGrammar = Grammar<ExprToken, ExprRule>;
+type MyLanguage = Language<ExprToken, ExprRule>;
 type MyLexer = RegexLexer<ExprToken>;
 type MyParser = LR1<ExprToken, ExprRule>;
-type MyProcessor = Processor<MyGrammar, MyLexer, MyParser>;
+type MyProcessor = Processor<MyLanguage, MyLexer, MyParser>;
 
 const OK_INPUTS: [&str; 7] = [
     "1 + 2",

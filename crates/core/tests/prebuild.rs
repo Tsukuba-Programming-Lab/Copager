@@ -2,13 +2,13 @@ use serde::{Serialize, Deserialize};
 use serde_cbor::ser::to_vec_packed;
 use serde_cbor::de::from_slice;
 
-use copager_core::{Grammar, Processor};
+use copager_core::{Language, Processor};
 use copager_cfg::token::TokenTag;
 use copager_cfg::rule::{RuleTag, Rule, RuleElem};
 use copager_lex::LexSource;
 use copager_lex_regex::RegexLexer;
 use copager_parse::ParseSource;
-use copager_parse_lr1::LR1;
+use copager_parse_lr_lr1::LR1;
 use copager_ir_void::Void;
 
 #[derive(
@@ -54,10 +54,10 @@ enum ExprRule {
     Num,
 }
 
-type MyGrammar = Grammar<ExprToken, ExprRule>;
+type MyLanguage = Language<ExprToken, ExprRule>;
 type MyLexer = RegexLexer<ExprToken>;
 type MyParser = LR1<ExprToken, ExprRule>;
-type MyProcessor = Processor<MyGrammar, MyLexer, MyParser>;
+type MyProcessor = Processor<MyLanguage, MyLexer, MyParser>;
 
 #[test]
 fn prebuild() -> anyhow::Result<()> {

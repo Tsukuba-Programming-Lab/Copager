@@ -1,6 +1,8 @@
-use std::collections::HashMap;
-use std::fmt::Debug;
+use std::collections::HashSet;
+use std::fmt::{Display, Debug};
 use std::hash::Hash;
+
+use serde::{Serialize, Deserialize};
 
 use crate::token::TokenTag;
 
@@ -8,23 +10,80 @@ pub trait RuleTag<T: TokenTag>
 where
     Self: Debug + Copy + Clone + Hash + Eq,
 {
-    fn as_rules(&self) -> Vec<Rule<T>>;
+    fn as_rules(&self) -> Vec<Rule<T, Self>>;
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Rule<T: TokenTag> {
+#[derive(Clone, Eq, Serialize, Deserialize)]
+pub struct Rule<T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    #[serde(bound(
+        serialize = "T: Serialize, R: Serialize",
+        deserialize = "T: Deserialize<'de>, R: Deserialize<'de>",
+    ))]
     pub id: usize,
+    pub tag: Option<R>,
     pub lhs: RuleElem<T>,
     pub rhs: Vec<RuleElem<T>>,
 }
 
-impl<T: TokenTag> From<(RuleElem<T>, Vec<RuleElem<T>>)> for Rule<T> {
-    fn from((lhs, rhs): (RuleElem<T>, Vec<RuleElem<T>>)) -> Self {
-        Rule { id: 0, lhs, rhs }
+impl<T, R> Display for Rule<T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} ->", self.lhs)?;
+        for elem in &self.rhs {
+            write!(f, " {}", elem)?;
+        }
+        write!(f, "")
     }
 }
 
-impl<T: TokenTag> Rule<T> {
+impl<T, R> Debug for Rule<T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} ({})", self, self.id)
+    }
+}
+
+impl<T, R> PartialEq for Rule<T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn eq(&self, other: &Self) -> bool {
+        self.tag == other.tag && self.lhs == other.lhs && self.rhs == other.rhs
+    }
+}
+
+impl<T, R> Hash for Rule<T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.tag.hash(state);
+        self.lhs.hash(state);
+        self.rhs.hash(state);
+    }
+}
+
+impl<T, R> Rule<T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    pub fn new(tag: Option<R>, lhs: RuleElem<T>, rhs: Vec<RuleElem<T>>) -> Self {
+        Rule { id: 0, tag, lhs, rhs }
+    }
+
     pub fn nonterms<'a>(&'a self) -> Vec<&'a RuleElem<T>> {
         let mut l_nonterms = vec![&self.lhs];
         let r_nonterms: Vec<&RuleElem<T>> = self
@@ -44,20 +103,32 @@ impl<T: TokenTag> Rule<T> {
     }
 }
 
-#[derive(Debug, Clone, Eq)]
+#[derive(Clone, Hash, Eq, Serialize, Deserialize)]
 pub enum RuleElem<T: TokenTag> {
+    #[serde(bound(
+        serialize = "T: Serialize",
+        deserialize = "T: Deserialize<'de>",
+    ))]
     NonTerm(String),
     Term(T),
+    Epsilon,
     EOF,
 }
 
-impl<T: TokenTag> Hash for RuleElem<T> {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+impl<T: TokenTag> Display for RuleElem<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            RuleElem::NonTerm(s) => s.hash(state),
-            RuleElem::Term(t) => t.hash(state),
-            RuleElem::EOF => 0.hash(state),
+            RuleElem::NonTerm(s) => write!(f, "<{}>", s),
+            RuleElem::Term(t) => write!(f, "{:?}", t.as_str()),
+            RuleElem::Epsilon => write!(f, "ε"),
+            RuleElem::EOF => write!(f, "$"),
         }
+    }
+}
+
+impl<T: TokenTag> Debug for RuleElem<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self)
     }
 }
 
@@ -66,6 +137,7 @@ impl<T: TokenTag> PartialEq for RuleElem<T> {
         match (self, other) {
             (RuleElem::NonTerm(s1), RuleElem::NonTerm(s2)) => s1 == s2,
             (RuleElem::Term(t1), RuleElem::Term(t2)) => t1 == t2,
+            (RuleElem::Epsilon, RuleElem::Epsilon) => true,
             (RuleElem::EOF, RuleElem::EOF) => true,
             _ => false,
         }
@@ -83,15 +155,23 @@ impl<T: TokenTag> RuleElem<T> {
 }
 
 #[derive(Debug, Clone)]
-pub struct RuleSet<T: TokenTag> {
+pub struct RuleSet<T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
     pub top: String,
-    pub rules: Vec<Rule<T>>,
+    pub rules: Vec<Rule<T, R>>,
 }
 
-impl<T: TokenTag> FromIterator<Rule<T>> for RuleSet<T> {
+impl<T, R> FromIterator<Rule<T, R>> for RuleSet<T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
     fn from_iter<I>(rules: I) -> Self
     where
-        I: IntoIterator<Item = Rule<T>>,
+        I: IntoIterator<Item = Rule<T, R>>,
     {
         let rules = rules.into_iter().collect::<Vec<_>>();
         let top = match &rules[0].lhs {
@@ -102,299 +182,30 @@ impl<T: TokenTag> FromIterator<Rule<T>> for RuleSet<T> {
     }
 }
 
-impl<T: TokenTag> RuleSet<T> {
-    pub fn nonterms<'a>(&'a self) -> Vec<&'a RuleElem<T>> {
+impl<T, R> RuleSet<T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    pub fn update_top(&mut self, rule: Rule<T, R>) {
+        if let RuleElem::NonTerm(top) = &rule.lhs {
+            self.top = top.to_string();
+        }
+        self.rules.push(rule);
+    }
+
+    pub fn nonterms<'a>(&'a self) -> HashSet<&'a RuleElem<T>> {
         self.rules.iter().flat_map(|rule| rule.nonterms()).collect()
     }
 
-    pub fn terms<'a>(&'a self) -> Vec<&'a RuleElem<T>> {
+    pub fn terms<'a>(&'a self) -> HashSet<&'a RuleElem<T>> {
         self.rules.iter().flat_map(|rule| rule.terms()).collect()
     }
 
-    pub fn find_rule<'a>(&'a self, target: &RuleElem<T>) -> Vec<&'a Rule<T>> {
+    pub fn find_rule<'a>(&'a self, target: &RuleElem<T>) -> Vec<&'a Rule<T, R>> {
         self.rules
             .iter()
             .filter(|rule| &rule.lhs == target)
             .collect()
     }
-
-    pub fn first_set<'a>(&'a self) -> HashMap<&'a RuleElem<T>, Vec<&'a RuleElem<T>>> {
-        // 1. Calc a null set
-        let nulls_set = self.nulls_set();
-
-        // 2. Initialize a first set
-        let mut first_set: HashMap<&RuleElem<T>, Vec<&RuleElem<T>>> = HashMap::new();
-        first_set.insert(&RuleElem::EOF, vec![&RuleElem::EOF]);
-        self.terms().into_iter().for_each(|relem| {
-            first_set.insert(relem, vec![relem]);
-        });
-        self.nonterms().into_iter().for_each(|relem| {
-            first_set.insert(relem, vec![]);
-        });
-
-        // 3. List up candidates from a nonterm set
-        let mut candidates = vec![];
-        for nonterm in self.nonterms() {
-            let rules = self.find_rule(nonterm);
-            for rule in rules {
-                for relem in &rule.rhs {
-                    if &rule.lhs != relem {
-                        candidates.push((nonterm, relem))
-                    }
-                    if !nulls_set.contains(&relem) {
-                        break;
-                    }
-                }
-            }
-        }
-
-        // 4. Find first set with recursive
-        let mut updated = true;
-        while updated {
-            updated = false;
-            for (nonterm, candidate) in &candidates {
-                let found_elems: Vec<&RuleElem<T>> = first_set
-                    .get(candidate)
-                    .unwrap()
-                    .iter()
-                    .filter(|relem| !first_set.get(nonterm).unwrap().contains(relem))
-                    .copied()
-                    .collect();
-                updated = !found_elems.is_empty();
-                first_set
-                    .get_mut(nonterm)
-                    .unwrap()
-                    .extend(found_elems.into_iter());
-            }
-        }
-
-        first_set
-    }
-
-    fn nulls_set<'a>(&'a self) -> Vec<&'a RuleElem<T>> {
-        // 1. Find null rules
-        let mut nulls_set: Vec<&RuleElem<T>> = self
-            .rules
-            .iter()
-            .filter(|rule| rule.rhs.is_empty())
-            .map(|rule| &rule.lhs)
-            .collect();
-
-        // 2. Find null rules with recursive
-        let mut updated = true;
-        while updated {
-            updated = false;
-            for rule in &self.rules {
-                if nulls_set.contains(&&rule.lhs) {
-                    continue;
-                } else if rule.rhs.iter().all(|relem| nulls_set.contains(&relem)) {
-                    nulls_set.push(&rule.lhs);
-                    updated = true;
-                } else {
-                    continue;
-                }
-            }
-        }
-
-        nulls_set
-    }
 }
-
-// #[cfg(test)]
-// mod test {
-//     use std::collections::HashMap;
-
-//     use crate::token::TokenTag;
-//     use crate::RuleKind;
-
-//     use super::{Rule, RuleElem};
-
-//     #[derive(Copy, Clone, Hash, PartialEq, Eq, Debug)]
-//     enum TestToken {
-//         Num,
-//         Plus,
-//         Minus,
-//         Mul,
-//         Div,
-//         BracketA,
-//         BracketB,
-//     }
-
-//     impl TokenKind<'_> for TestToken {
-//         fn as_str(&self) -> &'static str {
-//             match self {
-//                 TestToken::Num => r"^[1-9][0-9]*",
-//                 TestToken::Plus => r"^\+",
-//                 TestToken::Minus => r"^-",
-//                 TestToken::Mul => r"^\*",
-//                 TestToken::Div => r"^/",
-//                 TestToken::BracketA => r"^\(",
-//                 TestToken::BracketB => r"^\)",
-//             }
-//         }
-
-//         fn ignore_str() -> &'static str {
-//             r"^[ \t\n]+"
-//         }
-
-//         fn into_iter() -> impl Iterator<Item = Self> {
-//             vec![
-//                 TestToken::Num,
-//                 TestToken::Plus,
-//                 TestToken::Minus,
-//                 TestToken::Mul,
-//                 TestToken::Div,
-//                 TestToken::BracketA,
-//                 TestToken::BracketB,
-//             ]
-//             .into_iter()
-//         }
-//     }
-
-//     #[derive(Debug, Clone, Hash, PartialEq, Eq)]
-//     enum TestRule {
-//         ExprPlus,
-//         ExprMinus,
-//         Expr2Term,
-//         TermMul,
-//         TermDiv,
-//         Term2Fact,
-//         Fact2Expr,
-//         Fact2Num,
-//     }
-
-//     impl<'a> RuleKind<'a> for TestRule {
-//         type TokenKind = TestToken;
-
-//         fn into_iter() -> impl Iterator<Item = Self> {
-//             Box::new(
-//                 vec![
-//                     TestRule::ExprPlus,
-//                     TestRule::ExprMinus,
-//                     TestRule::Expr2Term,
-//                     TestRule::TermMul,
-//                     TestRule::TermDiv,
-//                     TestRule::Term2Fact,
-//                     TestRule::Fact2Expr,
-//                     TestRule::Fact2Num,
-//                 ]
-//                 .into_iter(),
-//             )
-//         }
-
-//         fn into_rules(&self) -> Vec<Rule<Self::TokenKind>> {
-//             let expr_plus = Rule::from((
-//                 RuleElem::new_nonterm("expr"),
-//                 vec![
-//                     RuleElem::new_nonterm("expr"),
-//                     RuleElem::new_term(TestToken::Plus),
-//                     RuleElem::new_nonterm("term"),
-//                 ],
-//             ));
-
-//             let expr_minus = Rule::from((
-//                 RuleElem::new_nonterm("expr"),
-//                 vec![
-//                     RuleElem::new_nonterm("expr"),
-//                     RuleElem::new_term(TestToken::Minus),
-//                     RuleElem::new_nonterm("term"),
-//                 ],
-//             ));
-
-//             let expr_2_term = Rule::<TestToken>::from((
-//                 RuleElem::new_nonterm("expr"),
-//                 vec![RuleElem::new_nonterm("term")],
-//             ));
-
-//             let term_mul = Rule::from((
-//                 RuleElem::new_nonterm("term"),
-//                 vec![
-//                     RuleElem::new_nonterm("term"),
-//                     RuleElem::new_term(TestToken::Mul),
-//                     RuleElem::new_nonterm("fact"),
-//                 ],
-//             ));
-
-//             let term_div = Rule::from((
-//                 RuleElem::new_nonterm("term"),
-//                 vec![
-//                     RuleElem::new_nonterm("term"),
-//                     RuleElem::new_term(TestToken::Div),
-//                     RuleElem::new_nonterm("fact"),
-//                 ],
-//             ));
-
-//             let term_2_fact = Rule::<TestToken>::from((
-//                 RuleElem::new_nonterm("term"),
-//                 vec![RuleElem::new_nonterm("fact")],
-//             ));
-
-//             let fact_2_expr = Rule::from((
-//                 RuleElem::new_nonterm("fact"),
-//                 vec![
-//                     RuleElem::new_term(TestToken::BracketA),
-//                     RuleElem::new_nonterm("expr"),
-//                     RuleElem::new_term(TestToken::BracketB),
-//                 ],
-//             ));
-
-//             let fact_2_num = Rule::from((RuleElem::new_nonterm("fact"), vec![]));
-
-//             match self {
-//                 TestRule::ExprPlus => vec![expr_plus],
-//                 TestRule::ExprMinus => vec![expr_minus],
-//                 TestRule::Expr2Term => vec![expr_2_term],
-//                 TestRule::TermMul => vec![term_mul],
-//                 TestRule::TermDiv => vec![term_div],
-//                 TestRule::Term2Fact => vec![term_2_fact],
-//                 TestRule::Fact2Expr => vec![fact_2_expr],
-//                 TestRule::Fact2Num => vec![fact_2_num],
-//             }
-//         }
-//     }
-
-//     fn check<T: Into<String>>(
-//         first_set: &HashMap<&RuleElem<TestToken>, Vec<&RuleElem<TestToken>>>,
-//         nonterm: T,
-//         exp_terms: Vec<TestToken>,
-//     ) {
-//         let nonterms = RuleElem::<TestToken>::new_nonterm(nonterm);
-//         let exp_terms: Vec<RuleElem<TestToken>> = exp_terms
-//             .into_iter()
-//             .map(|term| RuleElem::new_term(term))
-//             .collect();
-//         assert!(first_set.get(&nonterms).unwrap().len() == exp_terms.len());
-
-//         let result = first_set
-//             .get(&nonterms)
-//             .unwrap()
-//             .into_iter()
-//             .zip(exp_terms.into_iter())
-//             .any(|(a, b)| a == &&b);
-//         assert!(result);
-//     }
-
-//     #[test]
-//     fn first_set() {
-//         let ruleset = <TestRule as RuleKind>::into_ruleset();
-//         let first_set = ruleset.first_set();
-
-//         check(
-//             &first_set,
-//             "expr",
-//             vec![
-//                 TestToken::Plus,
-//                 TestToken::Minus,
-//                 TestToken::Mul,
-//                 TestToken::Div,
-//                 TestToken::BracketA,
-//             ],
-//         );
-//         check(
-//             &first_set,
-//             "term",
-//             vec![TestToken::Mul, TestToken::Div, TestToken::BracketA],
-//         );
-//         check(&first_set, "fact", vec![TestToken::BracketA]);
-//     }
-// }

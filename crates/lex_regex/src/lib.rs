@@ -1,20 +1,18 @@
 #![feature(gen_blocks)]
 
-use std::rc::Rc;
-
 use regex::{Regex, RegexSet};
 
 use copager_cfg::token::{TokenTag, Token};
-use copager_lex::{LexSource, LexDriver};
+use copager_lex::{LexSource, BaseLexer};
 
 #[derive(Debug)]
 pub struct RegexLexer<S: LexSource> {
-    regex_istr: Rc<Regex>,
-    regex_set: Rc<RegexSet>,
-    regex_map: Rc<Vec<(Regex, S::Tag)>>,
+    regex_istr: Regex,
+    regex_set: RegexSet,
+    regex_map: Vec<(Regex, S::Tag)>,
 }
 
-impl<S: LexSource> LexDriver<S> for RegexLexer<S> {
+impl<S: LexSource> BaseLexer<S> for RegexLexer<S> {
     fn try_from(source: S) -> anyhow::Result<Self> {
         let regex_istr = Regex::new(source.ignore_token())?;
         let regex_set = source.iter()
@@ -26,9 +24,9 @@ impl<S: LexSource> LexDriver<S> for RegexLexer<S> {
             .collect::<anyhow::Result<Vec<_>>>()?;
 
         Ok(RegexLexer {
-            regex_istr: Rc::new(regex_istr),
-            regex_set: Rc::new(regex_set),
-            regex_map: Rc::new(regex_map),
+            regex_istr,
+            regex_set,
+            regex_map,
         })
     }
 
@@ -45,24 +43,23 @@ impl<S: LexSource> LexDriver<S> for RegexLexer<S> {
             };
 
             // Find the token
-            let mut matches = self
+            let matched = self
                 .regex_set
                 .matches(remain)
                 .into_iter()
                 .map(|idx| &self.regex_map[idx])
                 .map(|(regex, token)| (*token, regex.find(remain).unwrap().as_str()))
-                .collect::<Vec<(S::Tag, &str)>>();
-            matches.sort_by(|(_, a), (_, b)| a.len().cmp(&b.len()));
+                .next();
 
             // Update pos
-            let (token, acc_s) = match matches.first() {
+            let (token, acc_s) = match matched {
                 Some(a) => a,
                 None => return,
             };
             let range = (pos, pos + acc_s.len());
             pos += acc_s.len();
 
-            yield Token::new(*token, &input, range);
+            yield Token::new(token, &input, range);
         }
     }
 }

@@ -2,7 +2,7 @@ cargo-features = ["edition2024"]
 
 [package]
 name = "copager"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2024"
 
 [dependencies]
@@ -13,7 +13,12 @@ copager_cfg = { path = "./crates/cfg" }
 copager_lex = { path = "./crates/lex", optional = true }
 copager_lex_regex = { path = "./crates/lex_regex", optional = true }
 copager_parse = { path = "./crates/parse", optional = true }
-copager_parse_lr1 = { path = "./crates/parse_lr1", optional = true }
+copager_parse_common = { path = "./crates/parse_common", optional = true }
+copager_parse_lr_common = { path = "./crates/parse_lr_common", optional = true }
+copager_parse_lr_lr0 = { path = "./crates/parse_lr_lr0", optional = true }
+copager_parse_lr_lr1 = { path = "./crates/parse_lr_lr1", optional = true }
+copager_parse_lr_slr1 = { path = "./crates/parse_lr_slr1", optional = true }
+copager_parse_lr_lalr1 = { path = "./crates/parse_lr_lalr1", optional = true }
 copager_ir = { path = "./crates/ir" }
 copager_ir_void = { path = "./crates/ir_void", optional = true }
 copager_ir_sexp = { path = "./crates/ir_sexp", optional = true }
@@ -23,19 +28,34 @@ anyhow = { workspace = true }
 serde = { workspace = true }
 serde_json = "1.0.117"
 copager = { path = ".", features = ["all"] }
+example_lang_arithmetic = { path = "./examples/lang_arithmetic" }
+example_lang_json = { path = "./examples/lang_json" }
+example_lang_pl0 = { path = "./examples/lang_pl0" }
+example_lang_xml = { path = "./examples/lang_xml" }
 
 [features]
+# all
+all = [
+    "prebuild", "derive", "dev",   # common
+    "regexlex",                    # lex
+    "lr0", "lr1", "slr1", "lalr1", # parse
+    "void", "sexp"                 # ir
+]
+
 # common
 default = ["dep:copager_lex", "dep:copager_parse"]
-all = ["prebuild", "derive", "regexlex", "lr1", "void", "sexp"]
 prebuild = ["dep:serde_json"]
 derive = ["copager_lex/derive", "copager_parse/derive"]
+dev = ["dep:copager_parse_common", "dep:copager_parse_lr_common"]
 
 # lex
 regexlex = ["dep:copager_lex_regex"]
 
 # parse
-lr1 = ["dep:copager_parse_lr1"]
+lr0 = ["dep:copager_parse_lr_lr0"]
+lr1 = ["dep:copager_parse_lr_lr1"]
+slr1 = ["dep:copager_parse_lr_slr1"]
+lalr1 = ["dep:copager_parse_lr_lalr1"]
 
 # ir
 void = ["dep:copager_ir_void"]
@@ -52,16 +72,25 @@ members = [
     "./crates/lex_derive",
     "./crates/lex_regex",
     "./crates/parse",
+    "./crates/parse_common",
     "./crates/parse_derive",
-    "./crates/parse_lr1",
+    "./crates/parse_lr_common",
+    "./crates/parse_lr_lr0",
+    "./crates/parse_lr_lr1",
+    "./crates/parse_lr_slr1",
+    "./crates/parse_lr_lalr1",
     "./crates/ir",
     "./crates/ir_void",
     "./crates/ir_sexp",
     "./crates/utils",
 
     # Examples
-    "./examples/oneshot",
-    "./examples/prebuild",
+    "./examples/build_oneshot",
+    "./examples/build_prebuild",
+    "./examples/lang_arithmetic",
+    "./examples/lang_json",
+    "./examples/lang_pl0",
+    "./examples/lang_xml",
 ]
 exclude = []
 
@@ -69,3 +98,19 @@ exclude = []
 anyhow = "1.0.82"
 thiserror = "1.0.58"
 serde = { version = "1.0.197", features = ["derive"] }
+
+[[test]]
+name = "test_by_arithmetic"
+path = "./tests/arithmetic/test.rs"
+
+[[test]]
+name = "test_by_json"
+path = "./tests/json/test.rs"
+
+[[test]]
+name = "test_by_pl0"
+path = "./tests/pl0/test.rs"
+
+[[test]]
+name = "test_by_xml"
+path = "./tests/xml/test.rs"

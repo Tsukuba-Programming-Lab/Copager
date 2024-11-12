@@ -1,10 +1,10 @@
+use copager_core::{Language, Processor};
 use copager_cfg::token::TokenTag;
 use copager_cfg::rule::{RuleTag, Rule, RuleElem};
-use copager_lex::{LexSource, LexDriver};
+use copager_lex::LexSource;
 use copager_lex_regex::RegexLexer;
-use copager_parse::{ParseSource, ParseDriver, ParseEvent};
-use copager_parse_lr1::LR1;
-use copager_ir::{IR, IRBuilder};
+use copager_parse::ParseSource;
+use copager_parse_lr_lr1::LR1;
 use copager_ir_sexp::SExp;
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, LexSource)]
@@ -44,10 +44,6 @@ enum ExprRule {
     Num,
 }
 
-type MyLexer = RegexLexer<ExprToken>;
-type MyParser = LR1<ExprToken, ExprRule>;
-type MyIR = SExp<'static, ExprToken, ExprRule>;
-
 #[test]
 fn simple_display() {
     let ir = parse("1");
@@ -68,28 +64,15 @@ fn simple_eval() {
 }
 
 fn parse<'input>(input: &'input str) -> anyhow::Result<SExp<'input, ExprToken, ExprRule>> {
-    let source = ExprToken::default();
-    let lexer = <MyLexer as LexDriver<ExprToken>>::try_from(source).unwrap();
+    type TestLang = Language<ExprToken, ExprRule>;
+    type TestLexer = RegexLexer<ExprToken>;
+    type TestParser = LR1<ExprToken, ExprRule>;
+    type TestProcessor = Processor<TestLang, TestLexer, TestParser>;
 
-    let source = (ExprToken::default(), ExprRule::default());
-    let parser = <MyParser as ParseDriver<ExprToken, ExprRule>>::try_from(source).unwrap();
-
-    let mut ir_builder = <MyIR as IR<ExprToken, ExprRule>>::Builder::new();
-    for event in parser.run(lexer.run(input)) {
-        match event {
-            ParseEvent::Read(token) => {
-                ir_builder.on_read(token).unwrap();
-            }
-            ParseEvent::Parse { rule, len } => {
-                ir_builder.on_parse(rule, len).unwrap();
-            }
-            ParseEvent::Err(err) => {
-                return Err(anyhow::anyhow!("{:?}", err));
-            }
-        }
-    }
-
-    ir_builder.build()
+    TestProcessor::new()
+        .build_lexer()?
+        .build_parser()?
+        .process::<SExp<_, _>>(input)
 }
 
 fn eval(ir: &SExp<'static, ExprToken, ExprRule>) -> i32 {

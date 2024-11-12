@@ -29,7 +29,7 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
 
     quote! {
         impl RuleTag<#enum_assoc_type> for #enum_name {
-            fn as_rules(&self) -> Vec<Rule<#enum_assoc_type>> {
+            fn as_rules(&self) -> Vec<Rule<#enum_assoc_type, Self>> {
                 match self {
                     #( #enum_matcher_table_i2r, )*
                 }
@@ -49,7 +49,7 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
 struct VariantInfo<'a> {
     parent_ident: &'a Ident,
     self_ident: &'a Ident,
-    rules: Vec<TokenStream>,
+    rule_lhs_rhs_tuples: Vec<TokenStream>,
 }
 
 impl<'a> VariantInfo<'a> {
@@ -60,18 +60,18 @@ impl<'a> VariantInfo<'a> {
             .parse::<TokenStream>()
             .unwrap();
 
-        let mut rules = vec![];
+        let mut rule_lhs_rhs_tuples = vec![];
         for attr in &variant.attrs {
             if attr.path().is_ident("rule") {
                 let attr = attr.parse_args::<LitStr>().unwrap().value();
-                rules.push(parse_rule(&token_ident, &attr));
+                rule_lhs_rhs_tuples.push(parse_rule(&token_ident, &attr));
             }
         }
 
         VariantInfo {
             parent_ident,
             self_ident,
-            rules,
+            rule_lhs_rhs_tuples,
         }
     }
 
@@ -84,11 +84,11 @@ impl<'a> VariantInfo<'a> {
 
     fn gen_matcher_ident_to_rule(&self) -> TokenStream {
         let ident = self.gen_ident();
-        if self.rules.is_empty() {
+        if self.rule_lhs_rhs_tuples.is_empty() {
             quote! { #ident => unimplemented!() }
         } else {
-            let rules = &self.rules;
-            quote! { #ident => vec![#(#rules),*] }
+            let lhs_rhs_tuple = &self.rule_lhs_rhs_tuples;
+            quote! { #ident => vec![#(Rule::new(Some(#ident), #lhs_rhs_tuple)),*] }
         }
     }
 }
@@ -112,6 +112,11 @@ fn parse_rule(token: &TokenStream, input: &str) -> TokenStream {
             }
         })
         .collect::<Vec<_>>();
+    let rhs = if rhs.len() == 0 {
+        vec![quote! { RuleElem::Epsilon }]
+    } else {
+        rhs
+    };
 
-    quote! { Rule::from((#lhs, vec![ #( #rhs, )* ])) }
+    quote! { #lhs, vec![ #( #rhs, )* ], }
 }

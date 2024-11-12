@@ -6,17 +6,17 @@ use serde::{Serialize, Deserialize};
 use serde_cbor::ser::to_vec_packed;
 use serde_cbor::de::from_slice;
 
-use copager_lex::{LexSource, LexDriver};
-use copager_parse::{ParseSource, ParseDriver, ParseEvent};
+use copager_lex::{LexSource, BaseLexer};
+use copager_parse::{ParseSource, BaseParser, ParseEvent};
 use copager_ir::{IR, IRBuilder};
 use copager_utils::cache::Cacheable;
 
-pub trait GrammarDesign {
+pub trait LanguageDesign {
     type Lex: LexSource;
     type Parse: ParseSource<<Self::Lex as LexSource>::Tag>;
 }
 
-pub struct Grammar<Sl, Sp>
+pub struct Language<Sl, Sp>
 where
     Sl: LexSource,
     Sp: ParseSource<Sl::Tag>,
@@ -25,7 +25,7 @@ where
     _phantom_sp: PhantomData<Sp>,
 }
 
-impl<Sl, Sp> GrammarDesign for Grammar<Sl, Sp>
+impl<Sl, Sp> LanguageDesign for Language<Sl, Sp>
 where
     Sl: LexSource,
     Sp: ParseSource<Sl::Tag>,
@@ -37,9 +37,9 @@ where
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Processor<G, Dl, Dp>
 where
-    G: GrammarDesign,
-    Dl: LexDriver<G::Lex>,
-    Dp: ParseDriver<G::Lex, G::Parse>,
+    G: LanguageDesign,
+    Dl: BaseLexer<G::Lex>,
+    Dp: BaseParser<G::Lex, G::Parse>,
 {
     // Cache
     cache_lex: Option<Vec<u8>>,
@@ -62,9 +62,9 @@ where
 
 impl<G, Dl, Dp> Processor<G, Dl, Dp>
 where
-    G: GrammarDesign,
-    Dl: LexDriver<G::Lex>,
-    Dp: ParseDriver<G::Lex, G::Parse>,
+    G: LanguageDesign,
+    Dl: BaseLexer<G::Lex>,
+    Dp: BaseParser<G::Lex, G::Parse>,
 {
     pub fn new() -> Self {
         Processor {
@@ -129,9 +129,9 @@ where
 
 impl<G, Dl, Dp> Processor<G, Dl, Dp>
 where
-    G: GrammarDesign,
-    Dl: LexDriver<G::Lex> + Cacheable<G::Lex>,
-    Dp: ParseDriver<G::Lex, G::Parse>,
+    G: LanguageDesign,
+    Dl: BaseLexer<G::Lex> + Cacheable<G::Lex>,
+    Dp: BaseParser<G::Lex, G::Parse>,
 {
     pub fn prebuild_lexer(self) -> anyhow::Result<Self>
     where
@@ -159,9 +159,9 @@ where
 
 impl<G, Dl, Dp> Processor<G, Dl, Dp>
 where
-    G: GrammarDesign,
-    Dl: LexDriver<G::Lex>,
-    Dp: ParseDriver<G::Lex, G::Parse> + Cacheable<(G::Lex, G::Parse)>,
+    G: LanguageDesign,
+    Dl: BaseLexer<G::Lex>,
+    Dp: BaseParser<G::Lex, G::Parse> + Cacheable<(G::Lex, G::Parse)>,
 {
     pub fn prebuild_parser(self) -> anyhow::Result<Self>
     where
