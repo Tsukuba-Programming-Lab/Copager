@@ -102,7 +102,7 @@ where
         for node in &dfa.nodes {
             let node = node.read().unwrap();
             for (rule, la_token) in node.find_all_by(is_lr1_reduce_state) {
-                // A -> α β . を含むノードに対して Reduce をマーク
+                // A -> α β . [la_token] を含む場合，la_token 列に対して Reduce をマーク
                 match la_token {
                     RuleElem::Term(term) => {
                         builder.try_set(node.id, Some(*term), LRAction::Reduce(rule.clone()))?;
@@ -113,10 +113,9 @@ where
                     _ => {}
                 }
 
-                // S -> Top . を含むノードに対して Accept をマーク
-                if let Some(_) = node.find_all(&top_dummy).next() {
-                    builder.try_set(node.id, None, LRAction::Accept)?;
-                    continue;
+                // S -> Top . を含む場合，EOF 列に対して Accept をマーク
+                if rule == &top_dummy {
+                    builder.set(node.id, None, LRAction::Accept);
                 }
             }
         }

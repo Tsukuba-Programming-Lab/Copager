@@ -99,7 +99,11 @@ where
     }
 
     pub fn set(&mut self, state: usize, token: Option<T>, action: LRAction<T, R>) {
-        let _ = self.try_set(state, token, action);
+        if let Some(token) = token {
+            self.action_table[state].insert(token, action);
+        } else {
+            self.eof_action_table[state] = action;
+        }
     }
 
     pub fn try_set(&mut self, state: usize, token: Option<T>, action: LRAction<T, R>) -> anyhow::Result<()>{

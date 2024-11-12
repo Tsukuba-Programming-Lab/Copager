@@ -101,14 +101,9 @@ where
         let mut builder = LRTableBuilder::from(&dfa);
         for node in dfa.nodes {
             let node = node.read().unwrap();
-            if let Some(rule) = node.find_all_by(is_slr1_reduce_state).next() {
-                // S -> Top . を含むノードに対して Accept をマーク
-                if let Some(_) = node.find_all(&top_dummy).next() {
-                    builder.try_set(node.id, None, LRAction::Accept)?;
-                    continue;
-                }
 
-                // A -> α β . を含むノードに対して Reduce をマーク
+            // A -> α β . を含む場合，Follow(A) 列に対して Reduce をマーク
+            for rule in node.find_all_by(is_slr1_reduce_state) {
                 let lhs = lhs_as_str(&rule.lhs);
                 for term in follow_set.get(lhs).unwrap() {
                     match term {
@@ -120,6 +115,11 @@ where
                         }
                         _ => {}
                     }
+                }
+
+                // S -> Top . を含む場合，EOF 列に対して Accept をマーク
+                if rule == &top_dummy {
+                    builder.set(node.id, None, LRAction::Accept);
                 }
             }
         }
