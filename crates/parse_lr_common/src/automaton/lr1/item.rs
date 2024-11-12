@@ -96,7 +96,7 @@ where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    pub items: Vec<LR1Item<'a, T, R>>,
+    pub items: HashSet<LR1Item<'a, T, R>>,
     ruleset: &'a RuleSet<T, R>,
     first_set: &'b FirstSet<'a, T, R>,
 }
@@ -122,20 +122,10 @@ where
 {
     fn from((ruleset, first_set): (&'a RuleSet<T, R>, &'b FirstSet<'a, T, R>)) -> Self {
         LR1ItemSet {
-            items: vec![],
+            items: HashSet::new(),
             ruleset,
             first_set,
         }
-    }
-}
-
-impl<'a, 'b, T, R> Hash for LR1ItemSet<'a, 'b, T, R>
-where
-    T: TokenTag,
-    R: RuleTag<T>,
-{
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        self.items.hash(state);
     }
 }
 
@@ -161,7 +151,7 @@ where
     R: RuleTag<T>,
 {
     pub fn init(mut self, rule: &'a Rule<T, R>) -> Self {
-        self.items = vec![LR1Item::from((rule, &RuleElem::EOF))];
+        self.items = HashSet::from([LR1Item::from((rule, &RuleElem::EOF))]);
         self
     }
 
@@ -197,11 +187,7 @@ where
                 .flatten()
                 .collect::<Vec<_>>();
             for item in new_expaned {
-                if self.items.contains(&item) {
-                    continue;
-                }
-                self.items.push(item);
-                modified = true;
+                modified |= self.items.insert(item);
             }
         }
     }
