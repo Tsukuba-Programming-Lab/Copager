@@ -1,21 +1,15 @@
 pub mod rule;
 pub mod token;
 
-use std::marker::PhantomData;
-
 use token::TokenTag;
 use rule::{RuleTag, RuleSet};
 
 #[cfg(feature = "derive")]
-pub use copager_cfl_derive::{CFLTokens, CFLRules};
+pub use copager_cfl_derive::{CFL, CFLTokens, CFLRules};
 
-pub struct CFL<Ts, Rs>
-where
-    Ts: CFLTokens,
-    Rs: CFLRules<Ts::Tag>,
-{
-    _phantom_ts: PhantomData<Ts>,
-    _phantom_rs: PhantomData<Rs>,
+pub trait CFL {
+    type Tokens: CFLTokens;
+    type Rules: CFLRules<<Self::Tokens as CFLTokens>::Tag>;
 }
 
 pub trait CFLTokens {
