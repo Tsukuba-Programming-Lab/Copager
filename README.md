@@ -17,10 +17,10 @@
 
 ### Parse
 
-- `lr0` : [crates/parse_lr0](crates/parse_lr0)
-- `lr1` : [crates/parse_lr1](crates/parse_lr1)
-- `slr1` : [crates/parse_slr1](crates/parse_slr1)
-- `lalr1` : [crates/parse_lalr1](crates/parse_lalr1)
+- `lr0` : [crates/parse_lr_lr0](crates/parse_lr_lr0)
+- `lr1` : [crates/parse_lr_lr1](crates/parse_lr_lr1)
+- `slr1` : [crates/parse_lr_slr1](crates/parse_lr_slr1)
+- `lalr1` : [crates/parse_lr_lalr1](crates/parse_lr_lalr1)
 
 ### IR
 
