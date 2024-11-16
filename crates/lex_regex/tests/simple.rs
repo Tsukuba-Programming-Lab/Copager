@@ -4,7 +4,7 @@ use copager_lex::BaseLexer;
 use copager_lex_regex::RegexLexer;
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
-enum ExprToken {
+enum TestToken {
     #[default]
     #[token(text = r"\+")]
     Plus,
@@ -24,12 +24,12 @@ enum ExprToken {
     _Whitespace,
 }
 
-type MyLexer = RegexLexer<ExprToken>;
+type MyLexer = RegexLexer<TestToken>;
 
 #[test]
 fn simple_success() {
-    let source = ExprToken::default();
-    let lexer = <MyLexer as BaseLexer<ExprToken>>::try_from(source).unwrap();
+    let tokens = TestToken::default();
+    let lexer = <MyLexer as BaseLexer<TestToken>>::try_from(tokens).unwrap();
     let mut lexer = lexer.run("1 + 2 * 3");
     assert_eq_token(lexer.next(), "1");
     assert_eq_token(lexer.next(), "+");
@@ -42,8 +42,8 @@ fn simple_success() {
 #[test]
 #[should_panic]
 fn simple_failed() {
-    let source = ExprToken::default();
-    let lexer = <MyLexer as BaseLexer<ExprToken>>::try_from(source).unwrap();
+    let tokens = TestToken::default();
+    let lexer = <MyLexer as BaseLexer<TestToken>>::try_from(tokens).unwrap();
     let mut lexer = lexer.run("1 + 2 * stop 3");
     assert_eq_token(lexer.next(), "1");
     assert_eq_token(lexer.next(), "+");
@@ -53,7 +53,7 @@ fn simple_failed() {
     assert!(lexer.next().is_none());
 }
 
-fn assert_eq_token(token: Option<Token<ExprToken>>, s: &str) {
+fn assert_eq_token(token: Option<Token<TestToken>>, s: &str) {
     match token {
         Some(token) => assert_eq!(token.as_str(), s),
         None => panic!("unexpected eof"),

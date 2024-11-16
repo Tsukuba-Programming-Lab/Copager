@@ -21,19 +21,19 @@ where
     table: LRTable<T, R>,
 }
 
-impl<Sl, Sp> BaseParser<Sl, Sp> for LR0<Sl::Tag, Sp::Tag>
+impl<Ts, Rs> BaseParser<Ts, Rs> for LR0<Ts::Tag, Rs::Tag>
 where
-    Sl: CFLTokens,
-    Sp: CFLRules<Sl::Tag>,
+    Ts: CFLTokens,
+    Rs: CFLRules<Ts::Tag>,
 {
-    fn try_from((source_l, source_p): (Sl, Sp)) -> anyhow::Result<Self> {
-        let table = LR0Table::try_from(source_l, source_p)?;
+    fn try_from((tokens, rules): (Ts, Rs)) -> anyhow::Result<Self> {
+        let table = LR0Table::try_from(tokens, rules)?;
         Ok(LR0 { table })
     }
 
-    gen fn run<'input, Il>(&self, mut lexer: Il) -> ParseEvent<'input, Sl::Tag, Sp::Tag>
+    gen fn run<'input, Il>(&self, mut lexer: Il) -> ParseEvent<'input, Ts::Tag, Rs::Tag>
     where
-        Il: Iterator<Item = Token<'input, Sl::Tag>>,
+        Il: Iterator<Item = Token<'input, Ts::Tag>>,
     {
         let mut driver = LRDriver::from(&self.table);
         while !driver.accepted() {
@@ -44,17 +44,17 @@ where
     }
 }
 
-impl<Sl, Sp> Cacheable<(Sl, Sp)> for LR0<Sl::Tag, Sp::Tag>
+impl<Ts, Rs> Cacheable<(Ts, Rs)> for LR0<Ts::Tag, Rs::Tag>
 where
-    Sl: CFLTokens,
-    Sl::Tag: Serialize + for<'de> Deserialize<'de>,
-    Sp: CFLRules<Sl::Tag>,
-    Sp::Tag: Serialize + for<'de> Deserialize<'de>,
+    Ts: CFLTokens,
+    Ts::Tag: Serialize + for<'de> Deserialize<'de>,
+    Rs: CFLRules<Ts::Tag>,
+    Rs::Tag: Serialize + for<'de> Deserialize<'de>,
 {
-    type Cache = LRTable<Sl::Tag, Sp::Tag>;
+    type Cache = LRTable<Ts::Tag, Rs::Tag>;
 
-    fn new((source_l, source_p): (Sl, Sp)) -> anyhow::Result<Self::Cache> {
-        let table = LR0Table::try_from(source_l, source_p)?;
+    fn new((tokens, rules): (Ts, Rs)) -> anyhow::Result<Self::Cache> {
+        let table = LR0Table::try_from(tokens, rules)?;
         Ok(table)
     }
 
@@ -78,13 +78,13 @@ where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    fn try_from<Sl, Sp>(source_l: Sl, source_p: Sp) -> anyhow::Result<LRTable<T, R>>
+    fn try_from<Ts, Rs>(tokens: Ts, rules: Rs) -> anyhow::Result<LRTable<T, R>>
     where
-        Sl: CFLTokens<Tag = T>,
-        Sp: CFLRules<T, Tag = R>,
+        Ts: CFLTokens<Tag = T>,
+        Rs: CFLRules<T, Tag = R>,
     {
         // 最上位規則を追加して RuleSet を更新
-        let mut ruleset = source_p.into_ruleset();
+        let mut ruleset = rules.into_ruleset();
         let top_dummy = Rule::new(
             None,
             RuleElem::new_nonterm("__top_dummy"),
@@ -108,7 +108,7 @@ where
 
                 // A -> α β . を含む場合 全列に Reduce をマーク
                 builder.try_set(node.id, None, LRAction::Reduce(rule.clone()))?;
-                for token in source_l.iter() {
+                for token in tokens.iter() {
                     builder.try_set(node.id, Some(token), LRAction::Reduce(rule.clone()))?;
                 }
             }

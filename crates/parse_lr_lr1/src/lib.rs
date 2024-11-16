@@ -22,19 +22,19 @@ where
     table: LRTable<T, R>,
 }
 
-impl<Sl, Sp> BaseParser<Sl, Sp> for LR1<Sl::Tag, Sp::Tag>
+impl<Ts, Rs> BaseParser<Ts, Rs> for LR1<Ts::Tag, Rs::Tag>
 where
-    Sl: CFLTokens,
-    Sp: CFLRules<Sl::Tag>,
+    Ts: CFLTokens,
+    Rs: CFLRules<Ts::Tag>,
 {
-    fn try_from((_, source_p): (Sl, Sp)) -> anyhow::Result<Self> {
-        let table = LR1Table::try_from(source_p)?;
+    fn try_from((_, rules): (Ts, Rs)) -> anyhow::Result<Self> {
+        let table = LR1Table::try_from(rules)?;
         Ok(LR1 { table })
     }
 
-    gen fn run<'input, Il>(&self, mut lexer: Il) -> ParseEvent<'input, Sl::Tag, Sp::Tag>
+    gen fn run<'input, Il>(&self, mut lexer: Il) -> ParseEvent<'input, Ts::Tag, Rs::Tag>
     where
-        Il: Iterator<Item = Token<'input, Sl::Tag>>,
+        Il: Iterator<Item = Token<'input, Ts::Tag>>,
     {
         let mut driver = LRDriver::from(&self.table);
         while !driver.accepted() {
@@ -45,17 +45,17 @@ where
     }
 }
 
-impl<Sl, Sp> Cacheable<(Sl, Sp)> for LR1<Sl::Tag, Sp::Tag>
+impl<Ts, Rs> Cacheable<(Ts, Rs)> for LR1<Ts::Tag, Rs::Tag>
 where
-    Sl: CFLTokens,
-    Sl::Tag: Serialize + for<'de> Deserialize<'de>,
-    Sp: CFLRules<Sl::Tag>,
-    Sp::Tag: Serialize + for<'de> Deserialize<'de>,
+    Ts: CFLTokens,
+    Ts::Tag: Serialize + for<'de> Deserialize<'de>,
+    Rs: CFLRules<Ts::Tag>,
+    Rs::Tag: Serialize + for<'de> Deserialize<'de>,
 {
-    type Cache = LRTable<Sl::Tag, Sp::Tag>;
+    type Cache = LRTable<Ts::Tag, Rs::Tag>;
 
-    fn new((_, source_p): (Sl, Sp)) -> anyhow::Result<Self::Cache> {
-        let table = LR1Table::try_from(source_p)?;
+    fn new((_, rules): (Ts, Rs)) -> anyhow::Result<Self::Cache> {
+        let table = LR1Table::try_from(rules)?;
         Ok(table)
     }
 
@@ -78,12 +78,12 @@ where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    fn try_from<Sp>(source_p: Sp) -> anyhow::Result<LRTable<T, R>>
+    fn try_from<Rs>(rules: Rs) -> anyhow::Result<LRTable<T, R>>
     where
-        Sp: CFLRules<T, Tag = R>,
+        Rs: CFLRules<T, Tag = R>,
     {
         // 最上位規則を追加して RuleSet を更新
-        let mut ruleset = source_p.into_ruleset();
+        let mut ruleset = rules.into_ruleset();
         let top_dummy = Rule::new(
             None,
             RuleElem::new_nonterm("__top_dummy"),
