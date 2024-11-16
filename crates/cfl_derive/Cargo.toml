@@ -1,5 +1,5 @@
 [package]
-name = "copager_lex_derive"
+name = "copager_cfl_derive"
 version = "0.3.0"
 edition = "2021"
 
@@ -11,8 +11,7 @@ quote = "1.0"
 syn = { version ="2.0", features = ["full", "extra-traits"] }
 
 [dev-dependencies]
-copager_cfl = { path = "../cfl" }
-copager_lex = { path = "../lex", features = ["derive"] }
+copager_cfl = { path = "../cfl", features = ["derive"] }
 
 [lib]
 proc-macro = true

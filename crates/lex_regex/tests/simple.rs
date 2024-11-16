@@ -1,8 +1,9 @@
 use copager_cfl::token::{TokenTag, Token};
-use copager_lex::{LexSource, BaseLexer};
+use copager_cfl::CFLTokens;
+use copager_lex::BaseLexer;
 use copager_lex_regex::RegexLexer;
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, LexSource)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
 enum ExprToken {
     #[default]
     #[token(text = r"\+")]

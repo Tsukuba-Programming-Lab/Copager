@@ -8,9 +8,4 @@ anyhow = { workspace = true }
 thiserror = { workspace = true }
 copager_cfl = { path = "../cfl" }
 copager_lex = { path = "../lex" }
-copager_parse_derive = { path = "../parse_derive", optional = true }
 copager_utils = { path = "../utils" }
-
-[features]
-default = []
-derive = ["copager_parse_derive"]

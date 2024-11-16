@@ -3,16 +3,17 @@
 use regex::{Regex, RegexSet};
 
 use copager_cfl::token::{TokenTag, Token};
-use copager_lex::{LexSource, BaseLexer};
+use copager_cfl::CFLTokens;
+use copager_lex::BaseLexer;
 
 #[derive(Debug)]
-pub struct RegexLexer<S: LexSource> {
+pub struct RegexLexer<S: CFLTokens> {
     regex_istr: Regex,
     regex_set: RegexSet,
     regex_map: Vec<(Regex, S::Tag)>,
 }
 
-impl<S: LexSource> BaseLexer<S> for RegexLexer<S> {
+impl<S: CFLTokens> BaseLexer<S> for RegexLexer<S> {
     fn try_from(source: S) -> anyhow::Result<Self> {
         let regex_istr = Regex::new(source.ignore_token())?;
         let regex_set = source.iter()

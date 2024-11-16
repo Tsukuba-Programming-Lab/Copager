@@ -1,9 +1,8 @@
-use copager::lex::LexSource;
-use copager::parse::ParseSource;
+use copager::cfl::{CFLTokens, CFLRules};
 use copager::prelude::*;
 use copager::Language;
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, LexSource)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
 pub enum XmlToken {
     // 記号
     #[default]
@@ -29,7 +28,7 @@ pub enum XmlToken {
     _Whitespace,
 }
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, ParseSource)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
 pub enum XmlRule {
     // XML本体
     #[default]

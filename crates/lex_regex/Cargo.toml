@@ -15,6 +15,5 @@ copager_lex = { path = "../lex" }
 copager_utils = { path = "../utils" }
 
 [dev-dependencies]
-copager_cfl = { path = "../cfl" }
-copager_lex = { path = "../lex", features = ["derive"] }
+copager_cfl = { path = "../cfl", features = ["derive"] }
 copager_lex_regex = { path = "." }

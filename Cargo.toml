@@ -45,7 +45,7 @@ all = [
 # common
 default = ["dep:copager_lex", "dep:copager_parse"]
 prebuild = ["dep:serde_json"]
-derive = ["copager_lex/derive", "copager_parse/derive"]
+derive = ["copager_cfl/derive"]
 dev = ["dep:copager_parse_common", "dep:copager_parse_lr_common"]
 
 # lex
@@ -68,12 +68,11 @@ members = [
     "./crates/core",
     "./crates/core_macros",
     "./crates/cfl",
+    "./crates/cfl_derive",
     "./crates/lex",
-    "./crates/lex_derive",
     "./crates/lex_regex",
     "./crates/parse",
     "./crates/parse_common",
-    "./crates/parse_derive",
     "./crates/parse_lr_common",
     "./crates/parse_lr_lr0",
     "./crates/parse_lr_lr1",

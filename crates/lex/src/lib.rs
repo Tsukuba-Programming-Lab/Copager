@@ -1,18 +1,10 @@
-use copager_cfl::token::{TokenTag, Token};
-#[cfg(feature = "derive")]
-pub use copager_lex_derive::LexSource;
-
-pub trait LexSource {
-    type Tag: TokenTag;
-
-    fn ignore_token(&self) -> &str;
-    fn iter(&self) -> impl Iterator<Item = Self::Tag>;
-}
+use copager_cfl::token::Token;
+use copager_cfl::CFLTokens;
 
 pub trait BaseLexer<S>
 where
     Self: Sized,
-    S: LexSource,
+    S: CFLTokens,
 {
     fn try_from(source: S) -> anyhow::Result<Self>;
     fn run<'input>(&self, input: &'input str) -> impl Iterator<Item = Token<'input, S::Tag>>;

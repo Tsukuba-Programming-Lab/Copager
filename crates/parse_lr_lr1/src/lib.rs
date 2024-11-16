@@ -6,8 +6,8 @@ use serde::{Serialize, Deserialize};
 
 use copager_cfl::token::{Token, TokenTag};
 use copager_cfl::rule::{Rule, RuleElem, RuleTag};
-use copager_lex::LexSource;
-use copager_parse::{BaseParser, ParseSource, ParseEvent};
+use copager_cfl::{CFLTokens, CFLRules};
+use copager_parse::{BaseParser, ParseEvent};
 use copager_parse_common::rule::FirstSet;
 use copager_parse_lr_common::lr1::item::LR1Item;
 use copager_parse_lr_common::lr1::LR1DFA;
@@ -24,8 +24,8 @@ where
 
 impl<Sl, Sp> BaseParser<Sl, Sp> for LR1<Sl::Tag, Sp::Tag>
 where
-    Sl: LexSource,
-    Sp: ParseSource<Sl::Tag>,
+    Sl: CFLTokens,
+    Sp: CFLRules<Sl::Tag>,
 {
     fn try_from((_, source_p): (Sl, Sp)) -> anyhow::Result<Self> {
         let table = LR1Table::try_from(source_p)?;
@@ -47,9 +47,9 @@ where
 
 impl<Sl, Sp> Cacheable<(Sl, Sp)> for LR1<Sl::Tag, Sp::Tag>
 where
-    Sl: LexSource,
+    Sl: CFLTokens,
     Sl::Tag: Serialize + for<'de> Deserialize<'de>,
-    Sp: ParseSource<Sl::Tag>,
+    Sp: CFLRules<Sl::Tag>,
     Sp::Tag: Serialize + for<'de> Deserialize<'de>,
 {
     type Cache = LRTable<Sl::Tag, Sp::Tag>;
@@ -80,7 +80,7 @@ where
 {
     fn try_from<Sp>(source_p: Sp) -> anyhow::Result<LRTable<T, R>>
     where
-        Sp: ParseSource<T, Tag = R>,
+        Sp: CFLRules<T, Tag = R>,
     {
         // 最上位規則を追加して RuleSet を更新
         let mut ruleset = source_p.into_ruleset();

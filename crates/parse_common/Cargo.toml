@@ -11,5 +11,4 @@ thiserror = { workspace = true }
 copager_cfl = { path = "../cfl" }
 
 [dev-dependencies]
-copager_lex = { path = "../lex", features = ["derive"] }
-copager_parse = { path = "../parse", features = ["derive"] }
+copager_cfl = { path = "../cfl", features = ["derive"] }

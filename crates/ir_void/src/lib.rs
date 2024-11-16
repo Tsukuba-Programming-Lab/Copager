@@ -1,8 +1,7 @@
 use std::fmt::Debug;
 
 use copager_cfl::token::Token;
-use copager_lex::LexSource;
-use copager_parse::ParseSource;
+use copager_cfl::{CFLTokens, CFLRules};
 use copager_ir::{IR, IRBuilder};
 
 #[derive(Debug)]
@@ -10,16 +9,16 @@ pub struct Void;
 
 impl<'input, Sl, Sp> IR<'input, Sl, Sp> for Void
 where
-    Sl: LexSource,
-    Sp: ParseSource<Sl::Tag>,
+    Sl: CFLTokens,
+    Sp: CFLRules<Sl::Tag>,
 {
     type Builder = Self;
 }
 
 impl <'input, Sl, Sp> IRBuilder<'input, Sl, Sp> for Void
 where
-    Sl: LexSource,
-    Sp: ParseSource<Sl::Tag>,
+    Sl: CFLTokens,
+    Sp: CFLRules<Sl::Tag>,
 {
     type Output = Self;
 

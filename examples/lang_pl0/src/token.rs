@@ -1,7 +1,7 @@
-use copager::lex::LexSource;
+use copager::cfl::CFLTokens;
 use copager::prelude::*;
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, LexSource)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, CFLTokens)]
 pub enum Pl0Token {
     // キーワード
     #[default]

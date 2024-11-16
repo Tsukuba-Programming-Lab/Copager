@@ -51,7 +51,20 @@ name = "copager_cfl"
 version = "0.3.0"
 dependencies = [
  "anyhow",
+ "copager_cfl_derive",
  "serde",
+ "thiserror",
+]
+
+[[package]]
+name = "copager_cfl_derive"
+version = "0.3.0"
+dependencies = [
+ "anyhow",
+ "copager_cfl",
+ "proc-macro2",
+ "quote",
+ "syn",
  "thiserror",
 ]
 
@@ -130,21 +143,7 @@ version = "0.3.0"
 dependencies = [
  "anyhow",
  "copager_cfl",
- "copager_lex_derive",
  "copager_utils",
- "thiserror",
-]
-
-[[package]]
-name = "copager_lex_derive"
-version = "0.3.0"
-dependencies = [
- "anyhow",
- "copager_cfl",
- "copager_lex",
- "proc-macro2",
- "quote",
- "syn",
  "thiserror",
 ]
 
@@ -169,7 +168,6 @@ dependencies = [
  "anyhow",
  "copager_cfl",
  "copager_lex",
- "copager_parse_derive",
  "copager_utils",
  "thiserror",
 ]
@@ -180,22 +178,6 @@ version = "0.3.0"
 dependencies = [
  "anyhow",
  "copager_cfl",
- "copager_lex",
- "copager_parse",
- "thiserror",
-]
-
-[[package]]
-name = "copager_parse_derive"
-version = "0.3.0"
-dependencies = [
- "anyhow",
- "copager_cfl",
- "copager_lex",
- "copager_parse",
- "proc-macro2",
- "quote",
- "syn",
  "thiserror",
 ]
 

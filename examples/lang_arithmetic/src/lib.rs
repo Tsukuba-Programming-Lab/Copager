@@ -1,9 +1,8 @@
-use copager::lex::LexSource;
-use copager::parse::ParseSource;
+use copager::cfl::{CFLRules, CFLTokens};
 use copager::prelude::*;
 use copager::Language;
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, LexSource)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
 pub enum ArithmeticToken {
     #[default]
     #[token(text = r"\+")]
@@ -24,7 +23,7 @@ pub enum ArithmeticToken {
     _Whitespace,
 }
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, ParseSource)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
 pub enum ArithmeticRule {
     #[default]
     #[rule("<expr> ::= <expr> Plus <term>")]

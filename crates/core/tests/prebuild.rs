@@ -5,15 +5,14 @@ use serde_cbor::de::from_slice;
 use copager_core::{Language, Processor};
 use copager_cfl::token::TokenTag;
 use copager_cfl::rule::{RuleTag, Rule, RuleElem};
-use copager_lex::LexSource;
+use copager_cfl::{CFLTokens, CFLRules};
 use copager_lex_regex::RegexLexer;
-use copager_parse::ParseSource;
 use copager_parse_lr_lr1::LR1;
 use copager_ir_void::Void;
 
 #[derive(
     Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
-    LexSource, Serialize, Deserialize
+    CFLTokens, Serialize, Deserialize
 )]
 enum ExprToken {
     #[default]
@@ -37,7 +36,7 @@ enum ExprToken {
 
 #[derive(
     Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
-    ParseSource, Serialize, Deserialize
+    CFLRules, Serialize, Deserialize
 )]
 enum ExprRule {
     #[default]

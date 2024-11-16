@@ -1,19 +1,18 @@
 use copager_cfl::token::Token;
-use copager_lex::LexSource;
-use copager_parse::ParseSource;
+use copager_cfl::{CFLTokens, CFLRules};
 
 pub trait IR<'input, Sl, Sp>
 where
-    Sl: LexSource,
-    Sp: ParseSource<Sl::Tag>,
+    Sl: CFLTokens,
+    Sp: CFLRules<Sl::Tag>,
 {
     type Builder: IRBuilder<'input, Sl, Sp, Output = Self>;
 }
 
 pub trait IRBuilder<'input, Sl, Sp>
 where
-    Sl: LexSource,
-    Sp: ParseSource<Sl::Tag>,
+    Sl: CFLTokens,
+    Sp: CFLRules<Sl::Tag>,
 {
     type Output: IR<'input, Sl, Sp>;
 

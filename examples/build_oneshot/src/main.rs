@@ -1,12 +1,13 @@
 use std::io::{stdin, stdout, Write};
 
-use copager::lex::{LexSource, RegexLexer};
-use copager::parse::{ParseSource, LR1};
+use copager::cfl::{CFLRules, CFLTokens};
+use copager::lex::RegexLexer;
+use copager::parse::LR1;
 use copager::ir::SExp;
 use copager::prelude::*;
 use copager::{Language, Processor};
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, LexSource)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
 enum ExprToken {
     #[default]
     #[token(text = r"\+")]
@@ -27,7 +28,7 @@ enum ExprToken {
     _Whitespace,
 }
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, ParseSource)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
 enum ExprRule {
     #[default]
     #[rule("<expr> ::= <expr> Plus <term>")]

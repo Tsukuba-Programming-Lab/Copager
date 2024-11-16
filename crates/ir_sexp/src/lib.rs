@@ -1,15 +1,14 @@
 use std::fmt::{Debug, Display};
 
 use copager_cfl::token::Token;
-use copager_lex::LexSource;
-use copager_parse::ParseSource;
+use copager_cfl::{CFLTokens, CFLRules};
 use copager_ir::{IR, IRBuilder};
 
 #[derive(Debug)]
 pub enum SExp<'input, Sl, Sp>
 where
-    Sl: LexSource,
-    Sp: ParseSource<Sl::Tag>,
+    Sl: CFLTokens,
+    Sp: CFLRules<Sl::Tag>,
 {
     List {
         rule: Sp::Tag,
@@ -20,8 +19,8 @@ where
 
 impl<Sl, Sp> Display for SExp<'_, Sl, Sp>
 where
-    Sl: LexSource,
-    Sp: ParseSource<Sl::Tag>,
+    Sl: CFLTokens,
+    Sp: CFLRules<Sl::Tag>,
     Sp::Tag: Debug,
     Sl::Tag: Debug,
 {
@@ -41,8 +40,8 @@ where
 
 impl<'input, Sl, Sp> IR<'input, Sl, Sp> for SExp<'input, Sl, Sp>
 where
-    Sl: LexSource,
-    Sp: ParseSource<Sl::Tag>,
+    Sl: CFLTokens,
+    Sp: CFLRules<Sl::Tag>,
 {
     type Builder = SExpBuilder<'input, Sl, Sp>;
 }
@@ -50,8 +49,8 @@ where
 #[derive(Debug)]
 pub struct SExpBuilder<'input, Sl, Sp>
 where
-    Sl: LexSource,
-    Sp: ParseSource<Sl::Tag>,
+    Sl: CFLTokens,
+    Sp: CFLRules<Sl::Tag>,
 {
     stack: Vec<SExp<'input, Sl, Sp>>,
 }
@@ -59,8 +58,8 @@ where
 
 impl <'input, Sl, Sp> IRBuilder<'input, Sl, Sp> for SExpBuilder<'input, Sl, Sp>
 where
-    Sl: LexSource,
-    Sp: ParseSource<Sl::Tag>,
+    Sl: CFLTokens,
+    Sp: CFLRules<Sl::Tag>,
 {
     type Output = SExp<'input, Sl, Sp>;
 

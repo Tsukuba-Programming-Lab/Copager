@@ -1,13 +1,14 @@
 use serde::{Deserialize, Serialize};
 
-use copager::lex::{LexSource, RegexLexer};
-use copager::parse::{ParseSource, LR1};
+use copager::cfl::{CFLRules, CFLTokens};
+use copager::lex::RegexLexer;
+use copager::parse::LR1;
 use copager::prelude::*;
 use copager::{Language, Processor};
 
 #[derive(
     Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
-    LexSource, Serialize, Deserialize,
+    CFLTokens, Serialize, Deserialize,
 )]
 pub enum ExprToken {
     #[default]
@@ -31,7 +32,7 @@ pub enum ExprToken {
 
 #[derive(
     Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
-    ParseSource, Serialize, Deserialize,
+    CFLRules, Serialize, Deserialize,
 )]
 pub enum ExprRule {
     #[default]

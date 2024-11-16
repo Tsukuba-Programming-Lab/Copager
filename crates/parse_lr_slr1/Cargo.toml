@@ -18,7 +18,7 @@ copager_utils = { path = "../utils" }
 
 [dev-dependencies]
 copager_core = { path = "../core" }
-copager_lex = { path = "../lex", features = ["derive"] }
+copager_cfl = { path = "../cfl", features = ["derive"] }
 copager_lex_regex = { path = "../lex_regex" }
-copager_parse = { path = "../parse", features = ["derive"] }
+copager_parse = { path = "../parse" }
 copager_ir_void = { path = "../ir_void" }

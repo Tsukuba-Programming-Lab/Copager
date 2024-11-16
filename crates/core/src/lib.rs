@@ -6,20 +6,21 @@ use serde::{Serialize, Deserialize};
 use serde_cbor::ser::to_vec_packed;
 use serde_cbor::de::from_slice;
 
-use copager_lex::{LexSource, BaseLexer};
-use copager_parse::{ParseSource, BaseParser, ParseEvent};
+use copager_cfl::{CFLTokens, CFLRules};
+use copager_lex::BaseLexer;
+use copager_parse::{BaseParser, ParseEvent};
 use copager_ir::{IR, IRBuilder};
 use copager_utils::cache::Cacheable;
 
 pub trait LanguageDesign {
-    type Lex: LexSource;
-    type Parse: ParseSource<<Self::Lex as LexSource>::Tag>;
+    type Lex: CFLTokens;
+    type Parse: CFLRules<<Self::Lex as CFLTokens>::Tag>;
 }
 
 pub struct Language<Sl, Sp>
 where
-    Sl: LexSource,
-    Sp: ParseSource<Sl::Tag>,
+    Sl: CFLTokens,
+    Sp: CFLRules<Sl::Tag>,
 {
     _phantom_sl: PhantomData<Sl>,
     _phantom_sp: PhantomData<Sp>,
@@ -27,8 +28,8 @@ where
 
 impl<Sl, Sp> LanguageDesign for Language<Sl, Sp>
 where
-    Sl: LexSource,
-    Sp: ParseSource<Sl::Tag>,
+    Sl: CFLTokens,
+    Sp: CFLRules<Sl::Tag>,
 {
     type Lex = Sl;
     type Parse = Sp;

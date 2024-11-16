@@ -1,13 +1,12 @@
 use copager_core::{Language, Processor};
 use copager_cfl::token::TokenTag;
 use copager_cfl::rule::{RuleTag, Rule, RuleElem};
-use copager_lex::LexSource;
+use copager_cfl::{CFLTokens, CFLRules};
 use copager_lex_regex::RegexLexer;
-use copager_parse::ParseSource;
 use copager_parse_lr_lr1::LR1;
 use copager_ir_sexp::SExp;
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, LexSource)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
 enum ExprToken {
     #[default]
     #[token(text = r"\+")]
@@ -28,7 +27,7 @@ enum ExprToken {
     _Whitespace,
 }
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, ParseSource)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
 enum ExprRule {
     #[default]
     #[rule("<expr> ::= <expr> Plus <term>")]

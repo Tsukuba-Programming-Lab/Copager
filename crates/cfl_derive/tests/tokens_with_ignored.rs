@@ -1,7 +1,7 @@
 use copager_cfl::token::TokenTag;
-use copager_lex::LexSource;
+use copager_cfl::CFLTokens;
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, LexSource)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
 enum MyToken {
     #[default]
     #[token(text = r"\+")]
@@ -17,7 +17,7 @@ enum MyToken {
 
 #[test]
 fn check_compile_with_ignored() {
-    // LexSource
+    // CFLTokens
     let mytoken = MyToken::default();
     assert_eq!(mytoken.ignore_token(), r"^[ \t\n]+");
     assert_eq!(mytoken.iter().count(), 3);
