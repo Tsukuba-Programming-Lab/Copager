@@ -1,4 +1,4 @@
-use copager_cfg::token::{TokenTag, Token};
+use copager_cfl::token::{TokenTag, Token};
 use copager_lex::{LexSource, BaseLexer};
 use copager_lex_regex::RegexLexer;
 

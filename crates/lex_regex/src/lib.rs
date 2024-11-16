@@ -2,7 +2,7 @@
 
 use regex::{Regex, RegexSet};
 
-use copager_cfg::token::{TokenTag, Token};
+use copager_cfl::token::{TokenTag, Token};
 use copager_lex::{LexSource, BaseLexer};
 
 #[derive(Debug)]

@@ -3,8 +3,8 @@ use serde_cbor::ser::to_vec_packed;
 use serde_cbor::de::from_slice;
 
 use copager_core::{Language, Processor};
-use copager_cfg::token::TokenTag;
-use copager_cfg::rule::{RuleTag, Rule, RuleElem};
+use copager_cfl::token::TokenTag;
+use copager_cfl::rule::{RuleTag, Rule, RuleElem};
 use copager_lex::LexSource;
 use copager_lex_regex::RegexLexer;
 use copager_parse::ParseSource;

@@ -1,8 +1,8 @@
 use thiserror::Error;
 
 use copager_core::error::ParseError;
-use copager_cfg::token::{TokenTag, Token};
-use copager_cfg::rule::RuleTag;
+use copager_cfl::token::{TokenTag, Token};
+use copager_cfl::rule::RuleTag;
 
 use crate::table::LRAction;
 

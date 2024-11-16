@@ -10,6 +10,6 @@ anyhow = { workspace = true }
 thiserror = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 copager_core = { path = "../core" }
-copager_cfg = { path = "../cfg" }
+copager_cfl = { path = "../cfl" }
 copager_parse = { path = "../parse" }
 copager_parse_common = { path = "../parse_common" }

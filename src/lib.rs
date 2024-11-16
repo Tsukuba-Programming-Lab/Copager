@@ -1,5 +1,5 @@
 pub use copager_core::*;
-pub use copager_cfg as cfg;
+pub use copager_cfl as cfl;
 
 #[cfg(feature = "prebuild")]
 pub use copager_core_macros::*;
@@ -37,8 +37,8 @@ pub mod ir {
 }
 
 pub mod prelude {
-    pub use copager_cfg::rule::{Rule, RuleElem, RuleTag};
-    pub use copager_cfg::token::TokenTag;
+    pub use copager_cfl::rule::{Rule, RuleElem, RuleTag};
+    pub use copager_cfl::token::TokenTag;
 }
 
 #[cfg(feature = "dev")]

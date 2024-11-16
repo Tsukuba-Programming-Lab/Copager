@@ -2,8 +2,8 @@ use std::collections::{HashMap, HashSet};
 use std::fmt::{Display, Debug};
 use std::hash::Hash;
 
-use copager_cfg::token::TokenTag;
-use copager_cfg::rule::{Rule, RuleElem, RuleSet, RuleTag};
+use copager_cfl::token::TokenTag;
+use copager_cfl::rule::{Rule, RuleElem, RuleSet, RuleTag};
 use copager_parse_common::rule::FirstSet;
 
 #[derive(Clone, Hash, PartialEq, Eq)]

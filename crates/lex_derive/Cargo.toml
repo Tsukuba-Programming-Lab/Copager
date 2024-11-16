@@ -11,7 +11,7 @@ quote = "1.0"
 syn = { version ="2.0", features = ["full", "extra-traits"] }
 
 [dev-dependencies]
-copager_cfg = { path = "../cfg" }
+copager_cfl = { path = "../cfl" }
 copager_lex = { path = "../lex", features = ["derive"] }
 
 [lib]

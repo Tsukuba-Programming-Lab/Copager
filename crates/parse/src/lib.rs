@@ -1,5 +1,5 @@
-use copager_cfg::token::{TokenTag, Token};
-use copager_cfg::rule::{RuleTag, RuleSet};
+use copager_cfl::token::{TokenTag, Token};
+use copager_cfl::rule::{RuleTag, RuleSet};
 use copager_lex::LexSource;
 #[cfg(feature = "derive")]
 pub use copager_parse_derive::ParseSource;

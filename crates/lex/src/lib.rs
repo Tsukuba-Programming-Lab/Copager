@@ -1,4 +1,4 @@
-use copager_cfg::token::{TokenTag, Token};
+use copager_cfl::token::{TokenTag, Token};
 #[cfg(feature = "derive")]
 pub use copager_lex_derive::LexSource;
 

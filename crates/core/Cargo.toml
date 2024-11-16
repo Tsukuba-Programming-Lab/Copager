@@ -8,7 +8,7 @@ anyhow = { workspace = true }
 thiserror = { workspace = true }
 serde = { workspace = true }
 serde_cbor = "0.11.2"
-copager_cfg = { path = "../cfg" }
+copager_cfl = { path = "../cfl" }
 copager_lex = { path = "../lex" }
 copager_parse = { path = "../parse" }
 copager_ir = {  path = "../ir" }

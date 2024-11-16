@@ -4,7 +4,7 @@ use std::fmt::Display;
 
 use thiserror::Error;
 
-use copager_cfg::token::{TokenTag, Token};
+use copager_cfl::token::{TokenTag, Token};
 
 #[derive(Debug, Error)]
 pub struct ParseError {

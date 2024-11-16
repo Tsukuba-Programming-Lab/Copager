@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
-use copager_cfg::token::TokenTag;
-use copager_cfg::rule::{RuleElem, RuleSet, RuleTag};
+use copager_cfl::token::TokenTag;
+use copager_cfl::rule::{RuleElem, RuleSet, RuleTag};
 
 use crate::rule::FirstSet;
 
@@ -130,8 +130,8 @@ where
 
 #[cfg(test)]
 mod test {
-    use copager_cfg::token::TokenTag;
-    use copager_cfg::rule::{Rule, RuleTag, RuleElem};
+    use copager_cfl::token::TokenTag;
+    use copager_cfl::rule::{Rule, RuleTag, RuleElem};
     use copager_lex::LexSource;
     use copager_parse::ParseSource;
 

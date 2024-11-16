@@ -9,7 +9,7 @@ edition = "2024"
 anyhow = { workspace = true }
 thiserror = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
-copager_cfg = { path = "../cfg" }
+copager_cfl = { path = "../cfl" }
 copager_lex = { path = "../lex" }
 copager_parse = { path = "../parse" }
 copager_parse_lr_common = { path = "../parse_lr_common" }

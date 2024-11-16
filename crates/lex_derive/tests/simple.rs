@@ -1,4 +1,4 @@
-use copager_cfg::token::TokenTag;
+use copager_cfl::token::TokenTag;
 use copager_lex::LexSource;
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, LexSource)]

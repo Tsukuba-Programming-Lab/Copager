@@ -1,6 +1,6 @@
 use std::fmt::{Debug, Display};
 
-use copager_cfg::token::Token;
+use copager_cfl::token::Token;
 use copager_lex::LexSource;
 use copager_parse::ParseSource;
 use copager_ir::{IR, IRBuilder};

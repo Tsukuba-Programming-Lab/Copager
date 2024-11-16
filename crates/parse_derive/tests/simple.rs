@@ -1,5 +1,5 @@
-use copager_cfg::rule::{RuleTag, Rule, RuleElem};
-use copager_cfg::token::TokenTag;
+use copager_cfl::rule::{RuleTag, Rule, RuleElem};
+use copager_cfl::token::TokenTag;
 use copager_lex::LexSource;
 use copager_parse::ParseSource;
 
