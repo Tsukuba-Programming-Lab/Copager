@@ -1,5 +1,3 @@
-pub mod error;
-
 use std::marker::PhantomData;
 
 use serde::{Serialize, Deserialize};

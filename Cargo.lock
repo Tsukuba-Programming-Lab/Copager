@@ -187,9 +187,9 @@ version = "0.3.0"
 dependencies = [
  "anyhow",
  "copager_cfl",
- "copager_core",
  "copager_parse",
  "copager_parse_common",
+ "copager_utils",
  "serde",
  "thiserror",
 ]
@@ -270,6 +270,7 @@ name = "copager_utils"
 version = "0.3.0"
 dependencies = [
  "anyhow",
+ "copager_cfl",
  "serde",
  "thiserror",
 ]

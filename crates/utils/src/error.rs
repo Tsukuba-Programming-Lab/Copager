@@ -7,13 +7,13 @@ use thiserror::Error;
 use copager_cfl::token::{TokenTag, Token};
 
 #[derive(Debug, Error)]
-pub struct ParseError {
+pub struct PrettyError {
     err: Box<dyn StdError + Send + Sync>,
     src: Option<String>,
     pos: Option<(usize, usize)>,
 }
 
-impl Display for ParseError {
+impl Display for PrettyError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         fn pretty_print(
             f: &mut std::fmt::Formatter<'_>,
@@ -48,19 +48,19 @@ impl Display for ParseError {
     }
 }
 
-impl ParseError {
-    pub fn from<E>(err: E) -> ParseError
+impl PrettyError {
+    pub fn from<E>(err: E) -> PrettyError
     where
         E: StdError + Send + Sync + 'static,
     {
-        ParseError {
+        PrettyError {
             err: Box::new(err),
             src: None,
             pos: None,
         }
     }
 
-    pub fn with<'input, T: TokenTag>(self, token: Token<'input, T>) -> ParseError {
+    pub fn with<'input, T: TokenTag>(self, token: Token<'input, T>) -> PrettyError {
         let mut sum = 0;
         let (mut rows, mut cols) = (1, 1);
         for c in token.src.chars() {
@@ -80,7 +80,7 @@ impl ParseError {
             }
         }
 
-        ParseError {
+        PrettyError {
             err: self.err,
             src: Some(token.src.to_string()),
             pos: Some((rows, cols)),
