@@ -14,7 +14,7 @@ enum MyToken {
 
 
 #[test]
-fn check_compile_simple() {
+fn check_compile_tokens() {
     // CFLTokens
     let mytoken = MyToken::default();
     assert!(mytoken.ignore_token().is_empty());

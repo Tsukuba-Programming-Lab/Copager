@@ -16,7 +16,7 @@ enum MyToken {
 
 
 #[test]
-fn check_compile_with_ignored() {
+fn check_compile_tokens_with_ignored() {
     // CFLTokens
     let mytoken = MyToken::default();
     assert_eq!(mytoken.ignore_token(), r"^[ \t\n]+");

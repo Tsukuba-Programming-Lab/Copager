@@ -22,7 +22,7 @@ enum MyRule {
 }
 
 #[test]
-fn check_compile_simple() {
+fn check_compile_rules() {
     // CFLRules
     let myrule = MyRule::default();
     assert_eq!(myrule.iter().count(), 1);
