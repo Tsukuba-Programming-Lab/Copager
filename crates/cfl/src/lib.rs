@@ -10,6 +10,9 @@ pub use copager_cfl_derive::{CFL, CFLTokens, CFLRules};
 pub trait CFL {
     type Tokens: CFLTokens;
     type Rules: CFLRules<<Self::Tokens as CFLTokens>::Tag>;
+
+    fn instantiate_tokens(&self) -> &Self::Tokens;
+    fn instantiate_rules(&self) -> &Self::Rules;
 }
 
 pub trait CFLTokens {
