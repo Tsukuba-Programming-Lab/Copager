@@ -1,11 +1,17 @@
 use std::io::{stdin, stdout, Write};
 
-use copager::cfl::{CFLRules, CFLTokens};
+use copager::cfl::{CFL, CFLRules, CFLTokens};
 use copager::lex::RegexLexer;
 use copager::parse::LR1;
 use copager::ir::SExp;
 use copager::prelude::*;
-use copager::{Language, Processor};
+use copager::{Generator, Processor};
+
+#[derive(Debug, Default, CFL)]
+struct ExprLang (
+    #[tokens] ExprToken,
+    #[rules] ExprRule,
+);
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
 enum ExprToken {
@@ -44,10 +50,8 @@ enum ExprRule {
     Num,
 }
 
-type MyLanguage = Language<ExprToken, ExprRule>;
-type MyLexer = RegexLexer<ExprToken>;
-type MyParser = LR1<ExprToken, ExprRule>;
-type MyProcessor = Processor<MyLanguage, MyLexer, MyParser>;
+type MyGenerator<T> = Generator<T, RegexLexer<T>, LR1<T>>;
+type MyProcessor = Processor<MyGenerator<ExprLang>>;
 
 fn main() -> anyhow::Result<()> {
     println!("Example <one-shot>");

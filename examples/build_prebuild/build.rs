@@ -1,4 +1,8 @@
-use language::MyProcessor;
+use copager::Processor;
+
+use language::Arithmetic;
+
+type MyProcessor = Processor<Arithmetic>;
 
 #[copager::prebuild]
 fn main() -> MyProcessor {

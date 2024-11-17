@@ -1,16 +1,25 @@
 use serde::{Deserialize, Serialize};
 
-use copager::cfl::{CFLRules, CFLTokens};
+use copager::cfl::{CFL, CFLRules, CFLTokens};
 use copager::lex::RegexLexer;
 use copager::parse::LR1;
 use copager::prelude::*;
-use copager::{Language, Processor};
+use copager::Generator;
+
+type Configure<T> = Generator<T, RegexLexer<T>, LR1<T>>;
+pub type Arithmetic = Configure<ArithmeticLang>;
+
+#[derive(Debug, Default, Clone, CFL, Serialize, Deserialize)]
+pub struct ArithmeticLang (
+    #[tokens] ArithmeticToken,
+    #[rules] ArithmeticRule,
+);
 
 #[derive(
     Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
     CFLTokens, Serialize, Deserialize,
 )]
-pub enum ExprToken {
+pub enum ArithmeticToken {
     #[default]
     #[token(text = r"\+")]
     Plus,
@@ -34,12 +43,12 @@ pub enum ExprToken {
     Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
     CFLRules, Serialize, Deserialize,
 )]
-pub enum ExprRule {
+pub enum ArithmeticRule {
     #[default]
     #[rule("<expr> ::= <expr> Plus <term>")]
     #[rule("<expr> ::= <expr> Minus <term>")]
     #[rule("<expr> ::= <term>")]
-    Expr,
+    Arithmetic,
     #[rule("<term> ::= <term> Mul <num>")]
     #[rule("<term> ::= <term> Div <num>")]
     #[rule("<term> ::= <num>")]
@@ -48,8 +57,3 @@ pub enum ExprRule {
     #[rule("<num> ::= Num")]
     Num,
 }
-
-pub type MyLanguage = Language<ExprToken, ExprRule>;
-pub type MyLexer = RegexLexer<ExprToken>;
-pub type MyParser = LR1<ExprToken, ExprRule>;
-pub type MyProcessor = Processor<MyLanguage, MyLexer, MyParser>;

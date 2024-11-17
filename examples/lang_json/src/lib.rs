@@ -1,6 +1,17 @@
-use copager::cfl::{CFLRules, CFLTokens};
+use copager::cfl::{CFL, CFLRules, CFLTokens};
+use copager::lex::RegexLexer;
+use copager::parse::LR1;
 use copager::prelude::*;
-use copager::Language;
+use copager::Generator;
+
+type Configure<T> = Generator<T, RegexLexer<T>, LR1<T>>;
+pub type Json = Configure<JsonLang>;
+
+#[derive(Debug, Default, CFL)]
+pub struct JsonLang (
+    #[tokens] JsonToken,
+    #[rules]  JsonRule,
+);
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
 pub enum JsonToken {
@@ -87,5 +98,3 @@ pub enum JsonRule {
     #[rule("<value> ::= Null")]
     Value,
 }
-
-pub type Json = Language<JsonToken, JsonRule>;

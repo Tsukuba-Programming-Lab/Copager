@@ -1,13 +1,11 @@
 mod utils;
 
-use copager::lex::RegexLexer;
-use copager::parse::LR1;
 use copager::ir::Void;
 use copager::Processor;
 
 use utils::{Expect, test_dir};
 
-use example_lang_pl0::*;
+use example_lang_pl0::Pl0;
 
 #[test]
 fn success() {
@@ -20,11 +18,7 @@ fn fail() {
 }
 
 fn parse(input: &str) -> anyhow::Result<()> {
-    type TestLexer = RegexLexer<Pl0Token>;
-    type TestParser = LR1<Pl0Token, Pl0Rule>;
-    type TestProcessor = Processor<Pl0, TestLexer, TestParser>;
-
-    TestProcessor::new()
+    Processor::<Pl0>::new()
         .build_lexer()?
         .build_parser()?
         .process::<Void>(input)?;

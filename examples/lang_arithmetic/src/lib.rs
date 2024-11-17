@@ -1,6 +1,17 @@
-use copager::cfl::{CFLRules, CFLTokens};
+use copager::cfl::{CFL, CFLRules, CFLTokens};
+use copager::lex::RegexLexer;
+use copager::parse::LR1;
 use copager::prelude::*;
-use copager::Language;
+use copager::Generator;
+
+type Configure<T> = Generator<T, RegexLexer<T>, LR1<T>>;
+pub type Arithmetic = Configure<ArithmeticLang>;
+
+#[derive(Debug, Default, CFL)]
+pub struct ArithmeticLang (
+    #[tokens] ArithmeticToken,
+    #[rules]  ArithmeticRule,
+);
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
 pub enum ArithmeticToken {
@@ -38,5 +49,3 @@ pub enum ArithmeticRule {
     #[rule("<num> ::= Num")]
     Num,
 }
-
-pub type Arithmetic = Language<ArithmeticToken, ArithmeticRule>;

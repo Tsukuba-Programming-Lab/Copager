@@ -1,6 +1,17 @@
-use copager::cfl::{CFLTokens, CFLRules};
+use copager::cfl::{CFL, CFLTokens, CFLRules};
+use copager::lex::RegexLexer;
+use copager::parse::LR1;
 use copager::prelude::*;
-use copager::Language;
+use copager::Generator;
+
+type Configure<T> = Generator<T, RegexLexer<T>, LR1<T>>;
+pub type Xml = Configure<XmlLang>;
+
+#[derive(Debug, Default, CFL)]
+pub struct XmlLang (
+    #[tokens] XmlToken,
+    #[rules]  XmlRule,
+);
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
 pub enum XmlToken {
@@ -65,5 +76,3 @@ pub enum XmlRule {
     #[rule("<value> ::= String")]
     Value,
 }
-
-pub type Xml = Language<XmlToken, XmlRule>;
