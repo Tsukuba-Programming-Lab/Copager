@@ -1,13 +1,7 @@
 pub use copager_core::*;
-pub use copager_cfl as cfl;
 
-#[cfg(feature = "prebuild")]
-pub use copager_core_macros::*;
-
-#[cfg(feature = "prebuild")]
-pub mod prebuild {
-    pub use serde_json::to_string as serialize;
-    pub use serde_json::from_str as deserialize;
+pub mod cfl {
+    pub use copager_cfl::*;
 }
 
 pub mod lex {
@@ -39,6 +33,30 @@ pub mod ir {
 pub mod prelude {
     pub use copager_cfl::rule::{Rule, RuleElem, RuleTag};
     pub use copager_cfl::token::TokenTag;
+}
+
+#[cfg(feature = "prebuild")]
+pub use copager_core_macros::*;
+
+#[cfg(feature = "prebuild")]
+pub mod prebuild {
+    pub use serde_json::to_string as serialize;
+    pub use serde_json::from_str as deserialize;
+}
+
+#[cfg(feature = "template")]
+pub mod template {
+    use copager_core::Generator;
+    use copager_lex_regex::RegexLexer;
+
+    #[cfg(feature = "lr0")]
+    pub type LR0<T> = Generator<T, RegexLexer<T>, copager_parse_lr_lr0::LR0<T>>;
+    #[cfg(feature = "lr1")]
+    pub type LR1<T> = Generator<T, RegexLexer<T>, copager_parse_lr_lr1::LR1<T>>;
+    #[cfg(feature = "slr1")]
+    pub type SLR1<T> = Generator<T, RegexLexer<T>, copager_parse_lr_slr1::SLR1<T>>;
+    #[cfg(feature = "lalr1")]
+    pub type LALR1<T> = Generator<T, RegexLexer<T>, copager_parse_lr_lalr1::LALR1<T>>;
 }
 
 #[cfg(feature = "dev")]

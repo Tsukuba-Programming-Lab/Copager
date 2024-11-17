@@ -1,11 +1,8 @@
 use copager::cfl::{CFL, CFLRules, CFLTokens};
-use copager::lex::RegexLexer;
-use copager::parse::LR1;
+use copager::template::LALR1;
 use copager::prelude::*;
-use copager::Generator;
 
-type Configure<T> = Generator<T, RegexLexer<T>, LR1<T>>;
-pub type Json = Configure<JsonLang>;
+pub type Json = LALR1<JsonLang>;
 
 #[derive(Debug, Default, CFL)]
 pub struct JsonLang (

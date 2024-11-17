@@ -1,13 +1,10 @@
 use serde::{Deserialize, Serialize};
 
 use copager::cfl::{CFL, CFLRules, CFLTokens};
-use copager::lex::RegexLexer;
-use copager::parse::LR1;
+use copager::template::LALR1;
 use copager::prelude::*;
-use copager::Generator;
 
-type Configure<T> = Generator<T, RegexLexer<T>, LR1<T>>;
-pub type Arithmetic = Configure<ArithmeticLang>;
+pub type Arithmetic = LALR1<ArithmeticLang>;
 
 #[derive(Debug, Default, Clone, CFL, Serialize, Deserialize)]
 pub struct ArithmeticLang (

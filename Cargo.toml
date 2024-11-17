@@ -44,8 +44,9 @@ all = [
 
 # common
 default = ["dep:copager_lex", "dep:copager_parse"]
-prebuild = ["dep:serde_json"]
 derive = ["copager_cfl/derive"]
+prebuild = ["dep:serde_json"]
+template = ["dep:copager_lex_regex"]
 dev = ["dep:copager_parse_common", "dep:copager_parse_lr_common"]
 
 # lex

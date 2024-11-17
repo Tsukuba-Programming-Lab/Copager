@@ -6,4 +6,4 @@ edition = "2021"
 [dependencies]
 anyhow = { workspace = true }
 thiserror = { workspace = true }
-copager = { path = "../..", features = ["derive", "regexlex", "lr1", "sexp"] }
+copager = { path = "../..", features = ["derive", "template", "lalr1", "sexp"] }

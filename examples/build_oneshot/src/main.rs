@@ -1,11 +1,10 @@
 use std::io::{stdin, stdout, Write};
 
 use copager::cfl::{CFL, CFLRules, CFLTokens};
-use copager::lex::RegexLexer;
-use copager::parse::LR1;
 use copager::ir::SExp;
+use copager::template::LALR1;
 use copager::prelude::*;
-use copager::{Generator, Processor};
+use copager::Processor;
 
 #[derive(Debug, Default, CFL)]
 struct ExprLang (
@@ -50,9 +49,6 @@ enum ExprRule {
     Num,
 }
 
-type MyGenerator<T> = Generator<T, RegexLexer<T>, LR1<T>>;
-type MyProcessor = Processor<MyGenerator<ExprLang>>;
-
 fn main() -> anyhow::Result<()> {
     println!("Example <one-shot>");
     print!("Input: ");
@@ -61,7 +57,7 @@ fn main() -> anyhow::Result<()> {
     let mut input = String::new();
     stdin().read_line(&mut input)?;
 
-    let sexp = MyProcessor::new()
+    let sexp = Processor::<LALR1<ExprLang>>::new()
         .build_lexer()?
         .build_parser()?
         .process::<SExp<_, _>>(&input)?;
