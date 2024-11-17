@@ -21,7 +21,6 @@ fn parse(input: &str) -> anyhow::Result<()> {
     Processor::<Xml>::new()
         .build_lexer()?
         .build_parser()?
-        .process::<Void>(input)?;
-
-    Ok(())
+        .process::<Void>(input)
+        .and_then(|_| Ok(()))
 }
