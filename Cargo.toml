@@ -36,10 +36,10 @@ example_lang_xml = { path = "./examples/lang_xml" }
 [features]
 # all
 all = [
-    "prebuild", "derive", "dev",   # common
-    "regexlex",                    # lex
-    "lr0", "lr1", "slr1", "lalr1", # parse
-    "void", "sexp"                 # ir
+    "derive", "prebuild", "template", "dev",  # common
+    "regexlex",                               # lex
+    "lr0", "lr1", "slr1", "lalr1",            # parse
+    "void", "sexp"                            # ir
 ]
 
 # common
