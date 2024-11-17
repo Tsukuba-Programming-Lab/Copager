@@ -1,9 +1,16 @@
-use copager::lex::LexSource;
-use copager::parse::ParseSource;
+use copager::cfl::{CFL, CFLTokens, CFLRules};
+use copager::template::LALR1;
 use copager::prelude::*;
-use copager::Language;
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, LexSource)]
+pub type Xml = LALR1<XmlLang>;
+
+#[derive(Debug, Default, CFL)]
+pub struct XmlLang (
+    #[tokens] XmlToken,
+    #[rules]  XmlRule,
+);
+
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
 pub enum XmlToken {
     // 記号
     #[default]
@@ -29,7 +36,7 @@ pub enum XmlToken {
     _Whitespace,
 }
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, ParseSource)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
 pub enum XmlRule {
     // XML本体
     #[default]
@@ -66,5 +73,3 @@ pub enum XmlRule {
     #[rule("<value> ::= String")]
     Value,
 }
-
-pub type Xml = Language<XmlToken, XmlRule>;

@@ -1,5 +1,5 @@
-use copager_cfg::token::{TokenTag, Token};
-use copager_cfg::rule::{RuleElem, RuleTag};
+use copager_cfl::token::{TokenTag, Token};
+use copager_cfl::rule::{RuleElem, RuleTag};
 use copager_parse::ParseEvent;
 
 use crate::error::LRError;

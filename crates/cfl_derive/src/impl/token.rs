@@ -6,7 +6,7 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
     let data_enum = if let Data::Enum(data_enum) = ast.data {
         data_enum
     } else {
-        panic!("\"LexSource\" proc-macro is only implemented for enum.")
+        panic!("\"CFLTokens\" proc-macro is only implemented for enum.")
     };
 
     let parsed_variantes = data_enum
@@ -38,7 +38,7 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
             }
         }
 
-        impl LexSource for #enum_name {
+        impl CFLTokens for #enum_name {
             type Tag = Self;
 
             fn ignore_token(&self) -> &'static str {

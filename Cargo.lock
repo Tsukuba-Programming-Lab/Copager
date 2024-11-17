@@ -23,7 +23,7 @@ version = "0.3.0"
 dependencies = [
  "anyhow",
  "copager",
- "copager_cfg",
+ "copager_cfl",
  "copager_core",
  "copager_core_macros",
  "copager_ir",
@@ -47,11 +47,24 @@ dependencies = [
 ]
 
 [[package]]
-name = "copager_cfg"
+name = "copager_cfl"
 version = "0.3.0"
 dependencies = [
  "anyhow",
+ "copager_cfl_derive",
  "serde",
+ "thiserror",
+]
+
+[[package]]
+name = "copager_cfl_derive"
+version = "0.3.0"
+dependencies = [
+ "anyhow",
+ "copager_cfl",
+ "proc-macro2",
+ "quote",
+ "syn",
  "thiserror",
 ]
 
@@ -60,7 +73,7 @@ name = "copager_core"
 version = "0.3.0"
 dependencies = [
  "anyhow",
- "copager_cfg",
+ "copager_cfl",
  "copager_core",
  "copager_ir",
  "copager_ir_void",
@@ -90,7 +103,7 @@ name = "copager_ir"
 version = "0.3.0"
 dependencies = [
  "anyhow",
- "copager_cfg",
+ "copager_cfl",
  "copager_lex",
  "copager_parse",
  "thiserror",
@@ -101,7 +114,7 @@ name = "copager_ir_sexp"
 version = "0.3.0"
 dependencies = [
  "anyhow",
- "copager_cfg",
+ "copager_cfl",
  "copager_core",
  "copager_ir",
  "copager_ir_sexp",
@@ -117,7 +130,7 @@ name = "copager_ir_void"
 version = "0.3.0"
 dependencies = [
  "anyhow",
- "copager_cfg",
+ "copager_cfl",
  "copager_ir",
  "copager_lex",
  "copager_parse",
@@ -129,22 +142,8 @@ name = "copager_lex"
 version = "0.3.0"
 dependencies = [
  "anyhow",
- "copager_cfg",
- "copager_lex_derive",
+ "copager_cfl",
  "copager_utils",
- "thiserror",
-]
-
-[[package]]
-name = "copager_lex_derive"
-version = "0.3.0"
-dependencies = [
- "anyhow",
- "copager_cfg",
- "copager_lex",
- "proc-macro2",
- "quote",
- "syn",
  "thiserror",
 ]
 
@@ -153,7 +152,7 @@ name = "copager_lex_regex"
 version = "0.3.0"
 dependencies = [
  "anyhow",
- "copager_cfg",
+ "copager_cfl",
  "copager_lex",
  "copager_lex_regex",
  "copager_utils",
@@ -167,9 +166,8 @@ name = "copager_parse"
 version = "0.3.0"
 dependencies = [
  "anyhow",
- "copager_cfg",
+ "copager_cfl",
  "copager_lex",
- "copager_parse_derive",
  "copager_utils",
  "thiserror",
 ]
@@ -179,23 +177,7 @@ name = "copager_parse_common"
 version = "0.3.0"
 dependencies = [
  "anyhow",
- "copager_cfg",
- "copager_lex",
- "copager_parse",
- "thiserror",
-]
-
-[[package]]
-name = "copager_parse_derive"
-version = "0.3.0"
-dependencies = [
- "anyhow",
- "copager_cfg",
- "copager_lex",
- "copager_parse",
- "proc-macro2",
- "quote",
- "syn",
+ "copager_cfl",
  "thiserror",
 ]
 
@@ -204,10 +186,10 @@ name = "copager_parse_lr_common"
 version = "0.3.0"
 dependencies = [
  "anyhow",
- "copager_cfg",
- "copager_core",
+ "copager_cfl",
  "copager_parse",
  "copager_parse_common",
+ "copager_utils",
  "serde",
  "thiserror",
 ]
@@ -217,7 +199,7 @@ name = "copager_parse_lr_lalr1"
 version = "0.3.0"
 dependencies = [
  "anyhow",
- "copager_cfg",
+ "copager_cfl",
  "copager_core",
  "copager_ir_void",
  "copager_lex",
@@ -235,7 +217,7 @@ name = "copager_parse_lr_lr0"
 version = "0.3.0"
 dependencies = [
  "anyhow",
- "copager_cfg",
+ "copager_cfl",
  "copager_core",
  "copager_ir_void",
  "copager_lex",
@@ -252,7 +234,7 @@ name = "copager_parse_lr_lr1"
 version = "0.3.0"
 dependencies = [
  "anyhow",
- "copager_cfg",
+ "copager_cfl",
  "copager_core",
  "copager_ir_void",
  "copager_lex",
@@ -270,7 +252,7 @@ name = "copager_parse_lr_slr1"
 version = "0.3.0"
 dependencies = [
  "anyhow",
- "copager_cfg",
+ "copager_cfl",
  "copager_core",
  "copager_ir_void",
  "copager_lex",
@@ -288,6 +270,7 @@ name = "copager_utils"
 version = "0.3.0"
 dependencies = [
  "anyhow",
+ "copager_cfl",
  "serde",
  "thiserror",
 ]

@@ -2,8 +2,8 @@ use std::collections::HashMap;
 
 use serde::{Serialize, Deserialize};
 
-use copager_cfg::token::{Token, TokenTag};
-use copager_cfg::rule::{Rule, RuleElem, RuleTag};
+use copager_cfl::token::{Token, TokenTag};
+use copager_cfl::rule::{Rule, RuleElem, RuleTag};
 
 use crate::automaton::Automaton;
 use crate::error::LRError;

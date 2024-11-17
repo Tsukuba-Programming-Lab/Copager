@@ -1,29 +1,28 @@
 use std::fmt::{Debug, Display};
 
-use copager_cfg::token::Token;
-use copager_lex::LexSource;
-use copager_parse::ParseSource;
+use copager_cfl::token::Token;
+use copager_cfl::{CFLTokens, CFLRules};
 use copager_ir::{IR, IRBuilder};
 
 #[derive(Debug)]
-pub enum SExp<'input, Sl, Sp>
+pub enum SExp<'input, Ts, Rs>
 where
-    Sl: LexSource,
-    Sp: ParseSource<Sl::Tag>,
+    Ts: CFLTokens,
+    Rs: CFLRules<Ts::Tag>,
 {
     List {
-        rule: Sp::Tag,
-        elems: Vec<SExp<'input, Sl, Sp>>,
+        rule: Rs::Tag,
+        elems: Vec<SExp<'input, Ts, Rs>>,
     },
-    Atom(Token<'input, Sl::Tag>),
+    Atom(Token<'input, Ts::Tag>),
 }
 
-impl<Sl, Sp> Display for SExp<'_, Sl, Sp>
+impl<Ts, Rs> Display for SExp<'_, Ts, Rs>
 where
-    Sl: LexSource,
-    Sp: ParseSource<Sl::Tag>,
-    Sp::Tag: Debug,
-    Sl::Tag: Debug,
+    Ts: CFLTokens,
+    Rs: CFLRules<Ts::Tag>,
+    Rs::Tag: Debug,
+    Ts::Tag: Debug,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -39,41 +38,41 @@ where
     }
 }
 
-impl<'input, Sl, Sp> IR<'input, Sl, Sp> for SExp<'input, Sl, Sp>
+impl<'input, Ts, Rs> IR<'input, Ts, Rs> for SExp<'input, Ts, Rs>
 where
-    Sl: LexSource,
-    Sp: ParseSource<Sl::Tag>,
+    Ts: CFLTokens,
+    Rs: CFLRules<Ts::Tag>,
 {
-    type Builder = SExpBuilder<'input, Sl, Sp>;
+    type Builder = SExpBuilder<'input, Ts, Rs>;
 }
 
 #[derive(Debug)]
-pub struct SExpBuilder<'input, Sl, Sp>
+pub struct SExpBuilder<'input, Ts, Rs>
 where
-    Sl: LexSource,
-    Sp: ParseSource<Sl::Tag>,
+    Ts: CFLTokens,
+    Rs: CFLRules<Ts::Tag>,
 {
-    stack: Vec<SExp<'input, Sl, Sp>>,
+    stack: Vec<SExp<'input, Ts, Rs>>,
 }
 
 
-impl <'input, Sl, Sp> IRBuilder<'input, Sl, Sp> for SExpBuilder<'input, Sl, Sp>
+impl <'input, Ts, Rs> IRBuilder<'input, Ts, Rs> for SExpBuilder<'input, Ts, Rs>
 where
-    Sl: LexSource,
-    Sp: ParseSource<Sl::Tag>,
+    Ts: CFLTokens,
+    Rs: CFLRules<Ts::Tag>,
 {
-    type Output = SExp<'input, Sl, Sp>;
+    type Output = SExp<'input, Ts, Rs>;
 
-    fn new() -> SExpBuilder<'input, Sl, Sp> {
+    fn new() -> SExpBuilder<'input, Ts, Rs> {
         SExpBuilder { stack: vec![] }
     }
 
-    fn on_read(&mut self, token: Token<'input, Sl::Tag>) -> anyhow::Result<()> {
+    fn on_read(&mut self, token: Token<'input, Ts::Tag>) -> anyhow::Result<()> {
         self.stack.push(SExp::Atom(token));
         Ok(())
     }
 
-    fn on_parse(&mut self, rule: Sp::Tag, len: usize) -> anyhow::Result<()> {
+    fn on_parse(&mut self, rule: Rs::Tag, len: usize) -> anyhow::Result<()> {
         let elems = self.stack.split_off(self.stack.len() - len);
         self.stack.push(SExp::List { rule, elems });
         Ok(())

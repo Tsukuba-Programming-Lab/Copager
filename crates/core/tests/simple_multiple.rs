@@ -1,17 +1,22 @@
 use serde::{Serialize, Deserialize};
 
-use copager_core::{Language, Processor};
-use copager_cfg::token::TokenTag;
-use copager_cfg::rule::{RuleTag, Rule, RuleElem};
-use copager_lex::LexSource;
+use copager_core::{Generator, Processor};
+use copager_cfl::token::TokenTag;
+use copager_cfl::rule::{RuleTag, Rule, RuleElem};
+use copager_cfl::{CFL, CFLTokens, CFLRules};
 use copager_lex_regex::RegexLexer;
-use copager_parse::ParseSource;
 use copager_parse_lr_lr1::LR1;
 use copager_ir_void::Void;
 
+#[derive(Default, CFL, Serialize, Deserialize)]
+struct ExprLang (
+    #[tokens] ExprToken,
+    #[rules]  ExprRule
+);
+
 #[derive(
     Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
-    LexSource, Serialize, Deserialize
+    CFLTokens, Serialize, Deserialize
 )]
 enum ExprToken {
     #[default]
@@ -35,7 +40,7 @@ enum ExprToken {
 
 #[derive(
     Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
-    ParseSource, Serialize, Deserialize
+    CFLRules, Serialize, Deserialize
 )]
 enum ExprRule {
     #[default]
@@ -52,10 +57,8 @@ enum ExprRule {
     Num,
 }
 
-type MyLanguage = Language<ExprToken, ExprRule>;
-type MyLexer = RegexLexer<ExprToken>;
-type MyParser = LR1<ExprToken, ExprRule>;
-type MyProcessor = Processor<MyLanguage, MyLexer, MyParser>;
+type MyGenerator<T> = Generator<T, RegexLexer<T>, LR1<T>>;
+type MyProcessor = Processor<MyGenerator<ExprLang>>;
 
 const OK_INPUTS: [&str; 7] = [
     "1 + 2",

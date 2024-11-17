@@ -1,8 +1,11 @@
 use std::io::{stdin, stdout, Write};
 
 use copager::ir::SExp;
+use copager::Processor;
 
-use language::MyProcessor;
+use language::Arithmetic;
+
+type MyProcessor = Processor<Arithmetic>;
 
 #[copager::load]
 fn main(processor: MyProcessor) -> anyhow::Result<()> {
@@ -15,7 +18,7 @@ fn main(processor: MyProcessor) -> anyhow::Result<()> {
 
     let sexp = processor
         .build_lexer()?
-        .build_parser_by_cache()
+        .restore_parser_by_cache()
         .process::<SExp<_, _>>(&input)?;
     println!("Success: {}", sexp);
 

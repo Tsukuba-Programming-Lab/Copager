@@ -9,6 +9,7 @@
 - `all`
 - `derive`
 - `prebuild`
+- `template`
 - `dev`
 
 ### Lex

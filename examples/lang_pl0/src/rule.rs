@@ -1,9 +1,9 @@
-use copager::parse::ParseSource;
+use copager::cfl::CFLRules;
 use copager::prelude::*;
 
 use crate::token::Pl0Token;
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, ParseSource)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, CFLRules)]
 pub enum Pl0Rule {
     // プログラム本体
     #[default]

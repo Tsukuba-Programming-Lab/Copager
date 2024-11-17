@@ -4,36 +4,29 @@ use std::marker::PhantomData;
 
 use serde::{Serialize, Deserialize};
 
-use copager_cfg::token::{Token, TokenTag};
-use copager_cfg::rule::{Rule, RuleElem, RuleTag};
-use copager_lex::LexSource;
-use copager_parse::{BaseParser, ParseSource, ParseEvent};
+use copager_cfl::token::{Token, TokenTag};
+use copager_cfl::rule::{Rule, RuleElem, RuleTag};
+use copager_cfl::{CFL, CFLTokens, CFLRules};
+use copager_parse::{BaseParser, ParseEvent};
 use copager_parse_lr_common::lr0::item::LR0Item;
 use copager_parse_lr_common::lr0::LR0DFA;
 use copager_parse_lr_common::{LRDriver, LRAction, LRTable, LRTableBuilder};
 use copager_utils::cache::Cacheable;
 
-pub struct LR0<T, R>
-where
-    T: TokenTag,
-    R: RuleTag<T>
-{
-    table: LRTable<T, R>,
+pub struct LR0<Lang: CFL> {
+    table: LRTable<Lang::TokenTag, Lang::RuleTag>,
 }
 
-impl<Sl, Sp> BaseParser<Sl, Sp> for LR0<Sl::Tag, Sp::Tag>
-where
-    Sl: LexSource,
-    Sp: ParseSource<Sl::Tag>,
-{
-    fn try_from((source_l, source_p): (Sl, Sp)) -> anyhow::Result<Self> {
-        let table = LR0Table::try_from(source_l, source_p)?;
-        Ok(LR0 { table })
+impl<Lang: CFL> BaseParser<Lang> for LR0<Lang>{
+    fn try_from(cfl: &Lang) -> anyhow::Result<Self> {
+        Ok(LR0 {
+            table: LR0Table::try_from(cfl)?,
+        })
     }
 
-    gen fn run<'input, Il>(&self, mut lexer: Il) -> ParseEvent<'input, Sl::Tag, Sp::Tag>
+    gen fn run<'input, Il>(&self, mut lexer: Il) -> ParseEvent<'input, Lang::TokenTag, Lang::RuleTag>
     where
-        Il: Iterator<Item = Token<'input, Sl::Tag>>,
+        Il: Iterator<Item = Token<'input, Lang::TokenTag>>,
     {
         let mut driver = LRDriver::from(&self.table);
         while !driver.accepted() {
@@ -44,18 +37,16 @@ where
     }
 }
 
-impl<Sl, Sp> Cacheable<(Sl, Sp)> for LR0<Sl::Tag, Sp::Tag>
+impl<Lang> Cacheable<Lang> for LR0<Lang>
 where
-    Sl: LexSource,
-    Sl::Tag: Serialize + for<'de> Deserialize<'de>,
-    Sp: ParseSource<Sl::Tag>,
-    Sp::Tag: Serialize + for<'de> Deserialize<'de>,
+    Lang: CFL,
+    Lang::TokenTag: Serialize + for<'de> Deserialize<'de>,
+    Lang::RuleTag: Serialize + for<'de> Deserialize<'de>,
 {
-    type Cache = LRTable<Sl::Tag, Sp::Tag>;
+    type Cache = LRTable<Lang::TokenTag, Lang::RuleTag>;
 
-    fn new((source_l, source_p): (Sl, Sp)) -> anyhow::Result<Self::Cache> {
-        let table = LR0Table::try_from(source_l, source_p)?;
-        Ok(table)
+    fn new(cfl: Lang) -> anyhow::Result<Self::Cache> {
+        Ok(LR0Table::try_from(&cfl)?)
     }
 
     fn restore(table: Self::Cache) -> Self {
@@ -64,27 +55,18 @@ where
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct LR0Table<T, R>
-where
-    T: TokenTag,
-    R: RuleTag<T>
-{
-    _phantom_t: PhantomData<T>,
-    _phantom_r: PhantomData<R>,
+pub struct LR0Table<Lang: CFL> {
+    _phantom: PhantomData<Lang>,
 }
 
-impl<T, R> LR0Table<T, R>
-where
-    T: TokenTag,
-    R: RuleTag<T>,
-{
-    fn try_from<Sl, Sp>(source_l: Sl, source_p: Sp) -> anyhow::Result<LRTable<T, R>>
-    where
-        Sl: LexSource<Tag = T>,
-        Sp: ParseSource<T, Tag = R>,
-    {
+impl<Lang: CFL> LR0Table<Lang> {
+    fn try_from(cfl: &Lang) -> anyhow::Result<LRTable<Lang::TokenTag, Lang::RuleTag>> {
+        // Tokens，Rules 準備
+        let tokens = cfl.instantiate_tokens();
+        let rules = cfl.instantiate_rules();
+
         // 最上位規則を追加して RuleSet を更新
-        let mut ruleset = source_p.into_ruleset();
+        let mut ruleset = rules.into_ruleset();
         let top_dummy = Rule::new(
             None,
             RuleElem::new_nonterm("__top_dummy"),
@@ -108,7 +90,7 @@ where
 
                 // A -> α β . を含む場合 全列に Reduce をマーク
                 builder.try_set(node.id, None, LRAction::Reduce(rule.clone()))?;
-                for token in source_l.iter() {
+                for token in tokens.iter() {
                     builder.try_set(node.id, Some(token), LRAction::Reduce(rule.clone()))?;
                 }
             }

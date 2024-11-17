@@ -1,9 +1,16 @@
-use copager::lex::LexSource;
-use copager::parse::ParseSource;
+use copager::cfl::{CFL, CFLRules, CFLTokens};
+use copager::template::LALR1;
 use copager::prelude::*;
-use copager::Language;
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, LexSource)]
+pub type Json = LALR1<JsonLang>;
+
+#[derive(Debug, Default, CFL)]
+pub struct JsonLang (
+    #[tokens] JsonToken,
+    #[rules]  JsonRule,
+);
+
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
 pub enum JsonToken {
     // 記号
     #[token(text = r"\:")]
@@ -43,7 +50,7 @@ pub enum JsonToken {
     _Whitespace,
 }
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, ParseSource)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
 pub enum JsonRule {
     // JSON本体
     #[default]
@@ -88,5 +95,3 @@ pub enum JsonRule {
     #[rule("<value> ::= Null")]
     Value,
 }
-
-pub type Json = Language<JsonToken, JsonRule>;

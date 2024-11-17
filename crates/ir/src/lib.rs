@@ -1,24 +1,23 @@
-use copager_cfg::token::Token;
-use copager_lex::LexSource;
-use copager_parse::ParseSource;
+use copager_cfl::token::Token;
+use copager_cfl::{CFLTokens, CFLRules};
 
-pub trait IR<'input, Sl, Sp>
+pub trait IR<'input, Ts, Rs>
 where
-    Sl: LexSource,
-    Sp: ParseSource<Sl::Tag>,
+    Ts: CFLTokens,
+    Rs: CFLRules<Ts::Tag>,
 {
-    type Builder: IRBuilder<'input, Sl, Sp, Output = Self>;
+    type Builder: IRBuilder<'input, Ts, Rs, Output = Self>;
 }
 
-pub trait IRBuilder<'input, Sl, Sp>
+pub trait IRBuilder<'input, Ts, Rs>
 where
-    Sl: LexSource,
-    Sp: ParseSource<Sl::Tag>,
+    Ts: CFLTokens,
+    Rs: CFLRules<Ts::Tag>,
 {
-    type Output: IR<'input, Sl, Sp>;
+    type Output: IR<'input, Ts, Rs>;
 
     fn new() -> Self;
-    fn on_read(&mut self, token: Token<'input, Sl::Tag>) -> anyhow::Result<()>;
-    fn on_parse(&mut self, rule: Sp::Tag, len: usize) -> anyhow::Result<()>;
+    fn on_read(&mut self, token: Token<'input, Ts::Tag>) -> anyhow::Result<()>;
+    fn on_parse(&mut self, rule: Rs::Tag, len: usize) -> anyhow::Result<()>;
     fn build(self) -> anyhow::Result<Self::Output>;
 }

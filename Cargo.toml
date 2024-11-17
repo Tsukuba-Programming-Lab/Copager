@@ -9,7 +9,7 @@ edition = "2024"
 serde_json = { version = "1.0.117", optional = true }
 copager_core = { path = "./crates/core" }
 copager_core_macros = { path = "./crates/core_macros" }
-copager_cfg = { path = "./crates/cfg" }
+copager_cfl = { path = "./crates/cfl" }
 copager_lex = { path = "./crates/lex", optional = true }
 copager_lex_regex = { path = "./crates/lex_regex", optional = true }
 copager_parse = { path = "./crates/parse", optional = true }
@@ -36,16 +36,17 @@ example_lang_xml = { path = "./examples/lang_xml" }
 [features]
 # all
 all = [
-    "prebuild", "derive", "dev",   # common
-    "regexlex",                    # lex
-    "lr0", "lr1", "slr1", "lalr1", # parse
-    "void", "sexp"                 # ir
+    "derive", "prebuild", "template", "dev",  # common
+    "regexlex",                               # lex
+    "lr0", "lr1", "slr1", "lalr1",            # parse
+    "void", "sexp"                            # ir
 ]
 
 # common
 default = ["dep:copager_lex", "dep:copager_parse"]
+derive = ["copager_cfl/derive"]
 prebuild = ["dep:serde_json"]
-derive = ["copager_lex/derive", "copager_parse/derive"]
+template = ["dep:copager_lex_regex"]
 dev = ["dep:copager_parse_common", "dep:copager_parse_lr_common"]
 
 # lex
@@ -67,13 +68,12 @@ members = [
     # Copager
     "./crates/core",
     "./crates/core_macros",
-    "./crates/cfg",
+    "./crates/cfl",
+    "./crates/cfl_derive",
     "./crates/lex",
-    "./crates/lex_derive",
     "./crates/lex_regex",
     "./crates/parse",
     "./crates/parse_common",
-    "./crates/parse_derive",
     "./crates/parse_lr_common",
     "./crates/parse_lr_lr0",
     "./crates/parse_lr_lr1",

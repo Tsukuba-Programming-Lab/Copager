@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
-use copager_cfg::token::TokenTag;
-use copager_cfg::rule::{Rule, RuleElem, RuleSet, RuleTag};
+use copager_cfl::token::TokenTag;
+use copager_cfl::rule::{Rule, RuleElem, RuleSet, RuleTag};
 
 use crate::rule::{FirstSet, FollowSet};
 
@@ -105,14 +105,13 @@ where
 
 #[cfg(test)]
 mod test {
-    use copager_cfg::token::TokenTag;
-    use copager_cfg::rule::{Rule, RuleTag, RuleElem};
-    use copager_lex::LexSource;
-    use copager_parse::ParseSource;
+    use copager_cfl::token::TokenTag;
+    use copager_cfl::rule::{Rule, RuleTag, RuleElem};
+    use copager_cfl::{CFLTokens, CFLRules};
 
     use super::DirectorSet;
 
-    #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, LexSource)]
+    #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
     enum TestToken {
         #[token(r"a")]
         A,
@@ -120,7 +119,7 @@ mod test {
         B,
     }
 
-    #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, ParseSource)]
+    #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
     enum TestRule {
         #[default]
         #[rule("<S> ::= <A> <B>")]

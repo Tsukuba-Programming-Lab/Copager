@@ -1,9 +1,16 @@
-use copager::lex::LexSource;
-use copager::parse::ParseSource;
+use copager::cfl::{CFL, CFLRules, CFLTokens};
+use copager::template::LALR1;
 use copager::prelude::*;
-use copager::Language;
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, LexSource)]
+pub type Arithmetic = LALR1<ArithmeticLang>;
+
+#[derive(Debug, Default, CFL)]
+pub struct ArithmeticLang (
+    #[tokens] ArithmeticToken,
+    #[rules]  ArithmeticRule,
+);
+
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
 pub enum ArithmeticToken {
     #[default]
     #[token(text = r"\+")]
@@ -24,7 +31,7 @@ pub enum ArithmeticToken {
     _Whitespace,
 }
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, ParseSource)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
 pub enum ArithmeticRule {
     #[default]
     #[rule("<expr> ::= <expr> Plus <term>")]
@@ -39,5 +46,3 @@ pub enum ArithmeticRule {
     #[rule("<num> ::= Num")]
     Num,
 }
-
-pub type Arithmetic = Language<ArithmeticToken, ArithmeticRule>;

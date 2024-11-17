@@ -2,24 +2,27 @@
 
 use regex::{Regex, RegexSet};
 
-use copager_cfg::token::{TokenTag, Token};
-use copager_lex::{LexSource, BaseLexer};
+use copager_cfl::token::{TokenTag, Token};
+use copager_cfl::{CFL, CFLTokens};
+use copager_lex::BaseLexer;
 
 #[derive(Debug)]
-pub struct RegexLexer<S: LexSource> {
+pub struct RegexLexer<Lang: CFL> {
     regex_istr: Regex,
     regex_set: RegexSet,
-    regex_map: Vec<(Regex, S::Tag)>,
+    regex_map: Vec<(Regex, Lang::TokenTag)>,
 }
 
-impl<S: LexSource> BaseLexer<S> for RegexLexer<S> {
-    fn try_from(source: S) -> anyhow::Result<Self> {
-        let regex_istr = Regex::new(source.ignore_token())?;
-        let regex_set = source.iter()
+impl<Lang: CFL> BaseLexer<Lang> for RegexLexer<Lang> {
+    fn try_from(cfl: &Lang) -> anyhow::Result<Self> {
+        let tokens = cfl.instantiate_tokens();
+
+        let regex_istr = Regex::new(tokens.ignore_token())?;
+        let regex_set = tokens.iter()
             .map(|token| token.as_str())
             .collect::<Vec<_>>();
         let regex_set = RegexSet::new(regex_set)?;
-        let regex_map = source.iter()
+        let regex_map = tokens.iter()
             .map(|token| Ok((Regex::new(token.as_str())?, token)))
             .collect::<anyhow::Result<Vec<_>>>()?;
 
@@ -30,10 +33,10 @@ impl<S: LexSource> BaseLexer<S> for RegexLexer<S> {
         })
     }
 
-    gen fn run<'input>(&self, input: &'input str) -> Token<'input, S::Tag> {
+    gen fn run<'input>(&self, input: &'input str) -> Token<'input, Lang::TokenTag> {
         let mut pos = 0;
         loop {
-            // Skip Spaces
+            // Skip spaces
             let remain = match self.regex_istr.find(&input[pos..]) {
                 Some(acc_s) => {
                     pos += acc_s.len();

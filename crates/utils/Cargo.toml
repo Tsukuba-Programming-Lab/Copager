@@ -7,3 +7,4 @@ edition = "2021"
 anyhow = { workspace = true }
 thiserror = { workspace = true }
 serde = { workspace = true }
+copager_cfl = { path = "../cfl"}
