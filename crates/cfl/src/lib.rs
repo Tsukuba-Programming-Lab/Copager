@@ -8,11 +8,13 @@ use rule::{RuleTag, RuleSet};
 pub use copager_cfl_derive::{CFL, CFLTokens, CFLRules};
 
 pub trait CFL {
-    type Tokens: CFLTokens;
-    type Rules: CFLRules<<Self::Tokens as CFLTokens>::Tag>;
+    type TokenTag: TokenTag;
+    type Tokens: CFLTokens<Tag = Self::TokenTag>;
+    type RuleTag: RuleTag<Self::TokenTag>;
+    type Rules: CFLRules<Self::TokenTag, Tag = Self::RuleTag>;
 
-    fn instantiate_tokens(&self) -> &Self::Tokens;
-    fn instantiate_rules(&self) -> &Self::Rules;
+    fn instantiate_tokens(&self) -> Self::Tokens;
+    fn instantiate_rules(&self) -> Self::Rules;
 }
 
 pub trait CFLTokens {

@@ -3,18 +3,20 @@
 use regex::{Regex, RegexSet};
 
 use copager_cfl::token::{TokenTag, Token};
-use copager_cfl::CFLTokens;
+use copager_cfl::{CFL, CFLTokens};
 use copager_lex::BaseLexer;
 
 #[derive(Debug)]
-pub struct RegexLexer<Ts: CFLTokens> {
+pub struct RegexLexer<Lang: CFL> {
     regex_istr: Regex,
     regex_set: RegexSet,
-    regex_map: Vec<(Regex, Ts::Tag)>,
+    regex_map: Vec<(Regex, Lang::TokenTag)>,
 }
 
-impl<Ts: CFLTokens> BaseLexer<Ts> for RegexLexer<Ts> {
-    fn try_from(tokens: Ts) -> anyhow::Result<Self> {
+impl<Lang: CFL> BaseLexer<Lang> for RegexLexer<Lang> {
+    fn try_from(cfl: &Lang) -> anyhow::Result<Self> {
+        let tokens = cfl.instantiate_tokens();
+
         let regex_istr = Regex::new(tokens.ignore_token())?;
         let regex_set = tokens.iter()
             .map(|token| token.as_str())
@@ -31,7 +33,7 @@ impl<Ts: CFLTokens> BaseLexer<Ts> for RegexLexer<Ts> {
         })
     }
 
-    gen fn run<'input>(&self, input: &'input str) -> Token<'input, Ts::Tag> {
+    gen fn run<'input>(&self, input: &'input str) -> Token<'input, Lang::TokenTag> {
         let mut pos = 0;
         loop {
             // Skip spaces

@@ -1,7 +1,14 @@
 use copager_cfl::token::{TokenTag, Token};
-use copager_cfl::CFLTokens;
+use copager_cfl::rule::{Rule, RuleTag, RuleElem};
+use copager_cfl::{CFL, CFLTokens, CFLRules};
 use copager_lex::BaseLexer;
 use copager_lex_regex::RegexLexer;
+
+#[derive(Default, CFL)]
+struct TestLang (
+    #[tokens] TestToken,
+    #[rules]  TestRule,
+);
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
 enum TestToken {
@@ -24,12 +31,28 @@ enum TestToken {
     _Whitespace,
 }
 
-type MyLexer = RegexLexer<TestToken>;
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
+enum TestRule {
+    #[default]
+    #[rule("<expr> ::= <expr> Plus <term>")]
+    #[rule("<expr> ::= <expr> Minus <term>")]
+    #[rule("<expr> ::= <term>")]
+    Expr,
+    #[rule("<term> ::= <term> Mul <num>")]
+    #[rule("<term> ::= <term> Div <num>")]
+    #[rule("<term> ::= <num>")]
+    Term,
+    #[rule("<num> ::= BracketL <expr> BracketR")]
+    #[rule("<num> ::= Num")]
+    Num,
+}
+
+type MyLexer = RegexLexer<TestLang>;
 
 #[test]
 fn simple_success() {
-    let tokens = TestToken::default();
-    let lexer = <MyLexer as BaseLexer<TestToken>>::try_from(tokens).unwrap();
+    let cfl = TestLang::default();
+    let lexer = <MyLexer as BaseLexer<TestLang>>::try_from(&cfl).unwrap();
     let mut lexer = lexer.run("1 + 2 * 3");
     assert_eq_token(lexer.next(), "1");
     assert_eq_token(lexer.next(), "+");
@@ -42,8 +65,8 @@ fn simple_success() {
 #[test]
 #[should_panic]
 fn simple_failed() {
-    let tokens = TestToken::default();
-    let lexer = <MyLexer as BaseLexer<TestToken>>::try_from(tokens).unwrap();
+    let cfl = TestLang::default();
+    let lexer = <MyLexer as BaseLexer<TestLang>>::try_from(&cfl).unwrap();
     let mut lexer = lexer.run("1 + 2 * stop 3");
     assert_eq_token(lexer.next(), "1");
     assert_eq_token(lexer.next(), "+");

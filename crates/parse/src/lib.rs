@@ -1,17 +1,17 @@
 use copager_cfl::token::{TokenTag, Token};
 use copager_cfl::rule::RuleTag;
-use copager_cfl::{CFLTokens, CFLRules};
+use copager_cfl::CFL;
 
-pub trait BaseParser<Ts, Rs>
+pub trait BaseParser<Lang>
 where
     Self: Sized,
-    Ts: CFLTokens,
-    Rs: CFLRules<<Ts as CFLTokens>::Tag>,
+    Lang: CFL,
 {
-    fn try_from(source: (Ts, Rs)) -> anyhow::Result<Self>;
-    fn run<'input, Il>(&self, lexer: Il) -> impl Iterator<Item = ParseEvent<'input, Ts::Tag, Rs::Tag>>
+    fn try_from(cfl: &Lang) -> anyhow::Result<Self>;
+    fn run<'input, Il>(&self, lexer: Il)
+        -> impl Iterator<Item = ParseEvent<'input, Lang::TokenTag, Lang::RuleTag>>
     where
-        Il: Iterator<Item = Token<'input, Ts::Tag>>;
+        Il: Iterator<Item = Token<'input, Lang::TokenTag>>;
 }
 
 pub enum ParseEvent<'input, T, R>

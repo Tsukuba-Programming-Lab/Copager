@@ -16,15 +16,17 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
 
     quote!{
         impl CFL for #struct_name {
+            type TokenTag = #tokens_type;
             type Tokens = #tokens_type;
+            type RuleTag = #rules_type;
             type Rules = #rules_type;
 
-            fn instantiate_tokens(&self) -> &Self::Tokens {
-                &self.#tokens_ident
+            fn instantiate_tokens(&self) -> Self::Tokens {
+                self.#tokens_ident
             }
 
-            fn instantiate_rules(&self) -> &Self::Rules {
-                &self.#rules_ident
+            fn instantiate_rules(&self) -> Self::Rules {
+                self.#rules_ident
             }
         }
     }

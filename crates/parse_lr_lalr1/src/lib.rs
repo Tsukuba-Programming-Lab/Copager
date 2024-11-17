@@ -6,7 +6,7 @@ use serde::{Serialize, Deserialize};
 
 use copager_cfl::token::{Token, TokenTag};
 use copager_cfl::rule::{Rule, RuleElem, RuleTag};
-use copager_cfl::{CFLTokens, CFLRules};
+use copager_cfl::{CFL, CFLRules};
 use copager_parse::{BaseParser, ParseEvent};
 use copager_parse_common::rule::FirstSet;
 use copager_parse_lr_common::lr1::LR1DFA;
@@ -15,27 +15,20 @@ use copager_parse_lr_common::lalr1::LALR1DFA;
 use copager_parse_lr_common::{LRDriver, LRAction, LRTable, LRTableBuilder};
 use copager_utils::cache::Cacheable;
 
-pub struct LALR1<T, R>
-where
-    T: TokenTag,
-    R: RuleTag<T>
-{
-    table: LRTable<T, R>,
+pub struct LALR1<Lang: CFL> {
+    table: LRTable<Lang::TokenTag, Lang::RuleTag>,
 }
 
-impl<Ts, Rs> BaseParser<Ts, Rs> for LALR1<Ts::Tag, Rs::Tag>
-where
-    Ts: CFLTokens,
-    Rs: CFLRules<Ts::Tag>,
-{
-    fn try_from((_, rules): (Ts, Rs)) -> anyhow::Result<Self> {
-        let table = LALR1Table::try_from(rules)?;
-        Ok(LALR1 { table })
+impl<Lang: CFL> BaseParser<Lang> for LALR1<Lang> {
+    fn try_from(cfl: &Lang) -> anyhow::Result<Self> {
+        Ok(LALR1 {
+            table: LALR1Table::try_from(cfl)?,
+        })
     }
 
-    gen fn run<'input, Il>(&self, mut lexer: Il) -> ParseEvent<'input, Ts::Tag, Rs::Tag>
+    gen fn run<'input, Il>(&self, mut lexer: Il) -> ParseEvent<'input, Lang::TokenTag, Lang::RuleTag>
     where
-        Il: Iterator<Item = Token<'input, Ts::Tag>>,
+        Il: Iterator<Item = Token<'input, Lang::TokenTag>>,
     {
         let mut driver = LRDriver::from(&self.table);
         while !driver.accepted() {
@@ -46,18 +39,16 @@ where
     }
 }
 
-impl<Ts, Rs> Cacheable<(Ts, Rs)> for LALR1<Ts::Tag, Rs::Tag>
+impl<Lang> Cacheable<Lang> for LALR1<Lang>
 where
-    Ts: CFLTokens,
-    Ts::Tag: Serialize + for<'de> Deserialize<'de>,
-    Rs: CFLRules<Ts::Tag>,
-    Rs::Tag: Serialize + for<'de> Deserialize<'de>,
+    Lang: CFL,
+    Lang::TokenTag: Serialize + for<'de> Deserialize<'de>,
+    Lang::RuleTag: Serialize + for<'de> Deserialize<'de>,
 {
-    type Cache = LRTable<Ts::Tag, Rs::Tag>;
+    type Cache = LRTable<Lang::TokenTag, Lang::RuleTag>;
 
-    fn new((_, rules): (Ts, Rs)) -> anyhow::Result<Self::Cache> {
-        let table = LALR1Table::try_from(rules)?;
-        Ok(table)
+    fn new(cfl: Lang) -> anyhow::Result<Self::Cache> {
+        Ok(LALR1Table::try_from(&cfl)?)
     }
 
     fn restore(table: Self::Cache) -> Self {
@@ -65,24 +56,15 @@ where
     }
 }
 
-pub struct LALR1Table<T, R>
-where
-    T: TokenTag,
-    R: RuleTag<T>
-{
-    _phantom_t: PhantomData<T>,
-    _phantom_r: PhantomData<R>,
+pub struct LALR1Table<Lang: CFL> {
+    _phantom: PhantomData<Lang>,
 }
 
-impl<T, R> LALR1Table<T, R>
-where
-    T: TokenTag,
-    R: RuleTag<T>,
-{
-    fn try_from<Rs>(rules: Rs) -> anyhow::Result<LRTable<T, R>>
-    where
-        Rs: CFLRules<T, Tag = R>,
-    {
+impl<Lang: CFL> LALR1Table<Lang> {
+    fn try_from(cfl: &Lang) -> anyhow::Result<LRTable<Lang::TokenTag, Lang::RuleTag>> {
+        // Rules 準備
+        let rules = cfl.instantiate_rules();
+
         // 最上位規則を追加して RuleSet を更新
         let mut ruleset = rules.into_ruleset();
         let top_dummy = Rule::new(

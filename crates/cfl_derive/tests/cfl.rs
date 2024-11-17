@@ -2,7 +2,7 @@ use copager_cfl::rule::{RuleTag, Rule, RuleElem};
 use copager_cfl::token::TokenTag;
 use copager_cfl::{CFL, CFLTokens, CFLRules};
 
-#[derive(Default,CFL)]
+#[derive(Default, CFL)]
 struct MyLanguage (
     #[tokens] MyToken,
     #[rules]  MyRule,

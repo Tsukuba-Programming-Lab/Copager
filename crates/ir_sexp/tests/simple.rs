@@ -1,10 +1,16 @@
-use copager_core::{Language, Processor};
+use copager_core::{Generator, Processor};
 use copager_cfl::token::TokenTag;
 use copager_cfl::rule::{RuleTag, Rule, RuleElem};
-use copager_cfl::{CFLTokens, CFLRules};
+use copager_cfl::{CFL, CFLTokens, CFLRules};
 use copager_lex_regex::RegexLexer;
 use copager_parse_lr_lr1::LR1;
 use copager_ir_sexp::SExp;
+
+#[derive(Default, CFL)]
+struct ExprLang (
+    #[tokens] ExprToken,
+    #[rules]  ExprRule
+);
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
 enum ExprToken {
@@ -63,10 +69,8 @@ fn simple_eval() {
 }
 
 fn parse<'input>(input: &'input str) -> anyhow::Result<SExp<'input, ExprToken, ExprRule>> {
-    type TestLang = Language<ExprToken, ExprRule>;
-    type TestLexer = RegexLexer<ExprToken>;
-    type TestParser = LR1<ExprToken, ExprRule>;
-    type TestProcessor = Processor<TestLang, TestLexer, TestParser>;
+    type TestGenerator<T> = Generator<T, RegexLexer<T>, LR1<T>>;
+    type TestProcessor = Processor<TestGenerator<ExprLang>>;
 
     TestProcessor::new()
         .build_lexer()?

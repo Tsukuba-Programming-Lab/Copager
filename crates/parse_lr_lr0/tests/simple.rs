@@ -1,10 +1,16 @@
-use copager_core::{Language, Processor};
+use copager_core::{Generator, Processor};
 use copager_cfl::token::TokenTag;
 use copager_cfl::rule::{RuleTag, Rule, RuleElem};
-use copager_cfl::{CFLTokens, CFLRules};
+use copager_cfl::{CFL, CFLTokens, CFLRules};
 use copager_lex_regex::RegexLexer;
 use copager_parse_lr_lr0::LR0;
 use copager_ir_void::Void;
+
+#[derive(Debug, Default, CFL)]
+struct TestLang (
+    #[tokens] TestToken,
+    #[rules] TestRule,
+);
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
 enum TestToken {
@@ -35,10 +41,8 @@ enum TestRule {
     Num,
 }
 
-type TestLanguage = Language<TestToken, TestRule>;
-type TestLexer = RegexLexer<TestToken>;
-type TestParser = LR0<TestToken, TestRule>;
-type TestProcessor = Processor<TestLanguage, TestLexer, TestParser>;
+type TestGenerator<T> = Generator<T, RegexLexer<T>, LR0<T>>;
+type TestProcessor = Processor<TestGenerator<TestLang>>;
 
 #[test]
 fn simple_success() {
