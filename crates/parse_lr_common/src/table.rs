@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fmt::Display;
 
 use serde::{Serialize, Deserialize};
 
@@ -18,6 +19,21 @@ where
     Reduce(Rule<T, R>),
     Accept,
     None,
+}
+
+impl<T, R> Display for LRAction<T, R>
+where
+    T: TokenTag,
+    R: RuleTag<T>,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            LRAction::Shift(state) => write!(f, "Shift({})", state),
+            LRAction::Reduce(rule) => write!(f, "Reduce({})", rule),
+            LRAction::Accept => write!(f, "Accept"),
+            LRAction::None => write!(f, "None"),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -108,13 +124,14 @@ where
 
     pub fn try_set(&mut self, state: usize, token: Option<T>, action: LRAction<T, R>) -> anyhow::Result<()>{
         if let Some(token) = token {
-            if self.action_table[state].contains_key(&token) {
-                return Err(LRError::new_conflict(&action).into());
+            if let Some(registered) = self.action_table[state].get(&token) {
+                return Err(LRError::new_conflict(registered, &action).into());
             }
             self.action_table[state].insert(token, action);
         } else {
             if self.eof_action_table[state] != LRAction::None {
-                return Err(LRError::new_conflict(&action).into());
+                let registered = &self.eof_action_table[state];
+                return Err(LRError::new_conflict(registered, &action).into());
             }
             self.eof_action_table[state] = action;
         }
