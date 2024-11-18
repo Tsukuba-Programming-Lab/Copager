@@ -4,6 +4,7 @@ use std::marker::PhantomData;
 use copager_cfl::token::TokenTag;
 use copager_cfl::rule::{RuleElem, RuleSet, RuleTag};
 
+#[derive(Debug)]
 pub struct FirstSet<'a, T, R>
 where
     T: TokenTag,
@@ -47,7 +48,6 @@ where
         } else {
             let mut firsts: HashSet<&'a RuleElem<T>> = HashSet::new();
             for relem in relems {
-                println!("{:?}", relem);
                 let first_candidates = self.map.get(relem).unwrap();
                 firsts.extend(first_candidates);
                 if firsts.contains(&RuleElem::Epsilon) {
