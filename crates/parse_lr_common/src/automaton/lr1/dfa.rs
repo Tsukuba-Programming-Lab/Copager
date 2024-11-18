@@ -181,7 +181,7 @@ where
             .iter()
             .find(|rule| rule.lhs == top)
             .unwrap();
-        let top = LR1ItemSet::from((ruleset, first_set)).init(top);
+        let top = LR1ItemSet::new_top(top, ruleset, first_set);
 
         self.gen_recursive(top)
     }

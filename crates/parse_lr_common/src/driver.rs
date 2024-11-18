@@ -51,7 +51,7 @@ where
                 (LRAction::Reduce(rule), _) => {
                     let tag = rule.tag.unwrap();
                     let lhs = lhs_as_str(&rule.lhs);
-                    let rhs_len = rule.rhs.len();
+                    let rhs_len = rhs_len(&rule.rhs);
                     self.stack.truncate(self.stack.len() - rhs_len);
                     self.stack.push(self.table.get_goto(self.stack[self.stack.len()-1], lhs).unwrap());
                     yield ParseEvent::Parse { rule: tag, len: rhs_len };
@@ -83,5 +83,13 @@ fn lhs_as_str<T: TokenTag>(lhs: &RuleElem<T>) -> &str {
         nt.as_str()
     } else {
         unreachable!()
+    }
+}
+
+fn rhs_len<T: TokenTag>(rhs: &[RuleElem<T>]) -> usize {
+    if rhs[0] == RuleElem::Epsilon {
+        0
+    } else {
+        rhs.len()
     }
 }
