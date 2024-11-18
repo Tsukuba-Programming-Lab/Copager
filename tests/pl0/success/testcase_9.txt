@@ -1,0 +1,7 @@
+const max = 10;
+
+var x;
+
+begin
+  x := max
+end.

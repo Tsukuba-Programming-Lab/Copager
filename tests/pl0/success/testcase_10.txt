@@ -1,0 +1,10 @@
+const
+  a = 5,
+  b = 10,
+  c = 15;
+
+var sum;
+
+begin
+  sum := a + b + c
+end.

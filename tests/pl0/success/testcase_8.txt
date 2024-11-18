@@ -1,0 +1,13 @@
+var x, y;
+
+begin
+  x := 10;
+  y := 0;
+  while x > 0 do
+  begin
+    y := y + x;
+    x := x - 1;
+    if y > 50 then
+      x := 0
+  end
+end.

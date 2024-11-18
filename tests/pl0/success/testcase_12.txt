@@ -1,0 +1,19 @@
+const max = 10;
+
+var x, y;
+
+procedure max;
+begin
+    if x > y then begin
+        write(x)
+    end;
+    if x <= y then begin
+        write(y)
+    end
+end;
+
+begin
+    read(x);
+    read(y);
+    call max
+end.
