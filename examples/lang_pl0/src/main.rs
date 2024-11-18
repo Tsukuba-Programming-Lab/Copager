@@ -14,8 +14,7 @@ fn main() -> anyhow::Result<()> {
     stdin().read_line(&mut input)?;
 
     let sexp = Processor::<Pl0>::new()
-        .build_lexer()?
-        .build_parser()?
+        .build()?
         .process::<SExp<_, _>>(&input)?;
     println!("Success: {}", sexp);
 

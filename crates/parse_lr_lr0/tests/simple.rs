@@ -57,12 +57,7 @@ fn simple_success() {
         "(10 + 20) - 30",
     ];
 
-    let processor = TestProcessor::new()
-        .build_lexer()
-        .unwrap()
-        .build_parser()
-        .unwrap();
-
+    let processor = TestProcessor::new().build().unwrap();
     for input in &OK_INPUTS {
         println!("input: {}", input);
         processor.process::<Void>(input).unwrap();
@@ -81,12 +76,7 @@ fn simple_failure() {
         "(((10))",
     ];
 
-    let processor = TestProcessor::new()
-        .build_lexer()
-        .unwrap()
-        .build_parser()
-        .unwrap();
-
+    let processor = TestProcessor::new().build().unwrap();
     for input in &ERR_INPUTS {
         assert!(processor.process::<Void>(input).is_err(), "input: {}", input);
     }

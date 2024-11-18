@@ -60,6 +60,11 @@ impl<Gen: GeneratorDesign> Processor<Gen> {
         }
     }
 
+    pub fn build(self) -> anyhow::Result<Self> {
+        self.build_lexer()?
+            .build_parser()
+    }
+
     pub fn build_lexer(mut self) -> anyhow::Result<Self> {
         let lexer = <Gen::Lexer as BaseLexer<Gen::Lang>>::try_from(&self.cfl)?;
         self.lexer = Some(lexer);

@@ -73,8 +73,7 @@ fn parse<'input>(input: &'input str) -> anyhow::Result<SExp<'input, ExprToken, E
     type TestProcessor = Processor<TestGenerator<ExprLang>>;
 
     TestProcessor::new()
-        .build_lexer()?
-        .build_parser()?
+        .build()?
         .process::<SExp<_, _>>(input)
 }
 

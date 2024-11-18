@@ -63,8 +63,7 @@ type MyProcessor = Processor<MyGenerator<ExprLang>>;
 #[test]
 fn simple_success() -> anyhow::Result<()> {
     MyProcessor::new()
-        .build_lexer()?
-        .build_parser()?
+        .build()?
         .process::<Void>("1 + 2 * 3")?;
 
     Ok(())
