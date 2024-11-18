@@ -47,6 +47,7 @@ where
         } else {
             let mut firsts: HashSet<&'a RuleElem<T>> = HashSet::new();
             for relem in relems {
+                println!("{:?}", relem);
                 let first_candidates = self.map.get(relem).unwrap();
                 firsts.extend(first_candidates);
                 if firsts.contains(&RuleElem::Epsilon) {
@@ -85,6 +86,8 @@ where
             map.insert(term, HashSet::new());
             map.get_mut(term).unwrap().insert(term);
         });
+        map.insert(&RuleElem::Epsilon, HashSet::new());
+        map.get_mut(&RuleElem::Epsilon).unwrap().insert(&RuleElem::Epsilon);
         map.insert(&RuleElem::EOF, HashSet::new());
         map.get_mut(&RuleElem::EOF).unwrap().insert(&RuleElem::EOF);
 

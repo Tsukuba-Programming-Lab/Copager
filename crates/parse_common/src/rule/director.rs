@@ -113,9 +113,9 @@ mod test {
 
     #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
     enum TestToken {
-        #[token(r"a")]
+        #[token(text = r"a")]
         A,
-        #[token(r"b")]
+        #[token(text = r"b")]
         B,
     }
 
@@ -150,7 +150,7 @@ mod test {
     }
 
     #[test]
-    fn follow_set() {
+    fn director_set() {
         macro_rules! term {
             ($expr:ident) => { RuleElem::new_term(TestToken::$expr) };
         }
@@ -171,7 +171,7 @@ mod test {
         assert!(eq_symbols(director_set.get(rule).unwrap(), expected.as_slice()));
 
         let rule = &TestRule::C.as_rules()[0];
-        let expected = vec![];
+        let expected = vec![RuleElem::EOF];
         assert!(eq_symbols(director_set.get(rule).unwrap(), expected.as_slice()));
     }
 }
