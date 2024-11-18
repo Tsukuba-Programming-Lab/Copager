@@ -51,6 +51,7 @@ where
 {
     map: HashMap<String, HashSet<&'a RuleElem<T>>>,
     ruleset: &'a RuleSet<T, R>,
+    first_set: FirstSet<'a, T, R>,
 }
 
 impl<'a, T, R> From<&'a RuleSet<T, R>> for FollowSetBuilder<'a, T, R>
@@ -70,6 +71,7 @@ where
         FollowSetBuilder {
             map,
             ruleset,
+            first_set: FirstSet::from(ruleset),
         }
     }
 }
@@ -85,8 +87,6 @@ where
     }
 
     fn expand_child(&mut self) -> bool {
-        let first_set = FirstSet::from(self.ruleset);
-
         let mut modified = false;
         for rule in &self.ruleset.rules {
             let lhs = match &rule.lhs {
@@ -96,7 +96,7 @@ where
             for rhs_idx in 0..rule.rhs.len() {
                 let target = &rule.rhs[rhs_idx];
                 let follow_symbols = &rule.rhs[rhs_idx+1..];
-                let prob_first_symbols = first_set.get_by(follow_symbols);
+                let prob_first_symbols = self.first_set.get_by(follow_symbols);
                 modified |= self.append_by_first(target, &prob_first_symbols);
                 if prob_first_symbols.contains(&&RuleElem::Epsilon) {
                     modified |= self.append_when_nullable(target, lhs);
