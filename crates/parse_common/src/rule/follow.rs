@@ -138,9 +138,9 @@ mod test {
 
     #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
     enum TestToken {
-        #[token(r"a")]
+        #[token(text = r"a")]
         A,
-        #[token(r"b")]
+        #[token(text = r"b")]
         B,
     }
 
@@ -189,7 +189,7 @@ mod test {
         let expected = vec![term!(A)];
         assert!(eq_symbols(follow_set.get("A").unwrap(), expected.as_slice()));
 
-        let expected = vec![term!(B), RuleElem::EOF];
+        let expected = vec![RuleElem::EOF];
         assert!(eq_symbols(follow_set.get("B").unwrap(), expected.as_slice()));
 
         let expected = vec![];
