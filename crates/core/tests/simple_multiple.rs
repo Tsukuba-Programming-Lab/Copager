@@ -115,8 +115,6 @@ fn simple_multiple_mix_success_and_failure() {
 
 fn gen_processor() -> MyProcessor {
     MyProcessor::new()
-        .build_lexer()
-        .unwrap()
-        .build_parser()
+        .build()
         .unwrap()
 }

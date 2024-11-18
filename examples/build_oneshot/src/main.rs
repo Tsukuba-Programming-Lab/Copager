@@ -58,8 +58,7 @@ fn main() -> anyhow::Result<()> {
     stdin().read_line(&mut input)?;
 
     let sexp = Processor::<LALR1<ExprLang>>::new()
-        .build_lexer()?
-        .build_parser()?
+        .build()?
         .process::<SExp<_, _>>(&input)?;
     println!("Success: {}", sexp);
 
