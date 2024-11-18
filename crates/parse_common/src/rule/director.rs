@@ -150,7 +150,7 @@ mod test {
     }
 
     #[test]
-    fn follow_set() {
+    fn director_set() {
         macro_rules! term {
             ($expr:ident) => { RuleElem::new_term(TestToken::$expr) };
         }
