@@ -1,0 +1,9 @@
+procedure Test
+var x;
+begin
+    x := 1
+end;
+
+begin
+  call Test
+end.

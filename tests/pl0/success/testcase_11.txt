@@ -1,0 +1,9 @@
+procedure DisplayMax;
+const max = 100;
+begin
+  write(max)
+end;
+
+begin
+  call DisplayMax
+end.

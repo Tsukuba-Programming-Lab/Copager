@@ -1,5 +1,4 @@
-var x y;
+var x;
 
 begin
   x := 10
-end.
