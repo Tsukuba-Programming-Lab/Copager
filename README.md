@@ -40,10 +40,10 @@ copager = { ..., features = ["derive", "regexlex", "lalr1", "void"] }
 
 - [example_build_oneshot](examples/build_oneshot)
 - [example_build_prebuild](examples/build_prebuild)
-- [example_lang_arithmetic](examples/lang_arithmetic)
-- [example_lang_json](examples/lang_json)
-- [example_lang_pl0](examples/lang_pl0)
-- [example_lang_xml](examples/lang_xml)
+- [example_lang_arithmetic](examples/lang_arithmetic) [(lib.rs)](examples/lang_arithmetic/src/lib.rs)
+- [example_lang_json](examples/lang_json) [(lib.rs)](examples/lang_json/src/lib.rs)
+- [example_lang_pl0](examples/lang_pl0) [(lib.rs)](examples/lang_pl0/src/lib.rs)
+- [example_lang_xml](examples/lang_xml) [(lib.rs)](examples/lang_xml/src/lib.rs)
 
 ```
 $ cargo run -p example_build_oneshot

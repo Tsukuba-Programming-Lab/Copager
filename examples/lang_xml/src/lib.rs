@@ -1,4 +1,4 @@
-use copager::cfl::{CFL, CFLTokens, CFLRules};
+use copager::cfl::{CFLRules, CFLTokens, CFL};
 use copager::template::LALR1;
 use copager::prelude::*;
 
@@ -40,19 +40,25 @@ pub enum XmlToken {
 pub enum XmlRule {
     // XML本体
     #[default]
-    #[rule("<xml> ::= <xml> <tag>")]
-    #[rule("<xml> ::= <tag>")]
+    #[rule("<xml> ::= <tag_list>")]
     Xml,
 
     // タグ
-    #[rule("<tag> ::= <begin> <value> <end>")]
+    #[rule("<tag_list> ::= <tag_list> <tag>")]
+    #[rule("<tag_list> ::= <tag>")]
+    TagList,
+
+    #[rule("<tag> ::= <begin> <value_list> <end>")]
+    #[rule("<tag> ::= <begin> <end>")]
     #[rule("<tag> ::= <single>")]
     Tag,
 
     #[rule("<single> ::= TagL String <attr_list> Slash TagR")]
+    #[rule("<single> ::= TagL String Slash TagR")]
     Single,
 
     #[rule("<begin> ::= TagL String <attr_list> TagR")]
+    #[rule("<begin> ::= TagL String TagR")]
     Begin,
 
     #[rule("<end> ::= TagL Slash String TagR")]
@@ -61,7 +67,6 @@ pub enum XmlRule {
     // 属性
     #[rule("<attr_list> ::= <attr_list> <attr>")]
     #[rule("<attr_list> ::= <attr>")]
-    #[rule("<attr_list> ::= ")]
     AttrList,
 
     #[rule("<attr> ::= String Equal QuotedString")]
@@ -69,7 +74,11 @@ pub enum XmlRule {
     Attr,
 
     // 値
-    #[rule("<value> ::= <xml>")]
+    #[rule("<value_list> ::= <value_list> <value>")]
+    #[rule("<value_list> ::= <value>")]
+    ValueList,
+
+    #[rule("<value> ::= <tag>")]
     #[rule("<value> ::= String")]
     Value,
 }
