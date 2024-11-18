@@ -5,6 +5,7 @@ use copager_cfl::rule::{Rule, RuleElem, RuleSet, RuleTag};
 
 use crate::rule::{FirstSet, FollowSet};
 
+#[derive(Debug)]
 pub struct DirectorSet<'a, T, R>
 where
     T: TokenTag,

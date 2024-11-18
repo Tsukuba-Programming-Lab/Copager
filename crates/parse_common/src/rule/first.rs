@@ -4,6 +4,7 @@ use std::marker::PhantomData;
 use copager_cfl::token::TokenTag;
 use copager_cfl::rule::{RuleElem, RuleSet, RuleTag};
 
+#[derive(Debug)]
 pub struct FirstSet<'a, T, R>
 where
     T: TokenTag,
