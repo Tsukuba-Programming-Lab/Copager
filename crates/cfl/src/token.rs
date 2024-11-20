@@ -7,7 +7,7 @@ pub trait TokenTag
 where
     Self: Debug + Copy + Clone + Hash + Eq,
 {
-    fn as_str<'a, 'b>(&'a self) -> &'b str;
+    fn as_str_list<'a, 'b>(&'a self) -> &'a[&'b str];
 }
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]

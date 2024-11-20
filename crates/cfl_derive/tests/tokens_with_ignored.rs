@@ -5,12 +5,15 @@ use copager_cfl::CFLTokens;
 enum MyToken {
     #[default]
     #[token(text = r"\+")]
-    Abc,
+    #[token(text = r"plus")]
+    Plus,
     #[token(text = r"\-")]
-    Def,
+    #[token(text = r"minus")]
+    Minus,
     #[token(text = r"[1-9]+")]
     Number,
-    #[token(text = r"[ \t\n]+", ignored)]
+    #[token(ignored)]
+    #[token(text = r"[ \t\n]+")]
     _WhiteSpace,
 }
 
@@ -19,12 +22,12 @@ enum MyToken {
 fn check_compile_tokens_with_ignored() {
     // CFLTokens
     let mytoken = MyToken::default();
-    assert_eq!(mytoken.ignore_token(), r"^[ \t\n]+");
+    assert_eq!(mytoken.ignore_tokens(), &[r"[ \t\n]+"]);
     assert_eq!(mytoken.iter().count(), 3);
 
     // TokenTag
-    assert_eq!(MyToken::Abc.as_str(), r"^\+");
-    assert_eq!(MyToken::Def.as_str(), r"^\-");
-    assert_eq!(MyToken::Number.as_str(), r"^[1-9]+");
-    assert_eq!(MyToken::_WhiteSpace.as_str(), r"^[ \t\n]+");
+    assert_eq!(MyToken::Plus.as_str_list(), &[r"\+", r"plus"]);
+    assert_eq!(MyToken::Minus.as_str_list(), &[r"\-", r"minus"]);
+    assert_eq!(MyToken::Number.as_str_list(), &[r"[1-9]+"]);
+    assert_eq!(MyToken::_WhiteSpace.as_str_list(), &[r"[ \t\n]+"]);
 }

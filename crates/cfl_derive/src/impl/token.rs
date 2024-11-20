@@ -18,12 +18,12 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
     let enum_name = &ast.ident;
     let enum_matcher_table = parsed_variantes
         .iter()
-        .map(|variant| variant.gen_ident_matcher());
+        .map(|variant| variant.gen_matcher());
     let enum_ignored = parsed_variantes
         .iter()
         .find(|variant| variant.ignored)
-        .map(|variant| variant.text.as_ref().unwrap().as_str())
-        .unwrap_or("");
+        .map(|variant| variant.gen_str_list())
+        .unwrap_or(quote!{ &[] });
     let enum_variants = parsed_variantes
         .iter()
         .filter(|variant| !variant.ignored)
@@ -31,7 +31,7 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
 
     quote! {
         impl TokenTag for #enum_name {
-            fn as_str<'a, 'b>(&'a self) -> &'b str {
+            fn as_str_list<'a, 'b>(&'a self) -> &'a[&'b str] {
                 match self {
                     #( #enum_matcher_table, )*
                 }
@@ -41,7 +41,7 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
         impl CFLTokens for #enum_name {
             type Tag = Self;
 
-            fn ignore_token(&self) -> &'static str {
+            fn ignore_tokens(&self) -> &[&'static str] {
                 #enum_ignored
             }
 
@@ -56,7 +56,7 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
 struct VariantInfo<'a> {
     parent_ident: &'a Ident,
     self_ident: &'a Ident,
-    text: Option<String>,
+    texts: Vec<String>,
     ignored: bool,
 }
 
@@ -64,14 +64,14 @@ impl<'a> VariantInfo<'a> {
     fn parse(parent_ident: &'a Ident, variant: &'a Variant) -> VariantInfo<'a> {
         let self_ident = &variant.ident;
 
-        let mut text = None;
+        let mut texts = vec![];
         let mut ignored = false;
         for attr in &variant.attrs {
             let _ = attr.parse_nested_meta(|meta| {
                 // #[...(text = "...")]
                 if meta.path.is_ident("text") {
                     let raw_text = meta.value()?.parse::<LitStr>()?.value();
-                    text = Some(format!("^{}", raw_text));
+                    texts.push(raw_text);
                     return Ok(());
                 }
 
@@ -88,7 +88,7 @@ impl<'a> VariantInfo<'a> {
         VariantInfo {
             parent_ident,
             self_ident,
-            text,
+            texts,
             ignored,
         }
     }
@@ -100,11 +100,17 @@ impl<'a> VariantInfo<'a> {
         quote! { #parent_ident :: #self_ident }
     }
 
-    fn gen_ident_matcher(&self) -> TokenStream {
+    fn gen_str_list(&self) -> TokenStream {
+        let texts = self.texts.iter().map(|text| {
+            let text = LitStr::new(text, proc_macro2::Span::call_site());
+            quote! { #text }
+        });
+        quote! { &[ #( #texts, )* ] }
+    }
+
+    fn gen_matcher(&self) -> TokenStream {
         let ident = self.gen_ident();
-        match &self.text {
-            Some(text) => quote! { #ident => #text },
-            None => quote! { #ident => unimplemented!() },
-        }
+        let str_list = self.gen_str_list();
+        quote! { #ident => #str_list }
     }
 }

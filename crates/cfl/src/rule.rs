@@ -119,7 +119,7 @@ impl<T: TokenTag> Display for RuleElem<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             RuleElem::NonTerm(s) => write!(f, "<{}>", s),
-            RuleElem::Term(t) => write!(f, "{:?}", t.as_str()),
+            RuleElem::Term(t) => write!(f, "{:?}", t.as_str_list()),
             RuleElem::Epsilon => write!(f, "ε"),
             RuleElem::EOF => write!(f, "$"),
         }
