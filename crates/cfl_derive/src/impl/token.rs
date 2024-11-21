@@ -1,6 +1,8 @@
-use proc_macro2::TokenStream;
-use quote::quote;
-use syn::{Data, DeriveInput, Variant, Ident, LitStr};
+use core::panic;
+
+use proc_macro2::{TokenStream, TokenTree};
+use quote::{quote, ToTokens};
+use syn::{Data, DeriveInput, Ident, Variant};
 
 pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
     let data_enum = if let Data::Enum(data_enum) = ast.data {
@@ -16,34 +18,34 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
         .collect::<Vec<_>>();
 
     let enum_name = &ast.ident;
-    let enum_matcher_table = parsed_variantes
+    let enum_str_matcher_table = parsed_variantes
         .iter()
-        .map(|variant| variant.gen_matcher());
-    let enum_ignored = parsed_variantes
+        .map(|variant| variant.gen_str_matcher());
+    let enum_opts_matcher_table = parsed_variantes
         .iter()
-        .find(|variant| variant.ignored)
-        .map(|variant| variant.gen_str_list())
-        .unwrap_or(quote!{ &[] });
+        .map(|variant| variant.gen_option_matcher());
     let enum_variants = parsed_variantes
         .iter()
-        .filter(|variant| !variant.ignored)
+        // .filter(|variant| !variant.ignored)
         .map(|variant| variant.gen_ident());
 
     quote! {
         impl TokenTag for #enum_name {
             fn as_str_list<'a, 'b>(&'a self) -> &'a[&'b str] {
                 match self {
-                    #( #enum_matcher_table, )*
+                    #( #enum_str_matcher_table, )*
+                }
+            }
+
+            fn as_option_list<'a, 'b>(&'a self) -> &'a[&'b str] {
+                match self {
+                    #( #enum_opts_matcher_table, )*
                 }
             }
         }
 
         impl CFLTokens for #enum_name {
             type Tag = Self;
-
-            fn ignore_tokens(&self) -> &[&'static str] {
-                #enum_ignored
-            }
 
             fn iter(&self) -> impl Iterator<Item = Self::Tag> {
                 vec![ #( #enum_variants, )* ].into_iter()
@@ -56,8 +58,8 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
 struct VariantInfo<'a> {
     parent_ident: &'a Ident,
     self_ident: &'a Ident,
-    texts: Vec<String>,
-    ignored: bool,
+    texts: Vec<TokenStream>,
+    options: Vec<TokenStream>,
 }
 
 impl<'a> VariantInfo<'a> {
@@ -65,52 +67,41 @@ impl<'a> VariantInfo<'a> {
         let self_ident = &variant.ident;
 
         let mut texts = vec![];
-        let mut ignored = false;
-        for attr in &variant.attrs {
-            let _ = attr.parse_nested_meta(|meta| {
-                // #[...(text = "...")]
-                if meta.path.is_ident("text") {
-                    let raw_text = meta.value()?.parse::<LitStr>()?.value();
-                    texts.push(raw_text);
-                    return Ok(());
+        let mut options = vec![];
+        for attr in variant.attrs.iter().filter(|attr| attr.path().is_ident("token")) {
+            let meta_list = attr.meta.require_list().unwrap().tokens.clone();
+            for meta in meta_list.into_iter() {
+                match meta {
+                    TokenTree::Literal(lit) => texts.push(lit.to_token_stream()),
+                    TokenTree::Ident(ident) => options.push(ident.to_token_stream()),
+                    _ => {},
                 }
-
-                // #[...(ignord)]
-                if meta.path.is_ident("ignored") {
-                    ignored = true;
-                    return Ok(());
-                }
-
-                Err(meta.error("Unknown attribute"))
-            });
+            }
         }
 
         VariantInfo {
             parent_ident,
             self_ident,
             texts,
-            ignored,
+            options,
         }
     }
 
     fn gen_ident(&self) -> TokenStream {
         let parent_ident = self.parent_ident;
         let self_ident = self.self_ident;
-
         quote! { #parent_ident :: #self_ident }
     }
 
-    fn gen_str_list(&self) -> TokenStream {
-        let texts = self.texts.iter().map(|text| {
-            let text = LitStr::new(text, proc_macro2::Span::call_site());
-            quote! { #text }
-        });
-        quote! { &[ #( #texts, )* ] }
+    fn gen_str_matcher(&self) -> TokenStream {
+        let ident = self.gen_ident();
+        let str_list = &self.texts;
+        quote! { #ident => &[#(#str_list,)*] }
     }
 
-    fn gen_matcher(&self) -> TokenStream {
+    fn gen_option_matcher(&self) -> TokenStream {
         let ident = self.gen_ident();
-        let str_list = self.gen_str_list();
-        quote! { #ident => #str_list }
+        let opt_list = &self.options;
+        quote! { #ident => &[#(stringify!(#opt_list),)*] }
     }
 }

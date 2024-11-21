@@ -8,6 +8,7 @@ where
     Self: Debug + Copy + Clone + Hash + Eq,
 {
     fn as_str_list<'a, 'b>(&'a self) -> &'a[&'b str];
+    fn as_option_list<'a, 'b>(&'a self) -> &'a[&'b str] { &[] }
 }
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
