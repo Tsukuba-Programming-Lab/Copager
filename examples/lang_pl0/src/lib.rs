@@ -82,7 +82,7 @@ pub enum Pl0Token {
     Becomes,
 
     // 空白
-    #[token(r"[ \t\n\r]+", ignored)]
+    #[token(r"[ \t\n\r]+", trivia)]
     _Whitespace,
 }
 

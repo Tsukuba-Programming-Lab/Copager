@@ -27,6 +27,8 @@ enum TestToken {
     BracketR,
     #[token(r"[1-9][0-9]*")]
     Num,
+    #[token(r"[ \t\n]+", trivia)]
+    _Trivia,
 }
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
@@ -48,18 +50,18 @@ enum TestRule {
 type MyLexer = RegexLexer<TestLang>;
 
 #[test]
-fn simple_success() {
+fn with_trivia_success() {
     let cfl = TestLang::default();
     let lexer = <MyLexer as BaseLexer<TestLang>>::try_from(&cfl).unwrap();
-    let lexer = lexer.run("1+2*3");
+    let lexer = lexer.run("1 + 2 * 3");
     assert_eq_tokens(lexer, &["1", "+", "2", "*", "3"]);
 }
 
 #[test]
-fn simple_failed() {
+fn with_trivia_failed() {
     let cfl = TestLang::default();
     let lexer = <MyLexer as BaseLexer<TestLang>>::try_from(&cfl).unwrap();
-    let lexer = lexer.run("1+2*stop3");
+    let lexer = lexer.run("1 + 2 * stop 3");
     assert_eq_tokens(lexer, &["1", "+", "2", "*"]);
 }
 
