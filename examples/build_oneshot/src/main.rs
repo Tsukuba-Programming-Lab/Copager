@@ -15,21 +15,21 @@ struct ExprLang (
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
 enum ExprToken {
     #[default]
-    #[token(text = r"\+")]
+    #[token(r"\+")]
     Plus,
-    #[token(text = r"-")]
+    #[token(r"-")]
     Minus,
-    #[token(text = r"\*")]
+    #[token(r"\*")]
     Mul,
-    #[token(text = r"/")]
+    #[token(r"/")]
     Div,
-    #[token(text = r"\(")]
+    #[token(r"\(")]
     BracketL,
-    #[token(text = r"\)")]
+    #[token(r"\)")]
     BracketR,
-    #[token(text = r"[1-9][0-9]*")]
+    #[token(r"[1-9][0-9]*")]
     Num,
-    #[token(text = r"[ \t\n]+", ignored)]
+    #[token(r"[ \t\n]+", ignored)]
     _Whitespace,
 }
 

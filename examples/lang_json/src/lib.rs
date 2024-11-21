@@ -13,40 +13,40 @@ pub struct JsonLang (
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
 pub enum JsonToken {
     // 記号
-    #[token(text = r"\:")]
+    #[token(r"\:")]
     Colon,
-    #[token(text = r"\,")]
+    #[token(r"\,")]
     Comma,
 
     // キーワード
-    #[token(text = r"true")]
+    #[token(r"true")]
     True,
-    #[token(text = r"false")]
+    #[token(r"false")]
     False,
-    #[token(text = r"null")]
+    #[token(r"null")]
     Null,
 
     // 識別子 & 数値
-    #[token(text = r#""[a-zA-Z_][a-zA-Z0-9_]*""#)]
+    #[token(r#""[a-zA-Z_][a-zA-Z0-9_]*""#)]
     String,
-    #[token(text = r"\d+")]
+    #[token(r"\d+")]
     Number,
 
     // オブジェクト用括弧
     #[default]
-    #[token(text = r"\{")]
+    #[token(r"\{")]
     CurlyBracketL,
-    #[token(text = r"\}")]
+    #[token(r"\}")]
     CurlyBracketR,
 
     // 配列用括弧
-    #[token(text = r"\[")]
+    #[token(r"\[")]
     SquareBracketL,
-    #[token(text = r"\]")]
+    #[token(r"\]")]
     SquareBracketR,
 
     // 空白文字
-    #[token(text = r"[ \t\n]+", ignored)]
+    #[token(r"[ \t\n]+", ignored)]
     _Whitespace,
 }
 

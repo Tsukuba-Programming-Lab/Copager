@@ -14,75 +14,75 @@ pub struct Pl0Lang (
 pub enum Pl0Token {
     // キーワード
     #[default]
-    #[token(text = r"(const|CONST)")]
+    #[token(r"const", r"CONST")]
     Const,
-    #[token(text = r"(var|VAR)")]
+    #[token(r"var", r"VAR")]
     Var,
-    #[token(text = r"(procedure|PROCEDURE)")]
+    #[token(r"procedure", r"PROCEDURE")]
     Procedure,
-    #[token(text = r"(call|CALL)")]
+    #[token(r"call", r"CALL")]
     Call,
-    #[token(text = r"(begin|BEGIN)")]
+    #[token(r"begin", r"BEGIN")]
     Begin,
-    #[token(text = r"(end|END)")]
+    #[token(r"end", r"END")]
     End,
-    #[token(text = r"(if|IF)")]
+    #[token(r"if", r"IF")]
     If,
-    #[token(text = r"(then|THEN)")]
+    #[token(r"then", r"THEN")]
     Then,
-    #[token(text = r"(while|WHILE)")]
+    #[token(r"while", r"WHILE")]
     While,
-    #[token(text = r"(do|DO)")]
+    #[token(r"do", r"DO")]
     Do,
-    #[token(text = r"(odd|ODD)")]
+    #[token(r"odd", r"ODD")]
     Odd,
-    #[token(text = r"(write|WRITE)")]
+    #[token(r"write", r"WRITE")]
     Write,
-    #[token(text = r"(read|READ)")]
+    #[token(r"read", r"READ")]
     Read,
 
     // 識別子と数値
-    #[token(text = r"[a-zA-Z_][a-zA-Z0-9_]*")]
+    #[token(r"[a-zA-Z_][a-zA-Z0-9_]*")]
     Ident,
-    #[token(text = r"\d+")]
+    #[token(r"\d+")]
     Number,
 
     // 演算子と記号
-    #[token(text = r"\+")]
+    #[token(r"\+")]
     Plus,
-    #[token(text = r"-")]
+    #[token(r"-")]
     Minus,
-    #[token(text = r"\*")]
+    #[token(r"\*")]
     Times,
-    #[token(text = r"/")]
+    #[token(r"/")]
     Slash,
-    #[token(text = r"=")]
+    #[token(r"=")]
     Eql,
-    #[token(text = r"#")]
+    #[token(r"#")]
     Neq,
-    #[token(text = r"<=")]
+    #[token(r"<=")]
     Leq,
-    #[token(text = r"<")]
+    #[token(r"<")]
     Lss,
-    #[token(text = r">=")]
+    #[token(r">=")]
     Geq,
-    #[token(text = r">")]
+    #[token(r">")]
     Gtr,
-    #[token(text = r"\(")]
+    #[token(r"\(")]
     ParenL,
-    #[token(text = r"\)")]
+    #[token(r"\)")]
     ParenR,
-    #[token(text = r",")]
+    #[token(r",")]
     Comma,
-    #[token(text = r"\.")]
+    #[token(r"\.")]
     Period,
-    #[token(text = r";")]
+    #[token(r";")]
     Semicolon,
-    #[token(text = r":=")]
+    #[token(r":=")]
     Becomes,
 
     // 空白
-    #[token(text = r"[ \t\n\r]+", ignored)]
+    #[token(r"[ \t\n\r]+", ignored)]
     _Whitespace,
 }
 
