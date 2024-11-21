@@ -1,6 +1,6 @@
 use std::fmt::{Debug, Display};
 
-use copager_cfl::token::Token;
+use copager_cfl::token::{Token, TokenTag};
 use copager_cfl::{CFLTokens, CFLRules};
 use copager_ir::{IR, IRBuilder};
 
@@ -74,6 +74,13 @@ where
 
     fn on_parse(&mut self, rule: Rs::Tag, len: usize) -> anyhow::Result<()> {
         let elems = self.stack.split_off(self.stack.len() - len);
+        let elems = elems
+            .into_iter()
+            .filter(|elem| match elem {
+                SExp::Atom(token) => !token.kind.as_option_list().contains(&"ir_omit"),
+                _ => true,
+            })
+            .collect();
         self.stack.push(SExp::List { rule, elems });
         Ok(())
     }

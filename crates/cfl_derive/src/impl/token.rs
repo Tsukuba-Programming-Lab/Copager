@@ -26,7 +26,6 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
         .map(|variant| variant.gen_option_matcher());
     let enum_variants = parsed_variantes
         .iter()
-        // .filter(|variant| !variant.ignored)
         .map(|variant| variant.gen_ident());
 
     quote! {

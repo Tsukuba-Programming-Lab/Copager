@@ -16,7 +16,7 @@ enum MyToken {
 
 
 #[test]
-fn check_compile_tokens_with_ignored() {
+fn check_compile_tokens_with_trivia() {
     // CFLTokens
     let mytoken = MyToken::default();
     assert_eq!(mytoken.iter().count(), 4);
@@ -29,5 +29,5 @@ fn check_compile_tokens_with_ignored() {
     assert_eq!(MyToken::Number.as_str_list(), &[r"[1-9]+"]);
     assert_eq!(MyToken::Number.as_option_list().len(), 0);
     assert_eq!(MyToken::_WhiteSpace.as_str_list(), &[r"[ \t\n]+"]);
-    assert_eq!(MyToken::_WhiteSpace.as_option_list(), &["ignored"]);
+    assert_eq!(MyToken::_WhiteSpace.as_option_list(), &["trivia"]);
 }

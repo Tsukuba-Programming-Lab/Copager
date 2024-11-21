@@ -23,9 +23,9 @@ enum ExprToken {
     Mul,
     #[token(r"/")]
     Div,
-    #[token(r"\(")]
+    #[token(r"\(", ir_omit)]
     BracketL,
-    #[token(r"\)")]
+    #[token(r"\)", ir_omit)]
     BracketR,
     #[token(r"[1-9][0-9]*")]
     Num,
@@ -58,6 +58,10 @@ fn simple_display() {
     let ir = parse("1 + 1");
     assert!(ir.is_ok());
     assert_eq!(ir.unwrap().to_string(), r#"(Expr (Expr (Term (Num "1"))) "+" (Term (Num "1")))"#);
+
+    let ir = parse("(1 + 1) * 1");
+    assert!(ir.is_ok());
+    assert_eq!(ir.unwrap().to_string(), r#"(Expr (Term (Term (Num (Expr (Expr (Term (Num "1"))) "+" (Term (Num "1"))))) "*" (Num "1")))"#);
 }
 
 #[test]

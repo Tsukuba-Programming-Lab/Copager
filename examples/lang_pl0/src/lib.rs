@@ -14,31 +14,31 @@ pub struct Pl0Lang (
 pub enum Pl0Token {
     // キーワード
     #[default]
-    #[token(r"const", r"CONST")]
+    #[token(r"const", r"CONST", ir_omit)]
     Const,
-    #[token(r"var", r"VAR")]
+    #[token(r"var", r"VAR", ir_omit)]
     Var,
-    #[token(r"procedure", r"PROCEDURE")]
+    #[token(r"procedure", r"PROCEDURE", ir_omit)]
     Procedure,
-    #[token(r"call", r"CALL")]
+    #[token(r"call", r"CALL", ir_omit)]
     Call,
-    #[token(r"begin", r"BEGIN")]
+    #[token(r"begin", r"BEGIN", ir_omit)]
     Begin,
-    #[token(r"end", r"END")]
+    #[token(r"end", r"END", ir_omit)]
     End,
-    #[token(r"if", r"IF")]
+    #[token(r"if", r"IF", ir_omit)]
     If,
-    #[token(r"then", r"THEN")]
+    #[token(r"then", r"THEN", ir_omit)]
     Then,
-    #[token(r"while", r"WHILE")]
+    #[token(r"while", r"WHILE", ir_omit)]
     While,
-    #[token(r"do", r"DO")]
+    #[token(r"do", r"DO", ir_omit)]
     Do,
-    #[token(r"odd", r"ODD")]
+    #[token(r"odd", r"ODD", ir_omit)]
     Odd,
-    #[token(r"write", r"WRITE")]
+    #[token(r"write", r"WRITE", ir_omit)]
     Write,
-    #[token(r"read", r"READ")]
+    #[token(r"read", r"READ", ir_omit)]
     Read,
 
     // 識別子と数値
@@ -68,17 +68,17 @@ pub enum Pl0Token {
     Geq,
     #[token(r">")]
     Gtr,
-    #[token(r"\(")]
+    #[token(r"\(", ir_omit)]
     ParenL,
-    #[token(r"\)")]
+    #[token(r"\)", ir_omit)]
     ParenR,
-    #[token(r",")]
+    #[token(r",", ir_omit)]
     Comma,
-    #[token(r"\.")]
+    #[token(r"\.", ir_omit)]
     Period,
-    #[token(r";")]
+    #[token(r";", ir_omit)]
     Semicolon,
-    #[token(r":=")]
+    #[token(r":=", ir_omit)]
     Becomes,
 
     // 空白
