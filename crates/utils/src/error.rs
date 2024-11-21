@@ -64,7 +64,7 @@ impl PrettyError {
         let mut sum = 0;
         let (mut rows, mut cols) = (1, 1);
         for c in token.src.chars() {
-            if token.range.0 <= sum {
+            if token.body.0 <= sum {
                 break;
             }
             sum += c.len_utf8();

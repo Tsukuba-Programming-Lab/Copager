@@ -1,4 +1,4 @@
-use copager_cfl::token::{TokenTag, Token};
+use copager_cfl::token::TokenTag;
 use copager_cfl::rule::{Rule, RuleTag, RuleElem};
 use copager_cfl::{CFL, CFLTokens, CFLRules};
 use copager_lex::BaseLexer;
@@ -27,6 +27,9 @@ enum TestToken {
     BracketR,
     #[token(r"[1-9][0-9]*")]
     Num,
+    #[token(r"^( |\t|\n|(//(.*)\n))*", pre_trivia)]
+    #[token(r"^( |\t|)*(//(.*)\n)", post_trivia)]
+    _Trivia,
 }
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
@@ -48,32 +51,21 @@ enum TestRule {
 type MyLexer = RegexLexer<TestLang>;
 
 #[test]
-fn simple_success() {
+fn with_pp_trivia_success() {
+    const TEST_INPUT: &str = "
+    // This is a comment
+    // This is another comment
+    1 + 2 * 3 // This is a comment
+    ";
+
     let cfl = TestLang::default();
     let lexer = <MyLexer as BaseLexer<TestLang>>::try_from(&cfl).unwrap();
-    let lexer = lexer.run("1+2*3");
-    assert_eq_tokens(lexer, &["1", "+", "2", "*", "3"]);
-}
-
-#[test]
-fn simple_failed() {
-    let cfl = TestLang::default();
-    let lexer = <MyLexer as BaseLexer<TestLang>>::try_from(&cfl).unwrap();
-    let lexer = lexer.run("1+2*stop3");
-    assert_eq_tokens(lexer, &["1", "+", "2", "*"]);
-}
-
-fn assert_eq_tokens<'a, T, Il>(mut lexer: Il, expected: &[&str])
-where
-    T: TokenTag,
-    Il: Iterator<Item = Token<'a, T>>,
-{
-    for expected_elem in expected {
-        let token = lexer.next();
-        match token {
-            Some(token) => assert_eq!(&token.as_str(), expected_elem),
-            None => panic!("unexpected eof"),
-        }
-    }
-    assert!(lexer.next().is_none());
+    let lexed_tokens = lexer
+        .run(TEST_INPUT)
+        .collect::<Vec<_>>();
+    let restored_input = lexed_tokens
+        .into_iter()
+        .map(|token| token.as_full_str())
+        .collect::<String>();
+    assert_eq!(restored_input, TEST_INPUT);
 }
