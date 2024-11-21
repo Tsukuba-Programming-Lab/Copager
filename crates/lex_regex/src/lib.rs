@@ -25,7 +25,10 @@ impl<Lang: CFL> BaseLexer<Lang> for RegexLexer<Lang> {
 
         // トークンに対応する正規表現集合の準備
         let regex_set = tokens.iter()
-            .filter(|token| token.as_option_list().is_empty())
+            .filter(|token| {
+                let opts = token.as_option_list();
+                !opts.contains(&"pre_trivia") && !opts.contains(&"trivia") && !opts.contains(&"post_trivia")
+            })
             .map(|token| to_or_regex(token.as_str_list()))
             .collect::<Vec<_>>();
         let regex_set = RegexSet::new(regex_set)?;
