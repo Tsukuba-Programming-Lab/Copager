@@ -14,31 +14,31 @@ pub struct Pl0Lang (
 pub enum Pl0Token {
     // キーワード
     #[default]
-    #[token(r"const", r"CONST")]
+    #[token(r"const", r"CONST", ignore)]
     Const,
-    #[token(r"var", r"VAR")]
+    #[token(r"var", r"VAR", ignore)]
     Var,
-    #[token(r"procedure", r"PROCEDURE")]
+    #[token(r"procedure", r"PROCEDURE", ignore)]
     Procedure,
-    #[token(r"call", r"CALL")]
+    #[token(r"call", r"CALL", ignore)]
     Call,
-    #[token(r"begin", r"BEGIN")]
+    #[token(r"begin", r"BEGIN", ignore)]
     Begin,
-    #[token(r"end", r"END")]
+    #[token(r"end", r"END", ignore)]
     End,
-    #[token(r"if", r"IF")]
+    #[token(r"if", r"IF", ignore)]
     If,
-    #[token(r"then", r"THEN")]
+    #[token(r"then", r"THEN", ignore)]
     Then,
-    #[token(r"while", r"WHILE")]
+    #[token(r"while", r"WHILE", ignore)]
     While,
-    #[token(r"do", r"DO")]
+    #[token(r"do", r"DO", ignore)]
     Do,
-    #[token(r"odd", r"ODD")]
+    #[token(r"odd", r"ODD", ignore)]
     Odd,
-    #[token(r"write", r"WRITE")]
+    #[token(r"write", r"WRITE", ignore)]
     Write,
-    #[token(r"read", r"READ")]
+    #[token(r"read", r"READ", ignore)]
     Read,
 
     // 識別子と数値
@@ -68,17 +68,17 @@ pub enum Pl0Token {
     Geq,
     #[token(r">")]
     Gtr,
-    #[token(r"\(")]
+    #[token(r"\(", ignore)]
     ParenL,
-    #[token(r"\)")]
+    #[token(r"\)", ignore)]
     ParenR,
-    #[token(r",")]
+    #[token(r",", ignore)]
     Comma,
-    #[token(r"\.")]
+    #[token(r"\.", ignore)]
     Period,
-    #[token(r";")]
+    #[token(r";", ignore)]
     Semicolon,
-    #[token(r":=")]
+    #[token(r":=", ignore)]
     Becomes,
 
     // 空白

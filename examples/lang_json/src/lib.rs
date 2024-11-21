@@ -13,9 +13,9 @@ pub struct JsonLang (
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
 pub enum JsonToken {
     // 記号
-    #[token(r"\:")]
+    #[token(r"\:", ignore)]
     Colon,
-    #[token(r"\,")]
+    #[token(r"\,", ignore)]
     Comma,
 
     // キーワード
@@ -34,15 +34,15 @@ pub enum JsonToken {
 
     // オブジェクト用括弧
     #[default]
-    #[token(r"\{")]
+    #[token(r"\{", ignore)]
     CurlyBracketL,
-    #[token(r"\}")]
+    #[token(r"\}", ignore)]
     CurlyBracketR,
 
     // 配列用括弧
-    #[token(r"\[")]
+    #[token(r"\[", ignore)]
     SquareBracketL,
-    #[token(r"\]")]
+    #[token(r"\]", ignore)]
     SquareBracketR,
 
     // 空白文字

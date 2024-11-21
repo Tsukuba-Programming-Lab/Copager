@@ -14,13 +14,13 @@ pub struct XmlLang (
 pub enum XmlToken {
     // 記号
     #[default]
-    #[token(r"<")]
+    #[token(r"<", ignore)]
     TagL,
-    #[token(r">")]
+    #[token(r">", ignore)]
     TagR,
-    #[token(r"/")]
+    #[token(r"/", ignore)]
     Slash,
-    #[token(r"=")]
+    #[token(r"=", ignore)]
     Equal,
 
     // 文字列 & 識別子
