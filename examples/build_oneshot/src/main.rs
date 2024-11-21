@@ -29,7 +29,7 @@ enum ExprToken {
     BracketR,
     #[token(r"[1-9][0-9]*")]
     Num,
-    #[token(r"[ \t\n]+", ignored)]
+    #[token(r"[ \t\n]+", trivia)]
     _Whitespace,
 }
 

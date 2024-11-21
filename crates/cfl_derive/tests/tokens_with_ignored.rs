@@ -10,7 +10,7 @@ enum MyToken {
     Minus,
     #[token(r"[1-9]+")]
     Number,
-    #[token(r"[ \t\n]+", ignored)]
+    #[token(r"[ \t\n]+", trivia)]
     _WhiteSpace,
 }
 

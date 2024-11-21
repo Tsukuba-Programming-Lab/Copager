@@ -46,7 +46,7 @@ pub enum JsonToken {
     SquareBracketR,
 
     // 空白文字
-    #[token(r"[ \t\n]+", ignored)]
+    #[token(r"[ \t\n]+", trivia)]
     _Whitespace,
 }
 
