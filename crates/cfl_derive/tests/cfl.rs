@@ -11,7 +11,7 @@ struct MyLanguage (
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
 enum MyToken {
     #[default]
-    #[token(text = r"a")]
+    #[token(r"a")]
     A,
 }
 

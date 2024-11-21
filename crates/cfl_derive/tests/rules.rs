@@ -4,11 +4,11 @@ use copager_cfl::{CFLTokens, CFLRules};
 
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
 enum MyToken {
-    #[token(text = r"\+")]
+    #[token(r"\+")]
     Plus,
-    #[token(text = r"\-")]
+    #[token(r"\-")]
     Minus,
-    #[token(text = r"[1-9]+")]
+    #[token(r"[1-9]+")]
     Number,
 }
 

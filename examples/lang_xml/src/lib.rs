@@ -14,25 +14,25 @@ pub struct XmlLang (
 pub enum XmlToken {
     // 記号
     #[default]
-    #[token(text = r"<")]
+    #[token(r"<")]
     TagL,
-    #[token(text = r">")]
+    #[token(r">")]
     TagR,
-    #[token(text = r"/")]
+    #[token(r"/")]
     Slash,
-    #[token(text = r"=")]
+    #[token(r"=")]
     Equal,
 
     // 文字列 & 識別子
-    #[token(text = r"[a-zA-Z_][a-zA-Z0-9_]*")]
+    #[token(r"[a-zA-Z_][a-zA-Z0-9_]*")]
     String,
-    #[token(text = r"'[a-zA-Z_][a-zA-Z0-9_]*'")]
+    #[token(r"'[a-zA-Z_][a-zA-Z0-9_]*'")]
     QuotedString,
-    #[token(text = r#""[a-zA-Z_][a-zA-Z0-9_]*""#)]
+    #[token(r#""[a-zA-Z_][a-zA-Z0-9_]*""#)]
     WQuotedString,
 
     // 空白文字
-    #[token(text = r"[ \t\n]+", ignored)]
+    #[token(r"[ \t\n]+", ignored)]
     _Whitespace,
 }
 

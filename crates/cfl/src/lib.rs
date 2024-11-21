@@ -20,7 +20,6 @@ pub trait CFL {
 pub trait CFLTokens {
     type Tag: TokenTag;
 
-    fn ignore_token(&self) -> &str;
     fn iter(&self) -> impl Iterator<Item = Self::Tag>;
 }
 

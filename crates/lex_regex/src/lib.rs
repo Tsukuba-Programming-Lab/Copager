@@ -17,13 +17,19 @@ impl<Lang: CFL> BaseLexer<Lang> for RegexLexer<Lang> {
     fn try_from(cfl: &Lang) -> anyhow::Result<Self> {
         let tokens = cfl.instantiate_tokens();
 
-        let regex_istr = Regex::new(tokens.ignore_token())?;
+        let ignore_tokens = tokens.iter()
+            .filter(|token| token.as_option_list().contains(&"ignored"))
+            .map(|token| to_or_regex(token.as_str_list()))
+            .collect::<Vec<_>>();
+        let regex_istr = Regex::new(&to_or_regex(&ignore_tokens))?;
+
         let regex_set = tokens.iter()
-            .map(|token| token.as_str())
+            .map(|token| to_or_regex(token.as_str_list()))
             .collect::<Vec<_>>();
         let regex_set = RegexSet::new(regex_set)?;
+
         let regex_map = tokens.iter()
-            .map(|token| Ok((Regex::new(token.as_str())?, token)))
+            .map(|token| Ok((Regex::new(&to_or_regex(token.as_str_list()))?, token)))
             .collect::<anyhow::Result<Vec<_>>>()?;
 
         Ok(RegexLexer {
@@ -65,4 +71,12 @@ impl<Lang: CFL> BaseLexer<Lang> for RegexLexer<Lang> {
             yield Token::new(token, &input, range);
         }
     }
+}
+
+fn to_or_regex<T: AsRef<str>>(str_list: &[T]) -> String {
+    let str_list = str_list.iter()
+        .map(|s| s.as_ref())
+        .collect::<Vec<_>>()
+        .join("|");
+    format!("^({})", str_list)
 }

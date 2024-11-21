@@ -139,9 +139,9 @@ mod test {
 
     #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
     enum TestToken {
-        #[token(text = r"a")]
+        #[token(r"a")]
         A,
-        #[token(text = r"b")]
+        #[token(r"b")]
         B,
     }
 
