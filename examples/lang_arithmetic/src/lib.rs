@@ -21,9 +21,9 @@ pub enum ArithmeticToken {
     Mul,
     #[token(r"/")]
     Div,
-    #[token(r"\(", ignore)]
+    #[token(r"\(", ir_omit)]
     BracketL,
-    #[token(r"\)", ignore)]
+    #[token(r"\)", ir_omit)]
     BracketR,
     #[token(r"[1-9][0-9]*")]
     Num,

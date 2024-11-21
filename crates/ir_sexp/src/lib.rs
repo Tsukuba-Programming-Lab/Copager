@@ -77,7 +77,7 @@ where
         let elems = elems
             .into_iter()
             .filter(|elem| match elem {
-                SExp::Atom(token) => !token.kind.as_option_list().contains(&"ignore"),
+                SExp::Atom(token) => !token.kind.as_option_list().contains(&"ir_omit"),
                 _ => true,
             })
             .collect();
