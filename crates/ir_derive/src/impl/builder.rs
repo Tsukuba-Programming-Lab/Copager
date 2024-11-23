@@ -3,11 +3,12 @@ use quote::quote;
 use syn::{DeriveInput, Ident};
 
 pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
+    let vis = &ast.vis;
     let ident = &ast.ident;
     let ident_builder = Ident::new(&format!("{}Builder", ident), ident.span());
 
     quote! {
-        struct #ident_builder<'input, Ts, Rs>
+        #vis struct #ident_builder<'input, Ts, Rs>
         where
             Ts: CFLTokens + 'input,
             Rs: CFLRules<Ts::Tag>,
