@@ -8,33 +8,25 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
     let ident_builder = Ident::new(&format!("{}Builder", ident), ident.span());
 
     quote! {
-        #vis struct #ident_builder<'input, Ts, Rs>
-        where
-            Ts: CFLTokens + 'input,
-            Rs: CFLRules<Ts::Tag>,
-        {
-            stack: Vec<RawIR<'input, Ts, Rs>>,
+        #vis struct #ident_builder<'input, Lang: CFL> {
+            stack: Vec<RawIR<'input, Lang>>,
         }
 
-        impl <'input, Ts, Rs> IRBuilder<'input, Ts, Rs> for #ident_builder<'input, Ts, Rs>
-        where
-            Ts: CFLTokens + 'input,
-            Rs: CFLRules<Ts::Tag>,
-        {
-            type Output = #ident<'input, Ts, Rs>;
+        impl <'input, Lang: CFL> IRBuilder<'input, Lang> for #ident_builder<'input, Lang> {
+            type Output = #ident<'input, Lang>;
 
-            fn new() -> #ident_builder<'input, Ts, Rs> {
+            fn new() -> #ident_builder<'input, Lang> {
                 #ident_builder {
                     stack: Vec::new(),
                 }
             }
 
-            fn on_read(&mut self, token: Token<'input, Ts::Tag>) -> anyhow::Result<()> {
+            fn on_read(&mut self, token: Token<'input, Lang::TokenTag>) -> anyhow::Result<()> {
                 self.stack.push(RawIR::Atom(token));
                 Ok(())
             }
 
-            fn on_parse(&mut self, rule: Rs::Tag, len: usize) -> anyhow::Result<()> {
+            fn on_parse(&mut self, rule: Lang::RuleTag, len: usize) -> anyhow::Result<()> {
                 let elems = self.stack.split_off(self.stack.len() - len);
                 let elems = elems
                     .into_iter()
@@ -49,7 +41,7 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
 
             fn build(mut self) -> anyhow::Result<Self::Output>
             where
-                Self::Output: From<RawIR<'input, Ts, Rs>>,
+                Self::Output: From<RawIR<'input, Lang>>,
             {
                 assert!(self.stack.len() == 1);
                 Ok(Self::Output::from(self.stack.pop().unwrap()))

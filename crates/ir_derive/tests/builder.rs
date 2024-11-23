@@ -52,24 +52,16 @@ enum TestRule {
 }
 
 #[derive(Debug, IR, IRBuilder)]
-struct TestIR<'input, Ts, Rs>
-where
-    Ts: CFLTokens + 'input,
-    Rs: CFLRules<Ts::Tag>,
-{
-    _phantom_ts: PhantomData<&'input Ts>,
-    _phantom_rs: PhantomData<Rs>,
+struct TestIR<'input, Lang: CFL> {
+    _phantom_input: PhantomData<&'input ()>,
+    _phantom_lang: PhantomData<Lang>,
 }
 
-impl<'input, Ts, Rs> From<RawIR<'input, Ts, Rs>> for TestIR<'input, Ts, Rs>
-where
-    Ts: CFLTokens,
-    Rs: CFLRules<Ts::Tag>,
-{
-    fn from(_: RawIR<'input, Ts, Rs>) -> Self {
+impl<'input, Lang: CFL> From<RawIR<'input, Lang>> for TestIR<'input, Lang> {
+    fn from(_: RawIR<'input, Lang>) -> Self {
         Self {
-            _phantom_ts: PhantomData,
-            _phantom_rs: PhantomData,
+            _phantom_input: PhantomData,
+            _phantom_lang: PhantomData,
         }
     }
 }
@@ -82,6 +74,6 @@ fn check_compile_builder() {
     TestProcessor::new()
         .build()
         .unwrap()
-        .process::<TestIR<_, _>>("(10 + 20) * 30")
+        .process::<TestIR<_>>("(10 + 20) * 30")
         .unwrap();
 }

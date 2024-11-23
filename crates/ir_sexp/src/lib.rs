@@ -1,28 +1,22 @@
 use std::fmt::{Debug, Display};
 
 use copager_cfl::token::{Token, TokenTag};
-use copager_cfl::{CFLTokens, CFLRules};
+use copager_cfl::CFL;
 use copager_ir::{IR, IRBuilder, RawIR};
 
 #[derive(Debug, IR, IRBuilder)]
-pub enum SExp<'input, Ts, Rs>
-where
-    Ts: CFLTokens + 'input,
-    Rs: CFLRules<Ts::Tag>,
-{
-    Atom(Token<'input, Ts::Tag>),
+pub enum SExp<'input, Lang: CFL> {
+    Atom(Token<'input, Lang::TokenTag>),
     List {
-        rule: Rs::Tag,
-        elems: Vec<SExp<'input, Ts, Rs>>,
+        rule: Lang::RuleTag,
+        elems: Vec<SExp<'input, Lang>>,
     },
 }
 
-impl<Ts, Rs> Display for SExp<'_, Ts, Rs>
+impl<Lang: CFL> Display for SExp<'_, Lang>
 where
-    Ts: CFLTokens,
-    Rs: CFLRules<Ts::Tag>,
-    Rs::Tag: Debug,
-    Ts::Tag: Debug,
+    Lang::TokenTag: Debug,
+    Lang::RuleTag: Debug,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -38,12 +32,8 @@ where
     }
 }
 
-impl<'input, Ts, Rs> From<RawIR<'input, Ts, Rs>> for SExp<'input, Ts, Rs>
-where
-    Ts: CFLTokens,
-    Rs: CFLRules<Ts::Tag>,
-{
-    fn from(raw: RawIR<'input, Ts, Rs>) -> Self {
+impl<'input, Lang: CFL> From<RawIR<'input, Lang>> for SExp<'input, Lang> {
+    fn from(raw: RawIR<'input, Lang>) -> Self {
         match raw {
             RawIR::Atom(token) => SExp::Atom(token),
             RawIR::List { rule, elems } => SExp::List {

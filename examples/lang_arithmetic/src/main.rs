@@ -15,7 +15,7 @@ fn main() -> anyhow::Result<()> {
 
     let sexp = Processor::<Arithmetic>::new()
         .build()?
-        .process::<SExp<_, _>>(&input)?;
+        .process::<SExp<_>>(&input)?;
     println!("Success: {}", sexp);
 
     Ok(())
