@@ -21,7 +21,9 @@ copager_parse_lr_slr1 = { path = "./crates/parse_lr_slr1", optional = true }
 copager_parse_lr_lalr1 = { path = "./crates/parse_lr_lalr1", optional = true }
 copager_ir = { path = "./crates/ir" }
 copager_ir_void = { path = "./crates/ir_void", optional = true }
+copager_ir_json = { path = "./crates/ir_json", optional = true }
 copager_ir_sexp = { path = "./crates/ir_sexp", optional = true }
+copager_ir_xml = { path = "./crates/ir_xml", optional = true }
 
 [dev-dependencies]
 anyhow = { workspace = true }
@@ -39,7 +41,7 @@ all = [
     "derive", "prebuild", "template", "dev",  # common
     "regexlex",                               # lex
     "lr0", "lr1", "slr1", "lalr1",            # parse
-    "void", "sexp"                            # ir
+    "void", "json", "sexp", "xml",            # ir
 ]
 
 # common
@@ -60,7 +62,9 @@ lalr1 = ["dep:copager_parse_lr_lalr1"]
 
 # ir
 void = ["dep:copager_ir_void"]
+json = ["dep:copager_ir_json"]
 sexp = ["dep:copager_ir_sexp"]
+xml = ["dep:copager_ir_xml"]
 
 [workspace]
 resolver = "2"
