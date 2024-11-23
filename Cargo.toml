@@ -82,6 +82,7 @@ members = [
     "./crates/ir",
     "./crates/ir_derive",
     "./crates/ir_void",
+    "./crates/ir_json",
     "./crates/ir_sexp",
     "./crates/utils",
 

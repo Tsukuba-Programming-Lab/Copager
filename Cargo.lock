@@ -127,6 +127,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "copager_ir_json"
+version = "0.3.0"
+dependencies = [
+ "anyhow",
+ "copager_cfl",
+ "copager_core",
+ "copager_ir",
+ "copager_ir_json",
+ "copager_lex",
+ "copager_lex_regex",
+ "copager_parse",
+ "copager_parse_lr_lr1",
+ "thiserror",
+]
+
+[[package]]
 name = "copager_ir_sexp"
 version = "0.3.0"
 dependencies = [
