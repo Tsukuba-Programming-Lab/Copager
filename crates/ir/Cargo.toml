@@ -9,3 +9,8 @@ thiserror = { workspace = true }
 copager_cfl = { path = "../cfl" }
 copager_lex = { path = "../lex" }
 copager_parse = { path = "../parse" }
+copager_ir_derive = { path = "../ir_derive", optional = true }
+
+[features]
+default = []
+derive = ["dep:copager_ir_derive"]
