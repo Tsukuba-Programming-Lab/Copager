@@ -26,8 +26,12 @@ pub mod ir {
     pub use copager_ir::*;
     #[cfg(feature = "void")]
     pub use copager_ir_void::*;
+    #[cfg(feature = "json")]
+    pub use copager_ir_json::*;
     #[cfg(feature = "sexp")]
     pub use copager_ir_sexp::*;
+    #[cfg(feature = "xml")]
+    pub use copager_ir_xml::*;
 }
 
 pub mod prelude {

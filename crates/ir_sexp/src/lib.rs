@@ -6,7 +6,7 @@ use copager_ir::{IR, IRBuilder, RawIR};
 
 #[derive(Debug, IR, IRBuilder)]
 pub enum SExp<'input, Lang: CFL> {
-    Atom(Token<'input, Lang::TokenTag>),
+    Atom(&'input str),
     List {
         rule: Lang::RuleTag,
         elems: Vec<SExp<'input, Lang>>,
@@ -27,7 +27,7 @@ where
                 }
                 write!(f, ")")
             }
-            SExp::Atom(token) => write!(f, "{:?}", token.as_str()),
+            SExp::Atom(s) => write!(f, "{:?}", s),
         }
     }
 }
@@ -35,7 +35,7 @@ where
 impl<'input, Lang: CFL> From<RawIR<'input, Lang>> for SExp<'input, Lang> {
     fn from(raw: RawIR<'input, Lang>) -> Self {
         match raw {
-            RawIR::Atom(token) => SExp::Atom(token),
+            RawIR::Atom(token) => SExp::Atom(token.as_str()),
             RawIR::List { rule, elems } => SExp::List {
                 rule,
                 elems: elems.into_iter().map(SExp::from).collect(),
