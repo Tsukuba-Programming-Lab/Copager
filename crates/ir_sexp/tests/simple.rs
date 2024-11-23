@@ -72,16 +72,16 @@ fn simple_eval() {
     assert_eq!(eval(&parse("(1 + 2) * 3").unwrap()), 9);
 }
 
-fn parse<'input>(input: &'input str) -> anyhow::Result<SExp<'input, ExprToken, ExprRule>> {
+fn parse<'input>(input: &'input str) -> anyhow::Result<SExp<'input, ExprLang>> {
     type TestGenerator<T> = Generator<T, RegexLexer<T>, LR1<T>>;
     type TestProcessor = Processor<TestGenerator<ExprLang>>;
 
     TestProcessor::new()
         .build()?
-        .process::<SExp<_, _>>(input)
+        .process::<SExp<_>>(input)
 }
 
-fn eval(ir: &SExp<'static, ExprToken, ExprRule>) -> i32 {
+fn eval(ir: &SExp<'static, ExprLang>) -> i32 {
     macro_rules! match_atom {
         ($term:expr, $($kind:pat => $block:expr),* $(,)?) => {
             match $term {

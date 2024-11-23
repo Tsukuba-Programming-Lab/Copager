@@ -19,7 +19,7 @@ fn main(processor: MyProcessor) -> anyhow::Result<()> {
     let sexp = processor
         .build_lexer()?
         .restore_parser_by_cache()
-        .process::<SExp<_, _>>(&input)?;
+        .process::<SExp<_>>(&input)?;
     println!("Success: {}", sexp);
 
     Ok(())

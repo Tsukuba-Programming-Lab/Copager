@@ -4,7 +4,6 @@ use serde::{Serialize, Deserialize};
 use serde_cbor::ser::to_vec_packed;
 use serde_cbor::de::from_slice;
 
-use copager_cfl::CFL;
 use copager_lex::BaseLexer;
 use copager_parse::{BaseParser, ParseEvent};
 use copager_ir::{IR, IRBuilder};
@@ -81,7 +80,7 @@ impl<Gen: GeneratorDesign> Processor<Gen> {
 
     pub fn process<'input, I>(&self, input: &'input str) -> anyhow::Result<I>
     where
-        I: IR<'input, <Gen::Lang as CFL>::Tokens, <Gen::Lang as CFL>::Rules>,
+        I: IR<'input, Gen::Lang>,
     {
         let lexer = self.lexer.as_ref().unwrap();
         let parser = self.parser.as_ref().unwrap();

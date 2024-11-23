@@ -59,7 +59,7 @@ fn main() -> anyhow::Result<()> {
 
     let sexp = Processor::<LALR1<ExprLang>>::new()
         .build()?
-        .process::<SExp<_, _>>(&input)?;
+        .process::<SExp<_>>(&input)?;
     println!("Success: {}", sexp);
 
     Ok(())
