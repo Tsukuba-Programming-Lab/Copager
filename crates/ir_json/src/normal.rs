@@ -25,7 +25,7 @@ where
         write!(f, "{{")?;
         match self {
             Json::Token { tag, string } => {
-                write!(f, r#""kind": "token", "tag": "{:?}", "str": "{}""#, tag, string)?;
+                write!(f, r#""kind": "token", "tag": "{:?}", "text": "{}""#, tag, string)?;
             }
             Json::List { tag, elems } => {
                 write!(f, r#""kind": "list", "tag": "{:?}", "elements": ["#, tag)?;

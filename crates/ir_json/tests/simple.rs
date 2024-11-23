@@ -61,15 +61,15 @@ fn normal_display() {
 
     let ir = parse("1");
     assert!(ir.is_ok());
-    assert_eq!(ir.unwrap().to_string(), r#"{"kind": "list", "tag": "Expr", "elements": [{"kind": "list", "tag": "Term", "elements": [{"kind": "list", "tag": "Num", "elements": [{"kind": "token", "tag": "Num", "str": "1"}]}]}]}"#);
+    assert_eq!(ir.unwrap().to_string(), r#"{"kind": "list", "tag": "Expr", "elements": [{"kind": "list", "tag": "Term", "elements": [{"kind": "list", "tag": "Num", "elements": [{"kind": "token", "tag": "Num", "text": "1"}]}]}]}"#);
 
     let ir = parse("1 + 1");
     assert!(ir.is_ok());
-    assert_eq!(ir.unwrap().to_string(), r#"{"kind": "list", "tag": "Expr", "elements": [{"kind": "list", "tag": "Expr", "elements": [{"kind": "list", "tag": "Term", "elements": [{"kind": "list", "tag": "Num", "elements": [{"kind": "token", "tag": "Num", "str": "1"}]}]}]}, {"kind": "token", "tag": "Plus", "str": "+"}, {"kind": "list", "tag": "Term", "elements": [{"kind": "list", "tag": "Num", "elements": [{"kind": "token", "tag": "Num", "str": "1"}]}]}]}"#);
+    assert_eq!(ir.unwrap().to_string(), r#"{"kind": "list", "tag": "Expr", "elements": [{"kind": "list", "tag": "Expr", "elements": [{"kind": "list", "tag": "Term", "elements": [{"kind": "list", "tag": "Num", "elements": [{"kind": "token", "tag": "Num", "text": "1"}]}]}]}, {"kind": "token", "tag": "Plus", "text": "+"}, {"kind": "list", "tag": "Term", "elements": [{"kind": "list", "tag": "Num", "elements": [{"kind": "token", "tag": "Num", "text": "1"}]}]}]}"#);
 
     let ir = parse("(1 + 1) * 1");
     assert!(ir.is_ok());
-    assert_eq!(ir.unwrap().to_string(), r#"{"kind": "list", "tag": "Expr", "elements": [{"kind": "list", "tag": "Term", "elements": [{"kind": "list", "tag": "Term", "elements": [{"kind": "list", "tag": "Num", "elements": [{"kind": "list", "tag": "Expr", "elements": [{"kind": "list", "tag": "Expr", "elements": [{"kind": "list", "tag": "Term", "elements": [{"kind": "list", "tag": "Num", "elements": [{"kind": "token", "tag": "Num", "str": "1"}]}]}]}, {"kind": "token", "tag": "Plus", "str": "+"}, {"kind": "list", "tag": "Term", "elements": [{"kind": "list", "tag": "Num", "elements": [{"kind": "token", "tag": "Num", "str": "1"}]}]}]}]}]}, {"kind": "token", "tag": "Mul", "str": "*"}, {"kind": "list", "tag": "Num", "elements": [{"kind": "token", "tag": "Num", "str": "1"}]}]}]}"#);
+    assert_eq!(ir.unwrap().to_string(), r#"{"kind": "list", "tag": "Expr", "elements": [{"kind": "list", "tag": "Term", "elements": [{"kind": "list", "tag": "Term", "elements": [{"kind": "list", "tag": "Num", "elements": [{"kind": "list", "tag": "Expr", "elements": [{"kind": "list", "tag": "Expr", "elements": [{"kind": "list", "tag": "Term", "elements": [{"kind": "list", "tag": "Num", "elements": [{"kind": "token", "tag": "Num", "text": "1"}]}]}]}, {"kind": "token", "tag": "Plus", "text": "+"}, {"kind": "list", "tag": "Term", "elements": [{"kind": "list", "tag": "Num", "elements": [{"kind": "token", "tag": "Num", "text": "1"}]}]}]}]}]}, {"kind": "token", "tag": "Mul", "text": "*"}, {"kind": "list", "tag": "Num", "elements": [{"kind": "token", "tag": "Num", "text": "1"}]}]}]}"#);
 }
 
 #[test]

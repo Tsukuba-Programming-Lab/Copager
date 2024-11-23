@@ -8,7 +8,7 @@ use copager_ir::{IR, IRBuilder, RawIR};
 pub enum Xml<'input, Lang: CFL> {
     Token {
         tag: Lang::TokenTag,
-        string: &'input str,
+        text: &'input str,
     },
     List {
         tag: Lang::RuleTag,
@@ -23,8 +23,8 @@ where
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Xml::Token { tag, string } => {
-                write!(f, r#"<token><tag>{:?}</tag><string>{:?}</string></token>"#, tag, string)?;
+            Xml::Token { tag, text } => {
+                write!(f, r#"<token><tag>{:?}</tag><text>{:?}</text></token>"#, tag, text)?;
             }
             Xml::List { tag, elems } => {
                 write!(f, r#"<list><tag>{:?}</tag><elements>"#, tag)?;
@@ -46,7 +46,7 @@ impl<'input, Lang: CFL> From<RawIR<'input, Lang>> for Xml<'input, Lang> {
         match raw {
             RawIR::Atom(token) => Xml::Token {
                 tag: token.kind,
-                string: token.as_str(),
+                text: token.as_str(),
             },
             RawIR::List { rule, elems } => Xml::List {
                 tag: rule,

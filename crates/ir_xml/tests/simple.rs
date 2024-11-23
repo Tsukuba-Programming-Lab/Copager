@@ -61,13 +61,13 @@ fn normal_display() {
 
     let ir = parse("1");
     assert!(ir.is_ok());
-    assert_eq!(ir.unwrap().to_string(), r#"<list><tag>Expr</tag><elements><list><tag>Term</tag><elements><list><tag>Num</tag><elements><token><tag>Num</tag><string>"1"</string></token></elements></list></elements></list></elements></list>"#);
+    assert_eq!(ir.unwrap().to_string(), r#"<list><tag>Expr</tag><elements><list><tag>Term</tag><elements><list><tag>Num</tag><elements><token><tag>Num</tag><text>"1"</text></token></elements></list></elements></list></elements></list>"#);
 
     let ir = parse("1 + 1");
     assert!(ir.is_ok());
-    assert_eq!(ir.unwrap().to_string(), r#"<list><tag>Expr</tag><elements><list><tag>Expr</tag><elements><list><tag>Term</tag><elements><list><tag>Num</tag><elements><token><tag>Num</tag><string>"1"</string></token></elements></list></elements></list></elements></list><token><tag>Plus</tag><string>"+"</string></token><list><tag>Term</tag><elements><list><tag>Num</tag><elements><token><tag>Num</tag><string>"1"</string></token></elements></list></elements></list></elements></list>"#);
+    assert_eq!(ir.unwrap().to_string(), r#"<list><tag>Expr</tag><elements><list><tag>Expr</tag><elements><list><tag>Term</tag><elements><list><tag>Num</tag><elements><token><tag>Num</tag><text>"1"</text></token></elements></list></elements></list></elements></list><token><tag>Plus</tag><text>"+"</text></token><list><tag>Term</tag><elements><list><tag>Num</tag><elements><token><tag>Num</tag><text>"1"</text></token></elements></list></elements></list></elements></list>"#);
 
     let ir = parse("(1 + 1) * 1");
     assert!(ir.is_ok());
-    assert_eq!(ir.unwrap().to_string(), r#"<list><tag>Expr</tag><elements><list><tag>Term</tag><elements><list><tag>Term</tag><elements><list><tag>Num</tag><elements><list><tag>Expr</tag><elements><list><tag>Expr</tag><elements><list><tag>Term</tag><elements><list><tag>Num</tag><elements><token><tag>Num</tag><string>"1"</string></token></elements></list></elements></list></elements></list><token><tag>Plus</tag><string>"+"</string></token><list><tag>Term</tag><elements><list><tag>Num</tag><elements><token><tag>Num</tag><string>"1"</string></token></elements></list></elements></list></elements></list></elements></list></elements></list><token><tag>Mul</tag><string>"*"</string></token><list><tag>Num</tag><elements><token><tag>Num</tag><string>"1"</string></token></elements></list></elements></list></elements></list>"#);
+    assert_eq!(ir.unwrap().to_string(), r#"<list><tag>Expr</tag><elements><list><tag>Term</tag><elements><list><tag>Term</tag><elements><list><tag>Num</tag><elements><list><tag>Expr</tag><elements><list><tag>Expr</tag><elements><list><tag>Term</tag><elements><list><tag>Num</tag><elements><token><tag>Num</tag><text>"1"</text></token></elements></list></elements></list></elements></list><token><tag>Plus</tag><text>"+"</text></token><list><tag>Term</tag><elements><list><tag>Num</tag><elements><token><tag>Num</tag><text>"1"</text></token></elements></list></elements></list></elements></list></elements></list></elements></list><token><tag>Mul</tag><text>"*"</text></token><list><tag>Num</tag><elements><token><tag>Num</tag><text>"1"</text></token></elements></list></elements></list></elements></list>"#);
 }
