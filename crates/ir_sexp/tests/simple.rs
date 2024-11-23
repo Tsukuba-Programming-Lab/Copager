@@ -83,12 +83,12 @@ fn parse<'input>(input: &'input str) -> anyhow::Result<SExp<'input, ExprLang>> {
 
 fn eval(ir: &SExp<'static, ExprLang>) -> i32 {
     macro_rules! match_atom {
-        ($term:expr, $($kind:pat => $block:expr),* $(,)?) => {
+        ($term:expr, $($kind:literal => $block:expr),* $(,)?) => {
             match $term {
                 SExp::Atom(token) => {
-                    match token.kind {
+                    match token {
                         $($kind => $block,)*
-                        _ => unreachable!(),
+                         _ => unreachable!()
                     }
                 }
                 _ => unreachable!(),
@@ -104,8 +104,8 @@ fn eval(ir: &SExp<'static, ExprLang>) -> i32 {
                     let lhs = eval(&elems[0]);
                     let rhs = eval(&elems[2]);
                     match_atom!(elems[1],
-                        ExprToken::Plus => lhs + rhs,
-                        ExprToken::Minus => lhs - rhs,
+                        "+" => lhs + rhs,
+                        "-" => lhs - rhs,
                     )
                 }
                 ExprRule::Term if elems.len() == 1 => eval(&elems[0]),
@@ -113,8 +113,8 @@ fn eval(ir: &SExp<'static, ExprLang>) -> i32 {
                     let lhs = eval(&elems[0]);
                     let rhs = eval(&elems[2]);
                     match_atom!(elems[1],
-                        ExprToken::Mul => lhs * rhs,
-                        ExprToken::Div => lhs / rhs,
+                        "*" => lhs * rhs,
+                        "/" => lhs / rhs,
                     )
                 }
                 ExprRule::Num if elems.len() == 1 => eval(&elems[0]),
@@ -122,6 +122,6 @@ fn eval(ir: &SExp<'static, ExprLang>) -> i32 {
 
             }
         }
-        SExp::Atom(token) => token.as_str().parse().unwrap(),
+        SExp::Atom(token) => token.parse().unwrap(),
     }
 }
