@@ -36,6 +36,13 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
 
             fn on_parse(&mut self, rule: Rs::Tag, len: usize) -> anyhow::Result<()> {
                 let elems = self.stack.split_off(self.stack.len() - len);
+                let elems = elems
+                    .into_iter()
+                    .filter(|elem| match elem {
+                        RawIR::Atom(token) => !token.kind.as_option_list().contains(&"ir_omit"),
+                        _ => true,
+                    })
+                    .collect();
                 self.stack.push(RawIR::List { rule, elems });
                 Ok(())
             }
