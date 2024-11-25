@@ -26,9 +26,8 @@
 ### IR
 
 - `void` : [crates/ir_void](crates/ir_void)
-- `json` : [crates/ir_json](crates/ir_json)
 - `sexp` : [crates/ir_sexp](crates/ir_sexp)
-- `xml` : [crates/ir_xml](crates/ir_xml)
+- `tree` : [crates/ir_tree](crates/ir_tree)
 
 ```
 // RegexLex(lex) + LR1(parse) + SExp(ir)

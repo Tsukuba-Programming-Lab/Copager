@@ -27,10 +27,9 @@ dependencies = [
  "copager_core",
  "copager_core_macros",
  "copager_ir",
- "copager_ir_json",
  "copager_ir_sexp",
+ "copager_ir_tree",
  "copager_ir_void",
- "copager_ir_xml",
  "copager_lex",
  "copager_lex_regex",
  "copager_parse",
@@ -129,22 +128,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "copager_ir_json"
-version = "0.3.0"
-dependencies = [
- "anyhow",
- "copager_cfl",
- "copager_core",
- "copager_ir",
- "copager_ir_json",
- "copager_lex",
- "copager_lex_regex",
- "copager_parse",
- "copager_parse_lr_lr1",
- "thiserror",
-]
-
-[[package]]
 name = "copager_ir_sexp"
 version = "0.3.0"
 dependencies = [
@@ -161,6 +144,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "copager_ir_tree"
+version = "0.3.0"
+dependencies = [
+ "anyhow",
+ "copager_cfl",
+ "copager_core",
+ "copager_ir",
+ "copager_ir_tree",
+ "copager_lex",
+ "copager_lex_regex",
+ "copager_parse",
+ "copager_parse_lr_lr1",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
 name = "copager_ir_void"
 version = "0.3.0"
 dependencies = [
@@ -169,22 +169,6 @@ dependencies = [
  "copager_ir",
  "copager_lex",
  "copager_parse",
- "thiserror",
-]
-
-[[package]]
-name = "copager_ir_xml"
-version = "0.3.0"
-dependencies = [
- "anyhow",
- "copager_cfl",
- "copager_core",
- "copager_ir",
- "copager_ir_xml",
- "copager_lex",
- "copager_lex_regex",
- "copager_parse",
- "copager_parse_lr_lr1",
  "thiserror",
 ]
 

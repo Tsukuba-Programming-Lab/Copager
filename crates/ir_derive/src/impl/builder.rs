@@ -2,10 +2,13 @@ use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{DeriveInput, Ident};
 
+use crate::utils::to_generics_without_where;
+
 pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
     let vis = &ast.vis;
     let ident = &ast.ident;
     let ident_builder = Ident::new(&format!("{}Builder", ident), ident.span());
+    let generics = to_generics_without_where(&ast.generics);
 
     quote! {
         #vis struct #ident_builder<'input, Lang: CFL> {
@@ -13,7 +16,7 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
         }
 
         impl <'input, Lang: CFL> IRBuilder<'input, Lang> for #ident_builder<'input, Lang> {
-            type Output = #ident<'input, Lang>;
+            type Output = #ident #generics;
 
             fn new() -> #ident_builder<'input, Lang> {
                 #ident_builder {

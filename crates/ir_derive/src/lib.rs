@@ -1,4 +1,5 @@
 mod r#impl;
+mod utils;
 
 use syn::{parse_macro_input, DeriveInput};
 

@@ -4,7 +4,7 @@ use copager_cfl::rule::{RuleTag, Rule, RuleElem};
 use copager_cfl::{CFL, CFLTokens, CFLRules};
 use copager_lex_regex::RegexLexer;
 use copager_parse_lr_lr1::LR1;
-use copager_ir_sexp::{SExp, SExpOwned};
+use copager_ir_tree::{Tree, TreeOwned};
 
 #[derive(Default, CFL)]
 struct TestLang (
@@ -56,34 +56,11 @@ fn check_compile() -> anyhow::Result<()> {
 
     TestProcessor::new()
         .build()?
-        .process::<SExp<_>>("1 + 2 * 3")?;
+        .process::<Tree<_>>("1 + 2 * 3")?;
 
     TestProcessor::new()
         .build()?
-        .process::<SExpOwned<_>>("1 + 2 * 3")?;
+        .process::<TreeOwned<_>>("1 + 2 * 3")?;
 
     Ok(())
-}
-
-#[test]
-fn check_display() {
-    let parse = |input| {
-        type TestGenerator<T> = Generator<T, RegexLexer<T>, LR1<T>>;
-        type TestProcessor = Processor<TestGenerator<TestLang>>;
-        TestProcessor::new()
-            .build()?
-            .process::<SExp<_>>(input)
-    };
-
-    let ir = parse("1");
-    assert!(ir.is_ok());
-    assert_eq!(ir.unwrap().to_string(), r#"(Expr (Term (Num "1")))"#);
-
-    let ir = parse("1 + 1");
-    assert!(ir.is_ok());
-    assert_eq!(ir.unwrap().to_string(), r#"(Expr (Expr (Term (Num "1"))) "+" (Term (Num "1")))"#);
-
-    let ir = parse("(1 + 1) * 1");
-    assert!(ir.is_ok());
-    assert_eq!(ir.unwrap().to_string(), r#"(Expr (Term (Term (Num (Expr (Expr (Term (Num "1"))) "+" (Term (Num "1"))))) "*" (Num "1")))"#);
 }
