@@ -21,9 +21,8 @@ copager_parse_lr_slr1 = { path = "./crates/parse_lr_slr1", optional = true }
 copager_parse_lr_lalr1 = { path = "./crates/parse_lr_lalr1", optional = true }
 copager_ir = { path = "./crates/ir" }
 copager_ir_void = { path = "./crates/ir_void", optional = true }
-copager_ir_json = { path = "./crates/ir_json", optional = true }
 copager_ir_sexp = { path = "./crates/ir_sexp", optional = true }
-copager_ir_xml = { path = "./crates/ir_xml", optional = true }
+copager_ir_tree = { path = "./crates/ir_tree", optional = true }
 
 [dev-dependencies]
 anyhow = { workspace = true }
@@ -41,7 +40,7 @@ all = [
     "derive", "prebuild", "template", "dev",  # common
     "regexlex",                               # lex
     "lr0", "lr1", "slr1", "lalr1",            # parse
-    "void", "json", "sexp", "xml",            # ir
+    "void", "sexp", "tree",                   # ir
 ]
 
 # common
@@ -62,9 +61,8 @@ lalr1 = ["dep:copager_parse_lr_lalr1"]
 
 # ir
 void = ["dep:copager_ir_void"]
-json = ["dep:copager_ir_json"]
 sexp = ["dep:copager_ir_sexp"]
-xml = ["dep:copager_ir_xml"]
+tree = ["dep:copager_ir_tree"]
 
 [workspace]
 resolver = "2"
@@ -86,10 +84,8 @@ members = [
     "./crates/ir",
     "./crates/ir_derive",
     "./crates/ir_void",
-    "./crates/ir_json",
     "./crates/ir_sexp",
     "./crates/ir_tree",
-    "./crates/ir_xml",
     "./crates/utils",
 
     # Examples
