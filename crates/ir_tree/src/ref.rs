@@ -1,3 +1,4 @@
+use std::collections::VecDeque;
 use std::fmt::Debug;
 
 use serde::{Serialize, Deserialize};
@@ -14,7 +15,7 @@ pub enum Tree<'input, Lang: CFL> {
     },
     Node {
         tag: Lang::RuleTag,
-        children: Vec<Tree<'input, Lang>>,
+        children: VecDeque<Tree<'input, Lang>>,
     },
 }
 
