@@ -1,3 +1,4 @@
+use std::collections::VecDeque;
 use std::fmt::{Debug, Display};
 
 use copager_cfl::token::{Token, TokenTag};
@@ -9,7 +10,7 @@ pub enum SExpOwned<Lang: CFL> {
     Atom(String),
     List {
         rule: Lang::RuleTag,
-        elems: Vec<SExpOwned<Lang>>,
+        elems: VecDeque<SExpOwned<Lang>>,
     },
 }
 
