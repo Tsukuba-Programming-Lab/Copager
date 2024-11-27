@@ -38,7 +38,7 @@ pub fn proc_macro_impl_load(_args: TokenStream, ast: ItemFn) -> TokenStream {
             }
 
             let cache_body = include_str!(concat!(env!("OUT_DIR"), "/MyProcessor.cache"));
-            let deserialized = copager::prebuild::deserialize(&cache_body).unwrap();
+            let deserialized = copager::prebuild::__deserialize(&cache_body).unwrap();
             __inner(deserialized, #fn_args_orig_uses)
         }
     }
