@@ -42,8 +42,8 @@ pub use copager_core_macros::*;
 
 #[cfg(feature = "prebuild")]
 pub mod prebuild {
-    pub use serde_json::to_string as serialize;
-    pub use serde_json::from_str as deserialize;
+    pub use serde_json::to_string as __serialize;
+    pub use serde_json::from_str as __deserialize;
 }
 
 #[cfg(feature = "template")]
