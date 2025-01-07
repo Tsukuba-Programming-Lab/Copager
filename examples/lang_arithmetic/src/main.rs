@@ -1,15 +1,9 @@
 use std::io::{stdin, stdout, Write};
 
-use copager::lex::RegexLexer;
-use copager::parse::LR1;
 use copager::ir::SExp;
 use copager::Processor;
 
-use example_lang_arithmetic::*;
-
-type MyLexer = RegexLexer<ArithmeticToken>;
-type MyParser = LR1<ArithmeticToken, ArithmeticRule>;
-type MyProcessor = Processor<Arithmetic, MyLexer, MyParser>;
+use example_lang_arithmetic::Arithmetic;
 
 fn main() -> anyhow::Result<()> {
     println!("Example <arithmetic>");
@@ -19,10 +13,9 @@ fn main() -> anyhow::Result<()> {
     let mut input = String::new();
     stdin().read_line(&mut input)?;
 
-    let sexp = MyProcessor::new()
-        .build_lexer()?
-        .build_parser()?
-        .process::<SExp<_, _>>(&input)?;
+    let sexp = Processor::<Arithmetic>::new()
+        .build()?
+        .process::<SExp<_>>(&input)?;
     println!("Success: {}", sexp);
 
     Ok(())

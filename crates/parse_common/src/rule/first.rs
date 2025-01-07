@@ -1,9 +1,10 @@
 use std::collections::{HashMap, HashSet};
 use std::marker::PhantomData;
 
-use copager_cfg::token::TokenTag;
-use copager_cfg::rule::{RuleElem, RuleSet, RuleTag};
+use copager_cfl::token::TokenTag;
+use copager_cfl::rule::{RuleElem, RuleSet, RuleTag};
 
+#[derive(Debug)]
 pub struct FirstSet<'a, T, R>
 where
     T: TokenTag,
@@ -85,6 +86,8 @@ where
             map.insert(term, HashSet::new());
             map.get_mut(term).unwrap().insert(term);
         });
+        map.insert(&RuleElem::Epsilon, HashSet::new());
+        map.get_mut(&RuleElem::Epsilon).unwrap().insert(&RuleElem::Epsilon);
         map.insert(&RuleElem::EOF, HashSet::new());
         map.get_mut(&RuleElem::EOF).unwrap().insert(&RuleElem::EOF);
 
@@ -139,14 +142,13 @@ where
 
 #[cfg(test)]
 mod test {
-    use copager_cfg::token::TokenTag;
-    use copager_cfg::rule::{Rule, RuleTag, RuleElem};
-    use copager_lex::LexSource;
-    use copager_parse::ParseSource;
+    use copager_cfl::token::TokenTag;
+    use copager_cfl::rule::{Rule, RuleTag, RuleElem};
+    use copager_cfl::{CFLTokens, CFLRules};
 
     use super::FirstSet;
 
-    #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, LexSource)]
+    #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
     enum TestToken {
         #[token(r"a")]
         A,
@@ -154,7 +156,7 @@ mod test {
         B,
     }
 
-    #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, ParseSource)]
+    #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
     enum TestRule {
         #[default]
         #[rule("<S> ::= <A> <B>")]

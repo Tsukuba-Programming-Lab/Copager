@@ -1,0 +1,11 @@
+procedure Increment;
+begin
+  x := x + 1
+end;
+
+var x;
+
+begin
+  x := 0;
+  call Increment
+end.

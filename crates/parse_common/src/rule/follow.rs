@@ -1,10 +1,11 @@
 use std::collections::{HashMap, HashSet};
 
-use copager_cfg::token::TokenTag;
-use copager_cfg::rule::{RuleElem, RuleSet, RuleTag};
+use copager_cfl::token::TokenTag;
+use copager_cfl::rule::{RuleElem, RuleSet, RuleTag};
 
 use crate::rule::FirstSet;
 
+#[derive(Debug)]
 pub struct FollowSet<'a, T, R>
 where
     T: TokenTag,
@@ -50,6 +51,7 @@ where
 {
     map: HashMap<String, HashSet<&'a RuleElem<T>>>,
     ruleset: &'a RuleSet<T, R>,
+    first_set: FirstSet<'a, T, R>,
 }
 
 impl<'a, T, R> From<&'a RuleSet<T, R>> for FollowSetBuilder<'a, T, R>
@@ -69,6 +71,7 @@ where
         FollowSetBuilder {
             map,
             ruleset,
+            first_set: FirstSet::from(ruleset),
         }
     }
 }
@@ -84,8 +87,6 @@ where
     }
 
     fn expand_child(&mut self) -> bool {
-        let first_set = FirstSet::from(self.ruleset);
-
         let mut modified = false;
         for rule in &self.ruleset.rules {
             let lhs = match &rule.lhs {
@@ -95,9 +96,9 @@ where
             for rhs_idx in 0..rule.rhs.len() {
                 let target = &rule.rhs[rhs_idx];
                 let follow_symbols = &rule.rhs[rhs_idx+1..];
-                let prob_first_symbols = first_set.get_by(follow_symbols);
+                let prob_first_symbols = self.first_set.get_by(follow_symbols);
                 modified |= self.append_by_first(target, &prob_first_symbols);
-                if prob_first_symbols.contains(&&RuleElem::Epsilon) {
+                if follow_symbols.is_empty() || prob_first_symbols.contains(&&RuleElem::Epsilon) {
                     modified |= self.append_when_nullable(target, lhs);
                 }
             }
@@ -107,10 +108,10 @@ where
 
     fn append_by_first(&mut self, target: &RuleElem<T>, first_symbol: &[&'a RuleElem<T>]) -> bool {
         if let RuleElem::NonTerm(nonterm) = target {
-            let old_idx = self.map.get(nonterm).unwrap().len();
+            let old_len = self.map.get(nonterm).unwrap().len();
             let first_symbol = first_symbol.iter().filter(|relem| **relem != &RuleElem::Epsilon);
             self.map.get_mut(nonterm).unwrap().extend(first_symbol);
-            old_idx != self.map.get(nonterm).unwrap().len()
+            old_len != self.map.get(nonterm).unwrap().len()
         } else {
             false
         }
@@ -119,9 +120,9 @@ where
     fn append_when_nullable(&mut self, target: &RuleElem<T>, lhs: &str) -> bool {
         if let RuleElem::NonTerm(nonterm) = target {
             let lhs_follow = self.map.get(lhs).unwrap().clone();
-            let old_idx = self.map.get(nonterm).unwrap().len();
+            let old_len = self.map.get(nonterm).unwrap().len();
             self.map.get_mut(nonterm).unwrap().extend(lhs_follow);
-            old_idx != self.map.get(nonterm).unwrap().len()
+            old_len != self.map.get(nonterm).unwrap().len()
         } else {
             false
         }
@@ -130,14 +131,13 @@ where
 
 #[cfg(test)]
 mod test {
-    use copager_cfg::token::TokenTag;
-    use copager_cfg::rule::{Rule, RuleTag, RuleElem};
-    use copager_lex::LexSource;
-    use copager_parse::ParseSource;
+    use copager_cfl::token::TokenTag;
+    use copager_cfl::rule::{Rule, RuleTag, RuleElem};
+    use copager_cfl::{CFLTokens, CFLRules};
 
     use super::FollowSet;
 
-    #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, LexSource)]
+    #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
     enum TestToken {
         #[token(r"a")]
         A,
@@ -145,7 +145,7 @@ mod test {
         B,
     }
 
-    #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, ParseSource)]
+    #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
     enum TestRule {
         #[default]
         #[rule("<S> ::= <A> <B>")]

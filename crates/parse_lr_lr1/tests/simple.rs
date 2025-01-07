@@ -1,34 +1,39 @@
-use copager_core::{Language, Processor};
-use copager_cfg::token::TokenTag;
-use copager_cfg::rule::{RuleTag, Rule, RuleElem};
-use copager_lex::LexSource;
+use copager_core::{Generator, Processor};
+use copager_cfl::token::TokenTag;
+use copager_cfl::rule::{RuleTag, Rule, RuleElem};
+use copager_cfl::{CFL, CFLTokens, CFLRules};
 use copager_lex_regex::RegexLexer;
-use copager_parse::ParseSource;
 use copager_parse_lr_lr1::LR1;
 use copager_ir_void::Void;
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, LexSource)]
+#[derive(Debug, Default, CFL)]
+struct TestLang (
+    #[tokens] TestToken,
+    #[rules] TestRule,
+);
+
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
 enum TestToken {
     #[default]
-    #[token(text = r"\+")]
+    #[token(r"\+")]
     Plus,
-    #[token(text = r"-")]
+    #[token(r"-")]
     Minus,
-    #[token(text = r"\*")]
+    #[token(r"\*")]
     Mul,
-    #[token(text = r"/")]
+    #[token(r"/")]
     Div,
-    #[token(text = r"\(")]
+    #[token(r"\(")]
     BracketL,
-    #[token(text = r"\)")]
+    #[token(r"\)")]
     BracketR,
-    #[token(text = r"[1-9][0-9]*")]
+    #[token(r"[1-9][0-9]*")]
     Num,
-    #[token(text = r"[ \t\n]+", ignored)]
+    #[token(r"[ \t\n]+", trivia)]
     _Whitespace,
 }
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, ParseSource)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
 enum TestRule {
     #[default]
     #[rule("<expr> ::= <expr> Plus <term>")]
@@ -44,10 +49,8 @@ enum TestRule {
     Num,
 }
 
-type TestLanguage = Language<TestToken, TestRule>;
-type TestLexer = RegexLexer<TestToken>;
-type TestParser = LR1<TestToken, TestRule>;
-type TestProcessor = Processor<TestLanguage, TestLexer, TestParser>;
+type TestGenerator<T> = Generator<T, RegexLexer<T>, LR1<T>>;
+type TestProcessor = Processor<TestGenerator<TestLang>>;
 
 #[test]
 fn simple_success() {
@@ -64,12 +67,7 @@ fn simple_success() {
         "((10 + 20) * (30 / 40)) - 50",
     ];
 
-    let processor = TestProcessor::new()
-        .build_lexer()
-        .unwrap()
-        .build_parser()
-        .unwrap();
-
+    let processor = TestProcessor::new().build().unwrap();
     for input in &OK_INPUTS {
         println!("input: {}", input);
         processor.process::<Void>(input).unwrap();
@@ -88,12 +86,7 @@ fn simple_failure() {
         "(((10))",
     ];
 
-    let processor = TestProcessor::new()
-        .build_lexer()
-        .unwrap()
-        .build_parser()
-        .unwrap();
-
+    let processor = TestProcessor::new().build().unwrap();
     for input in &ERR_INPUTS {
         assert!(processor.process::<Void>(input).is_err(), "input: {}", input);
     }

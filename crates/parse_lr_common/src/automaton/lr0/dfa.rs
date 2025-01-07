@@ -5,8 +5,8 @@ use std::rc::Rc;
 use std::sync::RwLock;
 use std::marker::PhantomData;
 
-use copager_cfg::token::TokenTag;
-use copager_cfg::rule::{Rule, RuleElem, RuleSet, RuleTag};
+use copager_cfl::token::TokenTag;
+use copager_cfl::rule::{Rule, RuleElem, RuleSet, RuleTag};
 
 use crate::automaton::Automaton;
 use crate::lr0::item::{LR0Item, LR0ItemSet};

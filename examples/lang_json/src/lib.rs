@@ -1,49 +1,56 @@
-use copager::lex::LexSource;
-use copager::parse::ParseSource;
+use copager::cfl::{CFL, CFLRules, CFLTokens};
+use copager::template::LALR1;
 use copager::prelude::*;
-use copager::Language;
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, LexSource)]
+pub type Json = LALR1<JsonLang>;
+
+#[derive(Debug, Default, CFL)]
+pub struct JsonLang (
+    #[tokens] JsonToken,
+    #[rules]  JsonRule,
+);
+
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
 pub enum JsonToken {
     // 記号
-    #[token(text = r"\:")]
+    #[token(r"\:", ir_omit)]
     Colon,
-    #[token(text = r"\,")]
+    #[token(r"\,", ir_omit)]
     Comma,
 
     // キーワード
-    #[token(text = r"true")]
+    #[token(r"true")]
     True,
-    #[token(text = r"false")]
+    #[token(r"false")]
     False,
-    #[token(text = r"null")]
+    #[token(r"null")]
     Null,
 
     // 識別子 & 数値
-    #[token(text = r#""[a-zA-Z_][a-zA-Z0-9_]*""#)]
+    #[token(r#""[a-zA-Z_][a-zA-Z0-9_]*""#)]
     String,
-    #[token(text = r"\d+")]
+    #[token(r"\d+")]
     Number,
 
     // オブジェクト用括弧
     #[default]
-    #[token(text = r"\{")]
+    #[token(r"\{", ir_omit)]
     CurlyBracketL,
-    #[token(text = r"\}")]
+    #[token(r"\}", ir_omit)]
     CurlyBracketR,
 
     // 配列用括弧
-    #[token(text = r"\[")]
+    #[token(r"\[", ir_omit)]
     SquareBracketL,
-    #[token(text = r"\]")]
+    #[token(r"\]", ir_omit)]
     SquareBracketR,
 
     // 空白文字
-    #[token(text = r"[ \t\n]+", ignored)]
+    #[token(r"[ \t\n]+", trivia)]
     _Whitespace,
 }
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, ParseSource)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
 pub enum JsonRule {
     // JSON本体
     #[default]
@@ -88,5 +95,3 @@ pub enum JsonRule {
     #[rule("<value> ::= Null")]
     Value,
 }
-
-pub type Json = Language<JsonToken, JsonRule>;

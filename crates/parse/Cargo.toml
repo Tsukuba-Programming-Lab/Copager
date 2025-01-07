@@ -1,16 +1,11 @@
 [package]
 name = "copager_parse"
-version = "0.3.0"
 edition = "2021"
+version.workspace = true
 
 [dependencies]
 anyhow = { workspace = true }
 thiserror = { workspace = true }
-copager_cfg = { path = "../cfg" }
+copager_cfl = { path = "../cfl" }
 copager_lex = { path = "../lex" }
-copager_parse_derive = { path = "../parse_derive", optional = true }
 copager_utils = { path = "../utils" }
-
-[features]
-default = []
-derive = ["copager_parse_derive"]

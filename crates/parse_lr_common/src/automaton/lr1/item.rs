@@ -2,8 +2,8 @@ use std::collections::{HashMap, HashSet};
 use std::fmt::{Display, Debug};
 use std::hash::Hash;
 
-use copager_cfg::token::TokenTag;
-use copager_cfg::rule::{Rule, RuleElem, RuleSet, RuleTag};
+use copager_cfl::token::TokenTag;
+use copager_cfl::rule::{Rule, RuleElem, RuleSet, RuleTag};
 use copager_parse_common::rule::FirstSet;
 
 #[derive(Clone, Hash, PartialEq, Eq)]
@@ -53,11 +53,8 @@ where
     R: RuleTag<T>,
 {
     fn from((rule, la_token): (&'a Rule<T, R>, &'a RuleElem<T>)) -> Self {
-        if rule.rhs[0] == RuleElem::Epsilon {
-            LR1Item { rule, dot_pos: 1, la_token: &RuleElem::EOF }
-        } else {
-            LR1Item { rule, dot_pos: 0, la_token }
-        }
+        let dot_pos = if rule.rhs[0] == RuleElem::Epsilon { 1 } else { 0 };
+        LR1Item { rule, dot_pos, la_token }
     }
 }
 
@@ -115,20 +112,6 @@ where
     }
 }
 
-impl<'a, 'b, T, R> From<(&'a RuleSet<T, R>, &'b FirstSet<'a, T, R>)> for LR1ItemSet<'a, 'b, T, R>
-where
-    T: TokenTag,
-    R: RuleTag<T>,
-{
-    fn from((ruleset, first_set): (&'a RuleSet<T, R>, &'b FirstSet<'a, T, R>)) -> Self {
-        LR1ItemSet {
-            items: HashSet::new(),
-            ruleset,
-            first_set,
-        }
-    }
-}
-
 impl<'a, 'b, T, R> PartialEq for LR1ItemSet<'a, 'b, T, R>
 where
     T: TokenTag,
@@ -150,14 +133,18 @@ where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    pub fn init(mut self, rule: &'a Rule<T, R>) -> Self {
-        self.items = HashSet::from([LR1Item::from((rule, &RuleElem::EOF))]);
-        self
+    pub fn new(items: HashSet<LR1Item<'a, T, R>>, ruleset: &'a RuleSet<T, R>, first_set: &'b FirstSet<'a, T, R>) -> Self {
+        let mut itemset= LR1ItemSet { items, ruleset, first_set };
+        itemset.expand();
+        itemset
+    }
+
+    pub fn new_top(rule: &'a Rule<T, R>, ruleset: &'a RuleSet<T, R>, first_set: &'b FirstSet<'a, T, R>) -> Self {
+        let items = HashSet::from([LR1Item::from((rule, &RuleElem::EOF))]);
+        LR1ItemSet::new(items, ruleset, first_set)
     }
 
     pub fn gen_next_sets(&mut self) -> impl Iterator<Item = (&'a RuleElem<T>, LR1ItemSet<'a, 'b, T, R>)> {
-        self.expand();
-
         let mut next_set_candidates = HashMap::new();
         self.items
             .iter()
@@ -173,7 +160,7 @@ where
             .into_iter()
             .map(|(cond, items)| {
                 let items = items.into_iter().collect();
-                (cond, LR1ItemSet { items, ruleset: self.ruleset, first_set: self.first_set })
+                (cond, LR1ItemSet::new(items, self.ruleset, self.first_set))
             })
     }
 

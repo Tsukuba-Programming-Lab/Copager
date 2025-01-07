@@ -1,41 +1,17 @@
-use copager_cfg::token::{TokenTag, Token};
-use copager_cfg::rule::{RuleTag, RuleSet};
-use copager_lex::LexSource;
-#[cfg(feature = "derive")]
-pub use copager_parse_derive::ParseSource;
+use copager_cfl::token::{TokenTag, Token};
+use copager_cfl::rule::RuleTag;
+use copager_cfl::CFL;
 
-pub trait ParseSource<T: TokenTag> {
-    type Tag: RuleTag<T>;
-
-    fn iter(&self) -> impl Iterator<Item = Self::Tag>;
-
-    fn into_ruleset(&self) -> RuleSet<T, Self::Tag> {
-        let set_id_for_all = |(id, tag): (usize, Self::Tag)| {
-            tag.as_rules()
-                .into_iter()
-                .map(move |rule| {
-                    let mut rule = rule.clone();
-                    rule.id = id;
-                    rule
-                })
-        };
-        self.iter()
-            .enumerate()
-            .flat_map(set_id_for_all)
-            .collect::<RuleSet<_, _>>()
-    }
-}
-
-pub trait BaseParser<Sl, Sp>
+pub trait BaseParser<Lang>
 where
     Self: Sized,
-    Sl: LexSource,
-    Sp: ParseSource<Sl::Tag>,
+    Lang: CFL,
 {
-    fn try_from(source: (Sl, Sp)) -> anyhow::Result<Self>;
-    fn run<'input, Il>(&self, lexer: Il) -> impl Iterator<Item = ParseEvent<'input, Sl::Tag, Sp::Tag>>
+    fn try_from(cfl: &Lang) -> anyhow::Result<Self>;
+    fn run<'input, Il>(&self, lexer: Il)
+        -> impl Iterator<Item = ParseEvent<'input, Lang::TokenTag, Lang::RuleTag>>
     where
-        Il: Iterator<Item = Token<'input, Sl::Tag>>;
+        Il: Iterator<Item = Token<'input, Lang::TokenTag>>;
 }
 
 pub enum ParseEvent<'input, T, R>

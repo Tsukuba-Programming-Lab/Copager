@@ -4,8 +4,8 @@ use std::rc::Rc;
 use std::sync::RwLock;
 use std::marker::PhantomData;
 
-use copager_cfg::token::TokenTag;
-use copager_cfg::rule::{Rule, RuleElem, RuleSet, RuleTag};
+use copager_cfl::token::TokenTag;
+use copager_cfl::rule::{Rule, RuleElem, RuleSet, RuleTag};
 use copager_parse_common::rule::FirstSet;
 
 use crate::automaton::Automaton;
@@ -181,7 +181,7 @@ where
             .iter()
             .find(|rule| rule.lhs == top)
             .unwrap();
-        let top = LR1ItemSet::from((ruleset, first_set)).init(top);
+        let top = LR1ItemSet::new_top(top, ruleset, first_set);
 
         self.gen_recursive(top)
     }

@@ -1,44 +1,51 @@
 use serde::{Deserialize, Serialize};
 
-use copager::lex::{LexSource, RegexLexer};
-use copager::parse::{ParseSource, LR1};
+use copager::cfl::{CFL, CFLRules, CFLTokens};
+use copager::template::LALR1;
 use copager::prelude::*;
-use copager::{Language, Processor};
+
+pub type Arithmetic = LALR1<ArithmeticLang>;
+
+#[derive(Debug, Default, Clone, CFL, Serialize, Deserialize)]
+pub struct ArithmeticLang (
+    #[tokens] ArithmeticToken,
+    #[rules] ArithmeticRule,
+);
 
 #[derive(
     Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
-    LexSource, Serialize, Deserialize,
+    CFLTokens, Serialize, Deserialize,
 )]
-pub enum ExprToken {
+pub enum ArithmeticToken {
     #[default]
-    #[token(text = r"\+")]
+    #[token(r"\+")]
     Plus,
-    #[token(text = r"-")]
+    #[token(r"-")]
     Minus,
-    #[token(text = r"\*")]
+    #[token(r"\*")]
     Mul,
-    #[token(text = r"/")]
+    #[token(r"/")]
     Div,
-    #[token(text = r"\(")]
+    #[token(r"\(", ir_omit)]
     BracketL,
-    #[token(text = r"\)")]
+    #[token(r"\)", ir_omit)]
     BracketR,
-    #[token(text = r"[1-9][0-9]*")]
+    #[token(r"[1-9][0-9]*")]
     Num,
-    #[token(text = r"[ \t\n]+", ignored)]
+    #[token(r"[ \t\n]+", trivia)]
     _Whitespace,
 }
 
 #[derive(
     Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
-    ParseSource, Serialize, Deserialize,
+    CFLRules, Serialize, Deserialize,
 )]
-pub enum ExprRule {
+pub enum ArithmeticRule {
     #[default]
     #[rule("<expr> ::= <expr> Plus <term>")]
     #[rule("<expr> ::= <expr> Minus <term>")]
     #[rule("<expr> ::= <term>")]
-    Expr,
+    Arithmetic,
     #[rule("<term> ::= <term> Mul <num>")]
     #[rule("<term> ::= <term> Div <num>")]
     #[rule("<term> ::= <num>")]
@@ -47,8 +54,3 @@ pub enum ExprRule {
     #[rule("<num> ::= Num")]
     Num,
 }
-
-pub type MyLanguage = Language<ExprToken, ExprRule>;
-pub type MyLexer = RegexLexer<ExprToken>;
-pub type MyParser = LR1<ExprToken, ExprRule>;
-pub type MyProcessor = Processor<MyLanguage, MyLexer, MyParser>;

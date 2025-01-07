@@ -1,9 +1,10 @@
 [package]
 name = "copager_utils"
-version = "0.3.0"
 edition = "2021"
+version.workspace = true
 
 [dependencies]
 anyhow = { workspace = true }
 thiserror = { workspace = true }
 serde = { workspace = true }
+copager_cfl = { path = "../cfl"}

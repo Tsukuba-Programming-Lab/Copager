@@ -1,0 +1,5 @@
+var x;
+
+begin
+  x := (5 + 3
+end.

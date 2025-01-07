@@ -2,14 +2,14 @@ cargo-features = ["edition2024"]
 
 [package]
 name = "copager_parse_lr_slr1"
-version = "0.3.0"
 edition = "2024"
+version.workspace = true
 
 [dependencies]
 anyhow = { workspace = true }
 thiserror = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
-copager_cfg = { path = "../cfg" }
+copager_cfl = { path = "../cfl" }
 copager_lex = { path = "../lex" }
 copager_parse = { path = "../parse" }
 copager_parse_common = { path = "../parse_common" }
@@ -18,7 +18,7 @@ copager_utils = { path = "../utils" }
 
 [dev-dependencies]
 copager_core = { path = "../core" }
-copager_lex = { path = "../lex", features = ["derive"] }
+copager_cfl = { path = "../cfl", features = ["derive"] }
 copager_lex_regex = { path = "../lex_regex" }
-copager_parse = { path = "../parse", features = ["derive"] }
+copager_parse = { path = "../parse" }
 copager_ir_void = { path = "../ir_void" }

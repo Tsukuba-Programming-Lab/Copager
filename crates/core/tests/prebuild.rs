@@ -2,42 +2,47 @@ use serde::{Serialize, Deserialize};
 use serde_cbor::ser::to_vec_packed;
 use serde_cbor::de::from_slice;
 
-use copager_core::{Language, Processor};
-use copager_cfg::token::TokenTag;
-use copager_cfg::rule::{RuleTag, Rule, RuleElem};
-use copager_lex::LexSource;
+use copager_core::{Generator, Processor};
+use copager_cfl::token::TokenTag;
+use copager_cfl::rule::{RuleTag, Rule, RuleElem};
+use copager_cfl::{CFL, CFLTokens, CFLRules};
 use copager_lex_regex::RegexLexer;
-use copager_parse::ParseSource;
 use copager_parse_lr_lr1::LR1;
 use copager_ir_void::Void;
 
+#[derive(Default, Clone, CFL, Serialize, Deserialize)]
+struct ExprLang (
+    #[tokens] ExprToken,
+    #[rules]  ExprRule
+);
+
 #[derive(
     Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
-    LexSource, Serialize, Deserialize
+    CFLTokens, Serialize, Deserialize
 )]
 enum ExprToken {
     #[default]
-    #[token(text = r"\+")]
+    #[token(r"\+")]
     Plus,
-    #[token(text = r"-")]
+    #[token(r"-")]
     Minus,
-    #[token(text = r"\*")]
+    #[token(r"\*")]
     Mul,
-    #[token(text = r"/")]
+    #[token(r"/")]
     Div,
-    #[token(text = r"\(")]
+    #[token(r"\(")]
     BracketL,
-    #[token(text = r"\)")]
+    #[token(r"\)")]
     BracketR,
-    #[token(text = r"[1-9][0-9]*")]
+    #[token(r"[1-9][0-9]*")]
     Num,
-    #[token(text = r"[ \t\n]+", ignored)]
+    #[token(r"[ \t\n]+", trivia)]
     _Whitespace,
 }
 
 #[derive(
     Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
-    ParseSource, Serialize, Deserialize
+    CFLRules, Serialize, Deserialize
 )]
 enum ExprRule {
     #[default]
@@ -54,10 +59,8 @@ enum ExprRule {
     Num,
 }
 
-type MyLanguage = Language<ExprToken, ExprRule>;
-type MyLexer = RegexLexer<ExprToken>;
-type MyParser = LR1<ExprToken, ExprRule>;
-type MyProcessor = Processor<MyLanguage, MyLexer, MyParser>;
+type MyGenerator<T> = Generator<T, RegexLexer<T>, LR1<T>>;
+type MyProcessor = Processor<MyGenerator<ExprLang>>;
 
 #[test]
 fn prebuild() -> anyhow::Result<()> {
@@ -79,7 +82,7 @@ fn build_rs() -> anyhow::Result<MyProcessor> {
 fn main_rs(processor: MyProcessor) -> anyhow::Result<()> {
     processor
         .build_lexer()?
-        .build_parser_by_cache()
+        .restore_parser_by_cache()
         .process::<Void>("1 + 2 * 3")?;
 
     Ok(())

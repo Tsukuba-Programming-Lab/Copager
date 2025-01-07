@@ -9,7 +9,7 @@ edition = "2024"
 serde_json = { version = "1.0.117", optional = true }
 copager_core = { path = "./crates/core" }
 copager_core_macros = { path = "./crates/core_macros" }
-copager_cfg = { path = "./crates/cfg" }
+copager_cfl = { path = "./crates/cfl" }
 copager_lex = { path = "./crates/lex", optional = true }
 copager_lex_regex = { path = "./crates/lex_regex", optional = true }
 copager_parse = { path = "./crates/parse", optional = true }
@@ -22,6 +22,7 @@ copager_parse_lr_lalr1 = { path = "./crates/parse_lr_lalr1", optional = true }
 copager_ir = { path = "./crates/ir" }
 copager_ir_void = { path = "./crates/ir_void", optional = true }
 copager_ir_sexp = { path = "./crates/ir_sexp", optional = true }
+copager_ir_tree = { path = "./crates/ir_tree", optional = true }
 
 [dev-dependencies]
 anyhow = { workspace = true }
@@ -36,16 +37,17 @@ example_lang_xml = { path = "./examples/lang_xml" }
 [features]
 # all
 all = [
-    "prebuild", "derive", "dev",   # common
-    "regexlex",                    # lex
-    "lr0", "lr1", "slr1", "lalr1", # parse
-    "void", "sexp"                 # ir
+    "derive", "prebuild", "template", "dev",  # common
+    "regexlex",                               # lex
+    "lr0", "lr1", "slr1", "lalr1",            # parse
+    "void", "sexp", "tree",                   # ir
 ]
 
 # common
 default = ["dep:copager_lex", "dep:copager_parse"]
+derive = ["copager_cfl/derive"]
 prebuild = ["dep:serde_json"]
-derive = ["copager_lex/derive", "copager_parse/derive"]
+template = ["dep:copager_lex_regex"]
 dev = ["dep:copager_parse_common", "dep:copager_parse_lr_common"]
 
 # lex
@@ -60,6 +62,7 @@ lalr1 = ["dep:copager_parse_lr_lalr1"]
 # ir
 void = ["dep:copager_ir_void"]
 sexp = ["dep:copager_ir_sexp"]
+tree = ["dep:copager_ir_tree"]
 
 [workspace]
 resolver = "2"
@@ -67,21 +70,22 @@ members = [
     # Copager
     "./crates/core",
     "./crates/core_macros",
-    "./crates/cfg",
+    "./crates/cfl",
+    "./crates/cfl_derive",
     "./crates/lex",
-    "./crates/lex_derive",
     "./crates/lex_regex",
     "./crates/parse",
     "./crates/parse_common",
-    "./crates/parse_derive",
     "./crates/parse_lr_common",
     "./crates/parse_lr_lr0",
     "./crates/parse_lr_lr1",
     "./crates/parse_lr_slr1",
     "./crates/parse_lr_lalr1",
     "./crates/ir",
+    "./crates/ir_derive",
     "./crates/ir_void",
     "./crates/ir_sexp",
+    "./crates/ir_tree",
     "./crates/utils",
 
     # Examples
@@ -93,6 +97,9 @@ members = [
     "./examples/lang_xml",
 ]
 exclude = []
+
+[workspace.package]
+version = "0.3.1"
 
 [workspace.dependencies]
 anyhow = "1.0.82"

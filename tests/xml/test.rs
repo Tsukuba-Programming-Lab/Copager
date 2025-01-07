@@ -1,13 +1,11 @@
 mod utils;
 
-use copager::lex::RegexLexer;
-use copager::parse::LR1;
 use copager::ir::Void;
 use copager::Processor;
 
 use utils::{Expect, test_dir};
 
-use example_lang_xml::*;
+use example_lang_xml::Xml;
 
 #[test]
 fn success() {
@@ -20,14 +18,8 @@ fn fail() {
 }
 
 fn parse(input: &str) -> anyhow::Result<()> {
-    type TestLexer = RegexLexer<XmlToken>;
-    type TestParser = LR1<XmlToken, XmlRule>;
-    type TestProcessor = Processor<Xml, TestLexer, TestParser>;
-
-    TestProcessor::new()
-        .build_lexer()?
-        .build_parser()?
-        .process::<Void>(input)?;
-
-    Ok(())
+    Processor::<Xml>::new()
+        .build()?
+        .process::<Void>(input)
+        .and_then(|_| Ok(()))
 }

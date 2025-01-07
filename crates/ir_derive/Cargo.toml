@@ -1,0 +1,21 @@
+[package]
+name = "copager_ir_derive"
+version.workspace = true
+edition = "2021"
+
+[dependencies]
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+proc-macro2 = "1.0"
+quote = "1.0"
+syn = { version ="2.0", features = ["full", "extra-traits"] }
+
+[dev-dependencies]
+copager_core = { path = "../core" }
+copager_cfl = { path = "../cfl", features = ["derive"] }
+copager_ir = { path = "../ir", features = ["derive"] }
+copager_lex_regex = { path = "../lex_regex" }
+copager_parse_lr_lalr1 = { path = "../parse_lr_lalr1" }
+
+[lib]
+proc-macro = true

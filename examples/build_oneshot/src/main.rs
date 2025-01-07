@@ -1,33 +1,39 @@
 use std::io::{stdin, stdout, Write};
 
-use copager::lex::{LexSource, RegexLexer};
-use copager::parse::{ParseSource, LR1};
+use copager::cfl::{CFL, CFLRules, CFLTokens};
 use copager::ir::SExp;
+use copager::template::LALR1;
 use copager::prelude::*;
-use copager::{Language, Processor};
+use copager::Processor;
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, LexSource)]
+#[derive(Debug, Default, CFL)]
+struct ExprLang (
+    #[tokens] ExprToken,
+    #[rules] ExprRule,
+);
+
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
 enum ExprToken {
     #[default]
-    #[token(text = r"\+")]
+    #[token(r"\+")]
     Plus,
-    #[token(text = r"-")]
+    #[token(r"-")]
     Minus,
-    #[token(text = r"\*")]
+    #[token(r"\*")]
     Mul,
-    #[token(text = r"/")]
+    #[token(r"/")]
     Div,
-    #[token(text = r"\(")]
+    #[token(r"\(", ir_omit)]
     BracketL,
-    #[token(text = r"\)")]
+    #[token(r"\)", ir_omit)]
     BracketR,
-    #[token(text = r"[1-9][0-9]*")]
+    #[token(r"[1-9][0-9]*")]
     Num,
-    #[token(text = r"[ \t\n]+", ignored)]
+    #[token(r"[ \t\n]+", trivia)]
     _Whitespace,
 }
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, ParseSource)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
 enum ExprRule {
     #[default]
     #[rule("<expr> ::= <expr> Plus <term>")]
@@ -43,11 +49,6 @@ enum ExprRule {
     Num,
 }
 
-type MyLanguage = Language<ExprToken, ExprRule>;
-type MyLexer = RegexLexer<ExprToken>;
-type MyParser = LR1<ExprToken, ExprRule>;
-type MyProcessor = Processor<MyLanguage, MyLexer, MyParser>;
-
 fn main() -> anyhow::Result<()> {
     println!("Example <one-shot>");
     print!("Input: ");
@@ -56,10 +57,9 @@ fn main() -> anyhow::Result<()> {
     let mut input = String::new();
     stdin().read_line(&mut input)?;
 
-    let sexp = MyProcessor::new()
-        .build_lexer()?
-        .build_parser()?
-        .process::<SExp<_, _>>(&input)?;
+    let sexp = Processor::<LALR1<ExprLang>>::new()
+        .build()?
+        .process::<SExp<_>>(&input)?;
     println!("Success: {}", sexp);
 
     Ok(())

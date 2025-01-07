@@ -1,0 +1,14 @@
+[package]
+name = "copager_cfl"
+edition = "2021"
+version.workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+copager_cfl_derive = { path = "../cfl_derive", optional = true }
+
+[features]
+default = []
+derive = ["dep:copager_cfl_derive"]

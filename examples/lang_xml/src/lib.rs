@@ -1,51 +1,64 @@
-use copager::lex::LexSource;
-use copager::parse::ParseSource;
+use copager::cfl::{CFLRules, CFLTokens, CFL};
+use copager::template::LALR1;
 use copager::prelude::*;
-use copager::Language;
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, LexSource)]
+pub type Xml = LALR1<XmlLang>;
+
+#[derive(Debug, Default, CFL)]
+pub struct XmlLang (
+    #[tokens] XmlToken,
+    #[rules]  XmlRule,
+);
+
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
 pub enum XmlToken {
     // 記号
     #[default]
-    #[token(text = r"<")]
+    #[token(r"<", ir_omit)]
     TagL,
-    #[token(text = r">")]
+    #[token(r">", ir_omit)]
     TagR,
-    #[token(text = r"/")]
+    #[token(r"/", ir_omit)]
     Slash,
-    #[token(text = r"=")]
+    #[token(r"=", ir_omit)]
     Equal,
 
     // 文字列 & 識別子
-    #[token(text = r"[a-zA-Z_][a-zA-Z0-9_]*")]
+    #[token(r"[a-zA-Z_][a-zA-Z0-9_]*")]
     String,
-    #[token(text = r"'[a-zA-Z_][a-zA-Z0-9_]*'")]
+    #[token(r"'[a-zA-Z_][a-zA-Z0-9_]*'")]
     QuotedString,
-    #[token(text = r#""[a-zA-Z_][a-zA-Z0-9_]*""#)]
+    #[token(r#""[a-zA-Z_][a-zA-Z0-9_]*""#)]
     WQuotedString,
 
     // 空白文字
-    #[token(text = r"[ \t\n]+", ignored)]
+    #[token(r"[ \t\n]+", trivia)]
     _Whitespace,
 }
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, ParseSource)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
 pub enum XmlRule {
     // XML本体
     #[default]
-    #[rule("<xml> ::= <xml> <tag>")]
-    #[rule("<xml> ::= <tag>")]
+    #[rule("<xml> ::= <tag_list>")]
     Xml,
 
     // タグ
-    #[rule("<tag> ::= <begin> <value> <end>")]
+    #[rule("<tag_list> ::= <tag_list> <tag>")]
+    #[rule("<tag_list> ::= <tag>")]
+    TagList,
+
+    #[rule("<tag> ::= <begin> <value_list> <end>")]
+    #[rule("<tag> ::= <begin> <end>")]
     #[rule("<tag> ::= <single>")]
     Tag,
 
     #[rule("<single> ::= TagL String <attr_list> Slash TagR")]
+    #[rule("<single> ::= TagL String Slash TagR")]
     Single,
 
     #[rule("<begin> ::= TagL String <attr_list> TagR")]
+    #[rule("<begin> ::= TagL String TagR")]
     Begin,
 
     #[rule("<end> ::= TagL Slash String TagR")]
@@ -54,7 +67,6 @@ pub enum XmlRule {
     // 属性
     #[rule("<attr_list> ::= <attr_list> <attr>")]
     #[rule("<attr_list> ::= <attr>")]
-    #[rule("<attr_list> ::= ")]
     AttrList,
 
     #[rule("<attr> ::= String Equal QuotedString")]
@@ -62,9 +74,11 @@ pub enum XmlRule {
     Attr,
 
     // 値
-    #[rule("<value> ::= <xml>")]
+    #[rule("<value_list> ::= <value_list> <value>")]
+    #[rule("<value_list> ::= <value>")]
+    ValueList,
+
+    #[rule("<value> ::= <tag>")]
     #[rule("<value> ::= String")]
     Value,
 }
-
-pub type Xml = Language<XmlToken, XmlRule>;

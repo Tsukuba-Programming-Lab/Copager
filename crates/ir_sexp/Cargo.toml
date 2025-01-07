@@ -1,20 +1,19 @@
 [package]
 name = "copager_ir_sexp"
-version = "0.3.0"
+version.workspace = true
 edition = "2021"
 
 [dependencies]
 anyhow = { workspace = true }
 thiserror = { workspace = true }
-copager_cfg = { path = "../cfg" }
+copager_cfl = { path = "../cfl" }
 copager_lex = { path = "../lex" }
 copager_parse = { path = "../parse" }
-copager_ir = { path = "../ir" }
+copager_ir = { path = "../ir", features = ["derive"] }
 
 [dev-dependencies]
 copager_core = { path = "../core" }
-copager_lex = { path = "../lex", features = ["derive"] }
+copager_cfl = { path = "../cfl", features = ["derive"] }
 copager_lex_regex = { path = "../lex_regex" }
-copager_parse = { path = "../parse", features = ["derive"] }
 copager_parse_lr_lr1 = { path = "../parse_lr_lr1" }
 copager_ir_sexp = { path = "." }

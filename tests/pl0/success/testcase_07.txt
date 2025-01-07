@@ -1,0 +1,14 @@
+procedure ProcA;
+begin
+  call ProcB
+end;
+
+procedure ProcB;
+var x;
+begin
+    x := 1
+end;
+
+begin
+  call ProcA
+end.

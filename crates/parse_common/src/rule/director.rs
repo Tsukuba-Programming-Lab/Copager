@@ -1,10 +1,11 @@
 use std::collections::{HashMap, HashSet};
 
-use copager_cfg::token::TokenTag;
-use copager_cfg::rule::{Rule, RuleElem, RuleSet, RuleTag};
+use copager_cfl::token::TokenTag;
+use copager_cfl::rule::{Rule, RuleElem, RuleSet, RuleTag};
 
 use crate::rule::{FirstSet, FollowSet};
 
+#[derive(Debug)]
 pub struct DirectorSet<'a, T, R>
 where
     T: TokenTag,
@@ -105,14 +106,13 @@ where
 
 #[cfg(test)]
 mod test {
-    use copager_cfg::token::TokenTag;
-    use copager_cfg::rule::{Rule, RuleTag, RuleElem};
-    use copager_lex::LexSource;
-    use copager_parse::ParseSource;
+    use copager_cfl::token::TokenTag;
+    use copager_cfl::rule::{Rule, RuleTag, RuleElem};
+    use copager_cfl::{CFLTokens, CFLRules};
 
     use super::DirectorSet;
 
-    #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, LexSource)]
+    #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
     enum TestToken {
         #[token(r"a")]
         A,
@@ -120,7 +120,7 @@ mod test {
         B,
     }
 
-    #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, ParseSource)]
+    #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
     enum TestRule {
         #[default]
         #[rule("<S> ::= <A> <B>")]
@@ -151,7 +151,7 @@ mod test {
     }
 
     #[test]
-    fn follow_set() {
+    fn director_set() {
         macro_rules! term {
             ($expr:ident) => { RuleElem::new_term(TestToken::$expr) };
         }
@@ -172,7 +172,7 @@ mod test {
         assert!(eq_symbols(director_set.get(rule).unwrap(), expected.as_slice()));
 
         let rule = &TestRule::C.as_rules()[0];
-        let expected = vec![];
+        let expected = vec![RuleElem::EOF];
         assert!(eq_symbols(director_set.get(rule).unwrap(), expected.as_slice()));
     }
 }

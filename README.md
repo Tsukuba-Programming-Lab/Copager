@@ -9,6 +9,7 @@
 - `all`
 - `derive`
 - `prebuild`
+- `template`
 - `dev`
 
 ### Lex
@@ -17,15 +18,16 @@
 
 ### Parse
 
-- `lr0` : [crates/parse_lr0](crates/parse_lr0)
-- `lr1` : [crates/parse_lr1](crates/parse_lr1)
-- `slr1` : [crates/parse_slr1](crates/parse_slr1)
-- `lalr1` : [crates/parse_lalr1](crates/parse_lalr1)
+- `lr0` : [crates/parse_lr_lr0](crates/parse_lr_lr0)
+- `lr1` : [crates/parse_lr_lr1](crates/parse_lr_lr1)
+- `slr1` : [crates/parse_lr_slr1](crates/parse_lr_slr1)
+- `lalr1` : [crates/parse_lr_lalr1](crates/parse_lr_lalr1)
 
 ### IR
 
 - `void` : [crates/ir_void](crates/ir_void)
 - `sexp` : [crates/ir_sexp](crates/ir_sexp)
+- `tree` : [crates/ir_tree](crates/ir_tree)
 
 ```
 // RegexLex(lex) + LR1(parse) + SExp(ir)
@@ -39,10 +41,10 @@ copager = { ..., features = ["derive", "regexlex", "lalr1", "void"] }
 
 - [example_build_oneshot](examples/build_oneshot)
 - [example_build_prebuild](examples/build_prebuild)
-- [example_lang_arithmetic](examples/lang_arithmetic)
-- [example_lang_json](examples/lang_json)
-- [example_lang_pl0](examples/lang_pl0)
-- [example_lang_xml](examples/lang_xml)
+- [example_lang_arithmetic](examples/lang_arithmetic) [(lib.rs)](examples/lang_arithmetic/src/lib.rs)
+- [example_lang_json](examples/lang_json) [(lib.rs)](examples/lang_json/src/lib.rs)
+- [example_lang_pl0](examples/lang_pl0) [(lib.rs)](examples/lang_pl0/src/lib.rs)
+- [example_lang_xml](examples/lang_xml) [(lib.rs)](examples/lang_xml/src/lib.rs)
 
 ```
 $ cargo run -p example_build_oneshot
