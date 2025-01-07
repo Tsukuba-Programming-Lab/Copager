@@ -2,8 +2,8 @@ cargo-features = ["edition2024"]
 
 [package]
 name = "copager_parse_lr_slr1"
-version = "0.3.0"
 edition = "2024"
+version.workspace = true
 
 [dependencies]
 anyhow = { workspace = true }

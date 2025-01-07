@@ -49,7 +49,7 @@ dependencies = [
 
 [[package]]
 name = "copager_cfl"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "copager_cfl_derive",
@@ -59,7 +59,7 @@ dependencies = [
 
 [[package]]
 name = "copager_cfl_derive"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "copager_cfl",
@@ -71,7 +71,7 @@ dependencies = [
 
 [[package]]
 name = "copager_core"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "copager_cfl",
@@ -90,7 +90,7 @@ dependencies = [
 
 [[package]]
 name = "copager_core_macros"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "proc-macro2",
@@ -101,7 +101,7 @@ dependencies = [
 
 [[package]]
 name = "copager_ir"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "copager_cfl",
@@ -113,7 +113,7 @@ dependencies = [
 
 [[package]]
 name = "copager_ir_derive"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "copager_cfl",
@@ -129,7 +129,7 @@ dependencies = [
 
 [[package]]
 name = "copager_ir_sexp"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "copager_cfl",
@@ -145,7 +145,7 @@ dependencies = [
 
 [[package]]
 name = "copager_ir_tree"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "copager_cfl",
@@ -162,7 +162,7 @@ dependencies = [
 
 [[package]]
 name = "copager_ir_void"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "copager_cfl",
@@ -174,7 +174,7 @@ dependencies = [
 
 [[package]]
 name = "copager_lex"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "copager_cfl",
@@ -184,7 +184,7 @@ dependencies = [
 
 [[package]]
 name = "copager_lex_regex"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "copager_cfl",
@@ -198,7 +198,7 @@ dependencies = [
 
 [[package]]
 name = "copager_parse"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "copager_cfl",
@@ -209,7 +209,7 @@ dependencies = [
 
 [[package]]
 name = "copager_parse_common"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "copager_cfl",
@@ -218,7 +218,7 @@ dependencies = [
 
 [[package]]
 name = "copager_parse_lr_common"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "copager_cfl",
@@ -231,7 +231,7 @@ dependencies = [
 
 [[package]]
 name = "copager_parse_lr_lalr1"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "copager_cfl",
@@ -249,7 +249,7 @@ dependencies = [
 
 [[package]]
 name = "copager_parse_lr_lr0"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "copager_cfl",
@@ -266,7 +266,7 @@ dependencies = [
 
 [[package]]
 name = "copager_parse_lr_lr1"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "copager_cfl",
@@ -284,7 +284,7 @@ dependencies = [
 
 [[package]]
 name = "copager_parse_lr_slr1"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "copager_cfl",
@@ -302,7 +302,7 @@ dependencies = [
 
 [[package]]
 name = "copager_utils"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "copager_cfl",
