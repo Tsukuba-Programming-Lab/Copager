@@ -60,7 +60,7 @@ pub struct LR0Table<Lang: CFL> {
 }
 
 impl<Lang: CFL> LR0Table<Lang> {
-    fn try_from(cfl: &Lang) -> anyhow::Result<LRTable<Lang::TokenTag, Lang::RuleTag>> {
+    pub fn try_from(cfl: &Lang) -> anyhow::Result<LRTable<Lang::TokenTag, Lang::RuleTag>> {
         // Tokens，Rules 準備
         let tokens = cfl.instantiate_tokens();
         let rules = cfl.instantiate_rules();
