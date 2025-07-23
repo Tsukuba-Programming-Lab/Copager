@@ -1,5 +1,3 @@
-cargo-features = ["edition2024"]
-
 [package]
 name = "copager_parse_lr_slr1"
 edition = "2024"
