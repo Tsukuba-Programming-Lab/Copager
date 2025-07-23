@@ -1,6 +1,6 @@
 use copager_cfl::rule::{RuleTag, Rule, RuleElem};
 use copager_cfl::token::TokenTag;
-use copager_cfl::{CFL, CFLTokens, CFLRules};
+use copager_cfl::{CFL, CFLToken, CFLRule};
 
 #[derive(Default, CFL)]
 struct MyLanguage (
@@ -8,14 +8,14 @@ struct MyLanguage (
     #[rules]  MyRule,
 );
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]
 enum MyToken {
     #[default]
     #[token(r"a")]
     A,
 }
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
 enum MyRule {
     #[default]
     #[rule("<a> ::= A")]

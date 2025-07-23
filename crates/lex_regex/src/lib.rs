@@ -3,7 +3,7 @@
 use regex::{Regex, RegexSet};
 
 use copager_cfl::token::{TokenTag, Token};
-use copager_cfl::{CFL, CFLTokens};
+use copager_cfl::{CFL, CFLToken};
 use copager_lex::BaseLexer;
 
 #[derive(Debug)]
@@ -130,7 +130,7 @@ fn to_or_regex<T: AsRef<str>>(str_list: &[T]) -> String {
     format!("^({})", str_list)
 }
 
-fn get_regex_by_opts<Ts: CFLTokens>(tokens: &Ts, opt: &str) -> anyhow::Result<Option<Regex>> {
+fn get_regex_by_opts<Ts: CFLToken>(tokens: &Ts, opt: &str) -> anyhow::Result<Option<Regex>> {
     let tokens = tokens.iter()
         .filter(|token| token.as_option_list().contains(&opt))
         .map(|token| token.as_str_list().join("|"))

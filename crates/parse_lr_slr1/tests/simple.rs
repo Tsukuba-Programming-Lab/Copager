@@ -1,7 +1,7 @@
 use copager_core::{Generator, Processor};
 use copager_cfl::token::TokenTag;
 use copager_cfl::rule::{RuleTag, Rule, RuleElem};
-use copager_cfl::{CFL, CFLTokens, CFLRules};
+use copager_cfl::{CFL, CFLToken, CFLRule};
 use copager_lex_regex::RegexLexer;
 use copager_parse_lr_slr1::SLR1;
 use copager_ir_void::Void;
@@ -12,7 +12,7 @@ struct TestLang (
     #[rules] TestRule,
 );
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]
 enum TestToken {
     #[default]
     #[token(r"\+")]
@@ -33,7 +33,7 @@ enum TestToken {
     _Whitespace,
 }
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
 enum TestRule {
     #[default]
     #[rule("<expr> ::= <expr> Plus <term>")]

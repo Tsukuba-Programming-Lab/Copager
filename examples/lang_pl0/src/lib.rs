@@ -1,4 +1,4 @@
-use copager::cfl::{CFL, CFLTokens, CFLRules};
+use copager::cfl::{CFL, CFLToken, CFLRule};
 use copager::template::LALR1;
 use copager::prelude::*;
 
@@ -10,7 +10,7 @@ pub struct Pl0Lang (
     #[rules]  Pl0Rule,
 );
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, CFLTokens)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, CFLToken)]
 pub enum Pl0Token {
     // キーワード
     #[default]
@@ -86,7 +86,7 @@ pub enum Pl0Token {
     _Whitespace,
 }
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, CFLRules)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, CFLRule)]
 pub enum Pl0Rule {
     // プログラム本体
     #[default]

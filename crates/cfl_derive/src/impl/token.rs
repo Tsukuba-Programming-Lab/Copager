@@ -8,7 +8,7 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
     let data_enum = if let Data::Enum(data_enum) = ast.data {
         data_enum
     } else {
-        panic!("\"CFLTokens\" proc-macro is only implemented for enum.")
+        panic!("\"CFLToken\" proc-macro is only implemented for enum.")
     };
 
     let parsed_variantes = data_enum
@@ -43,7 +43,7 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
             }
         }
 
-        impl CFLTokens for #enum_name {
+        impl CFLToken for #enum_name {
             type Tag = Self;
 
             fn iter(&self) -> impl Iterator<Item = Self::Tag> {

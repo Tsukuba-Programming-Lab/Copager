@@ -3,7 +3,7 @@ use serde::{Serialize, Deserialize};
 use copager_core::{Generator, Processor};
 use copager_cfl::token::TokenTag;
 use copager_cfl::rule::{RuleTag, Rule, RuleElem};
-use copager_cfl::{CFL, CFLTokens, CFLRules};
+use copager_cfl::{CFL, CFLToken, CFLRule};
 use copager_lex_regex::RegexLexer;
 use copager_parse_lr_lr1::LR1;
 use copager_ir_void::Void;
@@ -16,7 +16,7 @@ struct ExprLang (
 
 #[derive(
     Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
-    CFLTokens, Serialize, Deserialize
+    CFLToken, Serialize, Deserialize
 )]
 enum ExprToken {
     #[default]
@@ -40,7 +40,7 @@ enum ExprToken {
 
 #[derive(
     Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
-    CFLRules, Serialize, Deserialize
+    CFLRule, Serialize, Deserialize
 )]
 enum ExprRule {
     #[default]

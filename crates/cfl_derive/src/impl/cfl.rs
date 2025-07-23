@@ -6,7 +6,7 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
     let data_struct = if let Data::Struct(data_struct) = ast.data {
         data_struct
     } else {
-        panic!("\"CFLTokens\" proc-macro is only implemented for struct.")
+        panic!("\"CFLToken\" proc-macro is only implemented for struct.")
     };
 
     let struct_name = &ast.ident;

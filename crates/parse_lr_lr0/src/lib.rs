@@ -6,7 +6,7 @@ use serde::{Serialize, Deserialize};
 
 use copager_cfl::token::{Token, TokenTag};
 use copager_cfl::rule::{Rule, RuleElem, RuleTag};
-use copager_cfl::{CFL, CFLTokens, CFLRules};
+use copager_cfl::{CFL, CFLToken, CFLRule};
 use copager_parse::{BaseParser, ParseEvent};
 use copager_parse_lr_common::lr0::item::LR0Item;
 use copager_parse_lr_common::lr0::LR0DFA;

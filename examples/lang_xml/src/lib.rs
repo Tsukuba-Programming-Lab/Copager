@@ -1,4 +1,4 @@
-use copager::cfl::{CFLRules, CFLTokens, CFL};
+use copager::cfl::{CFLRule, CFLToken, CFL};
 use copager::template::LALR1;
 use copager::prelude::*;
 
@@ -10,7 +10,7 @@ pub struct XmlLang (
     #[rules]  XmlRule,
 );
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]
 pub enum XmlToken {
     // 記号
     #[default]
@@ -36,7 +36,7 @@ pub enum XmlToken {
     _Whitespace,
 }
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
 pub enum XmlRule {
     // XML本体
     #[default]

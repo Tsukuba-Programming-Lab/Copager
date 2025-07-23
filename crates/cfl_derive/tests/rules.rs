@@ -1,8 +1,8 @@
 use copager_cfl::rule::{RuleTag, Rule, RuleElem};
 use copager_cfl::token::TokenTag;
-use copager_cfl::{CFLTokens, CFLRules};
+use copager_cfl::{CFLToken, CFLRule};
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]
 enum MyToken {
     #[token(r"\+")]
     Plus,
@@ -12,7 +12,7 @@ enum MyToken {
     Number,
 }
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
 enum MyRule {
     #[default]
     #[rule("<expr> ::= <expr> Plus Number")]
@@ -23,7 +23,7 @@ enum MyRule {
 
 #[test]
 fn check_compile_rules() {
-    // CFLRules
+    // CFLRule
     let myrule = MyRule::default();
     assert_eq!(myrule.iter().count(), 1);
 

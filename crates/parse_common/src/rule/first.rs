@@ -144,11 +144,11 @@ where
 mod test {
     use copager_cfl::token::TokenTag;
     use copager_cfl::rule::{Rule, RuleTag, RuleElem};
-    use copager_cfl::{CFLTokens, CFLRules};
+    use copager_cfl::{CFLToken, CFLRule};
 
     use super::FirstSet;
 
-    #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
+    #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]
     enum TestToken {
         #[token(r"a")]
         A,
@@ -156,7 +156,7 @@ mod test {
         B,
     }
 
-    #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
+    #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
     enum TestRule {
         #[default]
         #[rule("<S> ::= <A> <B>")]

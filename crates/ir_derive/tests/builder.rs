@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use copager_core::{Generator, Processor};
 use copager_cfl::token::{Token, TokenTag};
 use copager_cfl::rule::{Rule, RuleElem, RuleTag};
-use copager_cfl::{CFL, CFLTokens, CFLRules};
+use copager_cfl::{CFL, CFLToken, CFLRule};
 use copager_lex_regex::RegexLexer;
 use copager_parse_lr_lalr1::LALR1;
 use copager_ir::{IR, IRBuilder, RawIR};
@@ -14,7 +14,7 @@ struct TestLang (
     #[rules]  TestRule
 );
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]
 enum TestToken {
     #[default]
     #[token(r"\+")]
@@ -35,7 +35,7 @@ enum TestToken {
     _Whitespace,
 }
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
 enum TestRule {
     #[default]
     #[rule("<Test> ::= <Test> Plus <term>")]
