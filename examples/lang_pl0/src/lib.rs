@@ -1,10 +1,10 @@
-use copager::cfl::{CFL, TokenSet, RuleSet};
+use copager::lang::{Lang, TokenSet, RuleSet};
 use copager::template::LALR1;
 use copager::prelude::*;
 
 pub type Pl0 = LALR1<Pl0Lang>;
 
-#[derive(CFL)]
+#[derive(Lang)]
 pub struct Pl0Lang (
     #[tokenset] Pl0Token,
     #[ruleset]  Pl0Rule,

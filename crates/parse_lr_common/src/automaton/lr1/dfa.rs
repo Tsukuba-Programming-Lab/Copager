@@ -4,8 +4,8 @@ use std::rc::Rc;
 use std::sync::RwLock;
 use std::marker::PhantomData;
 
-use copager_cfl::token::TokenTag;
-use copager_cfl::rule::{Rule, RuleElem, RuleSetData, RuleTag};
+use copager_lang::token::TokenTag;
+use copager_lang::rule::{Rule, RuleElem, RuleSetData, RuleTag};
 use copager_parse_common::rule::FirstSet;
 
 use crate::automaton::Automaton;

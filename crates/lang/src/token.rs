@@ -41,7 +41,7 @@ impl<'input, T: TokenTag> Token<'input, T> {
 }
 
 #[cfg(feature = "derive")]
-pub use copager_cfl_derive::TokenSet;
+pub use copager_lang_derive::TokenSet;
 
 pub trait TokenSet {
     type Tag: TokenTag;

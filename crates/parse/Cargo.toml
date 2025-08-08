@@ -6,6 +6,6 @@ version.workspace = true
 [dependencies]
 anyhow = { workspace = true }
 thiserror = { workspace = true }
-copager_cfl = { path = "../cfl" }
+copager_lang = { path = "../lang" }
 copager_lex = { path = "../lex" }
 copager_utils = { path = "../utils" }

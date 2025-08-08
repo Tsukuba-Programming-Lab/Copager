@@ -3,24 +3,24 @@ use std::fmt::Debug;
 
 use serde::{Serialize, Deserialize};
 
-use copager_cfl::token::{Token, TokenTag};
-use copager_cfl::CFL;
+use copager_lang::token::{Token, TokenTag};
+use copager_lang::Lang;
 use copager_ir::{IR, IRBuilder, RawIR};
 
 #[derive(Debug, Serialize, Deserialize, IR, IRBuilder)]
-pub enum Tree<'input, Lang: CFL> {
+pub enum Tree<'input, L: Lang> {
     Leaf {
-        tag: Lang::TokenTag,
+        tag: L::TokenTag,
         text: &'input str,
     },
     Node {
-        tag: Lang::RuleTag,
-        children: VecDeque<Tree<'input, Lang>>,
+        tag: L::RuleTag,
+        children: VecDeque<Tree<'input, L>>,
     },
 }
 
-impl<'input, Lang: CFL> From<RawIR<'input, Lang>> for Tree<'input, Lang> {
-    fn from(raw: RawIR<'input, Lang>) -> Self {
+impl<'input, L: Lang> From<RawIR<'input, L>> for Tree<'input, L> {
+    fn from(raw: RawIR<'input, L>) -> Self {
         match raw {
             RawIR::Atom(token) => {
                 let text = token.as_str();

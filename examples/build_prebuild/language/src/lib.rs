@@ -1,12 +1,12 @@
 use serde::{Deserialize, Serialize};
 
-use copager::cfl::{CFL, TokenSet, RuleSet};
+use copager::lang::{Lang, TokenSet, RuleSet};
 use copager::template::LALR1;
 use copager::prelude::*;
 
 pub type Arithmetic = LALR1<ArithmeticLang>;
 
-#[derive(CFL, Serialize, Deserialize)]
+#[derive(Lang, Serialize, Deserialize)]
 pub struct ArithmeticLang (
     #[tokenset] ArithmeticToken,
     #[ruleset] ArithmeticRule,

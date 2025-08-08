@@ -1,10 +1,10 @@
-use copager::cfl::{CFL, RuleSet, TokenSet};
+use copager::lang::{Lang, RuleSet, TokenSet};
 use copager::template::LALR1;
 use copager::prelude::*;
 
 pub type Arithmetic = LALR1<ArithmeticLang>;
 
-#[derive(CFL)]
+#[derive(Lang)]
 pub struct ArithmeticLang (
     #[tokenset] ArithmeticToken,
     #[ruleset]  ArithmeticRule,

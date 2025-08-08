@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
-use copager_cfl::token::TokenTag;
-use copager_cfl::rule::{Rule, RuleElem, RuleSetData, RuleTag};
+use copager_lang::token::TokenTag;
+use copager_lang::rule::{Rule, RuleElem, RuleSetData, RuleTag};
 
 use crate::rule::{FirstSet, FollowSet};
 
@@ -106,8 +106,8 @@ where
 
 #[cfg(test)]
 mod test {
-    use copager_cfl::token::{TokenSet, TokenTag};
-    use copager_cfl::rule::{Rule, RuleElem, RuleSet, RuleTag};
+    use copager_lang::token::{TokenSet, TokenTag};
+    use copager_lang::rule::{Rule, RuleElem, RuleSet, RuleTag};
 
     use super::DirectorSet;
 

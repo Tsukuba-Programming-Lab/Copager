@@ -1,8 +1,8 @@
 use std::collections::{HashMap, HashSet};
 use std::marker::PhantomData;
 
-use copager_cfl::token::TokenTag;
-use copager_cfl::rule::{RuleElem, RuleSetData, RuleTag};
+use copager_lang::token::TokenTag;
+use copager_lang::rule::{RuleElem, RuleSetData, RuleTag};
 
 #[derive(Debug)]
 pub struct FirstSet<'a, T, R>
@@ -142,8 +142,8 @@ where
 
 #[cfg(test)]
 mod test {
-    use copager_cfl::token::{TokenSet, TokenTag};
-    use copager_cfl::rule::{Rule, RuleElem, RuleSet, RuleTag};
+    use copager_lang::token::{TokenSet, TokenTag};
+    use copager_lang::rule::{Rule, RuleElem, RuleSet, RuleTag};
 
     use super::FirstSet;
 

@@ -2,8 +2,8 @@ use std::fmt::Debug;
 
 use thiserror::Error;
 
-use copager_cfl::token::{TokenTag, Token};
-use copager_cfl::rule::RuleTag;
+use copager_lang::token::{TokenTag, Token};
+use copager_lang::rule::RuleTag;
 use copager_utils::error::PrettyError;
 
 use crate::table::LRAction;

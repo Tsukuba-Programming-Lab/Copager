@@ -1,12 +1,12 @@
 use copager_core::{Generator, Processor};
-use copager_cfl::token::{TokenSet, TokenTag};
-use copager_cfl::rule::{Rule, RuleElem, RuleSet, RuleTag};
-use copager_cfl::CFL;
+use copager_lang::token::{TokenSet, TokenTag};
+use copager_lang::rule::{Rule, RuleElem, RuleSet, RuleTag};
+use copager_lang::Lang;
 use copager_lex_regex::RegexLexer;
 use copager_parse_lr_slr1::SLR1;
 use copager_ir_void::Void;
 
-#[derive(CFL)]
+#[derive(Lang)]
 struct TestLang (
     #[tokenset] TestToken,
     #[ruleset]  TestRule,

@@ -3,14 +3,14 @@ use serde_cbor::ser::to_vec_packed;
 use serde_cbor::de::from_slice;
 
 use copager_core::{Generator, Processor};
-use copager_cfl::token::{TokenSet, TokenTag};
-use copager_cfl::rule::{Rule, RuleElem, RuleSet, RuleTag};
-use copager_cfl::CFL;
+use copager_lang::token::{TokenSet, TokenTag};
+use copager_lang::rule::{Rule, RuleElem, RuleSet, RuleTag};
+use copager_lang::Lang;
 use copager_lex_regex::RegexLexer;
 use copager_parse_lr_lr1::LR1;
 use copager_ir_void::Void;
 
-#[derive(Clone, CFL, Serialize, Deserialize)]
+#[derive(Clone, Lang, Serialize, Deserialize)]
 struct ExprLang (
     #[tokenset] ExprToken,
     #[ruleset]  ExprRule,

@@ -6,7 +6,7 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
     let data_struct = if let Data::Struct(data_struct) = ast.data {
         data_struct
     } else {
-        panic!("\"CFL\" proc-macro is only implemented for struct.")
+        panic!("\"Lang\" proc-macro is only implemented for struct.")
     };
 
     let struct_fields = FieldsWrapper::from(&data_struct.fields);
@@ -16,7 +16,7 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
     let struct_name = &ast.ident;
 
     quote!{
-        impl CFL for #struct_name {
+        impl Lang for #struct_name {
             type TokenTag = #tokenset_ty;
             type TokenSet = #tokenset_ty;
             type RuleTag = #ruleset_ty;

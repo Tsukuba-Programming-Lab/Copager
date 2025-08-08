@@ -1,14 +1,14 @@
 use std::marker::PhantomData;
 
 use copager_core::{Generator, Processor};
-use copager_cfl::token::{Token, TokenSet, TokenTag};
-use copager_cfl::rule::{Rule, RuleElem, RuleSet, RuleTag};
-use copager_cfl::CFL;
+use copager_lang::token::{Token, TokenSet, TokenTag};
+use copager_lang::rule::{Rule, RuleElem, RuleSet, RuleTag};
+use copager_lang::Lang;
 use copager_lex_regex::RegexLexer;
 use copager_parse_lr_lalr1::LALR1;
 use copager_ir::{IR, IRBuilder, RawIR};
 
-#[derive(CFL)]
+#[derive(Lang)]
 struct TestLang (
     #[tokenset] TestToken,
     #[ruleset]  TestRule,
@@ -51,13 +51,13 @@ enum TestRule {
 }
 
 #[derive(Debug, IR, IRBuilder)]
-struct TestIR<'input, Lang: CFL> {
+struct TestIR<'input, L: Lang> {
     _phantom_input: PhantomData<&'input ()>,
-    _phantom_lang: PhantomData<Lang>,
+    _phantom_lang: PhantomData<L>,
 }
 
-impl<'input, Lang: CFL> From<RawIR<'input, Lang>> for TestIR<'input, Lang> {
-    fn from(_: RawIR<'input, Lang>) -> Self {
+impl<'input, L: Lang> From<RawIR<'input, L>> for TestIR<'input, L> {
+    fn from(_: RawIR<'input, L>) -> Self {
         Self {
             _phantom_input: PhantomData,
             _phantom_lang: PhantomData,

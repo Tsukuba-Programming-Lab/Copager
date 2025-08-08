@@ -2,8 +2,8 @@ use std::collections::{HashMap, HashSet};
 use std::fmt::{Display, Debug};
 use std::hash::Hash;
 
-use copager_cfl::token::TokenTag;
-use copager_cfl::rule::{Rule, RuleElem, RuleSetData, RuleTag};
+use copager_lang::token::TokenTag;
+use copager_lang::rule::{Rule, RuleElem, RuleSetData, RuleTag};
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq)]
 pub struct LR0Item<'a, T, R>

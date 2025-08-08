@@ -1,9 +1,9 @@
 pub use copager_core::*;
 
-pub mod cfl {
-    pub use copager_cfl::*;
-    pub use copager_cfl::token::TokenSet;
-    pub use copager_cfl::rule::RuleSet;
+pub mod lang {
+    pub use copager_lang::*;
+    pub use copager_lang::token::TokenSet;
+    pub use copager_lang::rule::RuleSet;
 }
 
 pub mod lex {
@@ -35,8 +35,8 @@ pub mod ir {
 }
 
 pub mod prelude {
-    pub use copager_cfl::rule::{Rule, RuleElem, RuleTag};
-    pub use copager_cfl::token::TokenTag;
+    pub use copager_lang::rule::{Rule, RuleElem, RuleTag};
+    pub use copager_lang::token::TokenTag;
 }
 
 #[cfg(feature = "prebuild")]

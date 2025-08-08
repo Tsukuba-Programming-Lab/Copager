@@ -2,21 +2,21 @@
 
 use regex::{Regex, RegexSet};
 
-use copager_cfl::token::{Token, TokenSet, TokenTag};
-use copager_cfl::CFL;
+use copager_lang::token::{Token, TokenSet, TokenTag};
+use copager_lang::Lang;
 use copager_lex::BaseLexer;
 
 #[derive(Debug)]
-pub struct RegexLexer<Lang: CFL> {
+pub struct RegexLexer<L: Lang> {
     regex_pre_trivia: Option<Regex>,
     regex_post_trivia: Option<Regex>,
     regex_set: RegexSet,
-    regex_map: Vec<(Regex, Lang::TokenTag)>,
+    regex_map: Vec<(Regex, L::TokenTag)>,
 }
 
-impl<Lang: CFL> BaseLexer<Lang> for RegexLexer<Lang> {
+impl<L: Lang> BaseLexer<L> for RegexLexer<L> {
     fn init() -> anyhow::Result<Self> {
-        let tokens = Lang::TokenSet::instantiate();
+        let tokens = L::TokenSet::instantiate();
 
         // Trivia 用正規表現の準備
         let regex_pre_trivia = get_regex_by_opts(&tokens, "pre_trivia")?
@@ -46,7 +46,7 @@ impl<Lang: CFL> BaseLexer<Lang> for RegexLexer<Lang> {
         })
     }
 
-    gen fn run<'input>(&self, input: &'input str) -> Token<'input, Lang::TokenTag> {
+    gen fn run<'input>(&self, input: &'input str) -> Token<'input, L::TokenTag> {
         let mut pos = 0;
         loop {
             match self.extract_token(input, pos) {
@@ -60,8 +60,8 @@ impl<Lang: CFL> BaseLexer<Lang> for RegexLexer<Lang> {
     }
 }
 
-impl<'input, Lang: CFL> RegexLexer<Lang> {
-    fn extract_token(&self, src: &'input str, begin: usize) -> Option<Token<'input, Lang::TokenTag>> {
+impl<'input, L: Lang> RegexLexer<L> {
+    fn extract_token(&self, src: &'input str, begin: usize) -> Option<Token<'input, L::TokenTag>> {
         let full_begin = begin;
         let pre_trivia_end = full_begin + self.pre_trivia_len(&src[full_begin..]);
 

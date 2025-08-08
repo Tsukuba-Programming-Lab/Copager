@@ -1,12 +1,12 @@
 use std::io::{stdin, stdout, Write};
 
-use copager::cfl::{CFL, TokenSet, RuleSet};
+use copager::lang::{Lang, TokenSet, RuleSet};
 use copager::ir::SExp;
 use copager::template::LALR1;
 use copager::prelude::*;
 use copager::Processor;
 
-#[derive(CFL)]
+#[derive(Lang)]
 struct ExprLang (
     #[tokenset] ExprToken,
     #[ruleset] ExprRule,

@@ -1,10 +1,10 @@
-use copager::cfl::{RuleSet, TokenSet, CFL};
+use copager::lang::{RuleSet, TokenSet, Lang};
 use copager::template::LALR1;
 use copager::prelude::*;
 
 pub type Xml = LALR1<XmlLang>;
 
-#[derive(CFL)]
+#[derive(Lang)]
 pub struct XmlLang (
     #[tokenset] XmlToken,
     #[ruleset]  XmlRule,

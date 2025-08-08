@@ -1,23 +1,23 @@
 use std::collections::VecDeque;
 use std::fmt::{Debug, Display};
 
-use copager_cfl::token::{Token, TokenTag};
-use copager_cfl::CFL;
+use copager_lang::token::{Token, TokenTag};
+use copager_lang::Lang;
 use copager_ir::{IR, IRBuilder, RawIR};
 
 #[derive(Debug, IR, IRBuilder)]
-pub enum SExp<'input, Lang: CFL> {
+pub enum SExp<'input, L: Lang> {
     Atom(&'input str),
     List {
-        rule: Lang::RuleTag,
-        elems: VecDeque<SExp<'input, Lang>>,
+        rule: L::RuleTag,
+        elems: VecDeque<SExp<'input, L>>,
     },
 }
 
-impl<Lang: CFL> Display for SExp<'_, Lang>
+impl<L: Lang> Display for SExp<'_, L>
 where
-    Lang::TokenTag: Debug,
-    Lang::RuleTag: Debug,
+    L::TokenTag: Debug,
+    L::RuleTag: Debug,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -33,8 +33,8 @@ where
     }
 }
 
-impl<'input, Lang: CFL> From<RawIR<'input, Lang>> for SExp<'input, Lang> {
-    fn from(raw: RawIR<'input, Lang>) -> Self {
+impl<'input, L: Lang> From<RawIR<'input, L>> for SExp<'input, L> {
+    fn from(raw: RawIR<'input, L>) -> Self {
         match raw {
             RawIR::Atom(token) => {
                 let s = token.as_str();

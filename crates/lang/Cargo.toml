@@ -1,5 +1,5 @@
 [package]
-name = "copager_cfl"
+name = "copager_lang"
 edition = "2021"
 version.workspace = true
 
@@ -7,8 +7,8 @@ version.workspace = true
 anyhow = { workspace = true }
 thiserror = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
-copager_cfl_derive = { path = "../cfl_derive", optional = true }
+copager_lang_derive = { path = "../lang_derive", optional = true }
 
 [features]
 default = []
-derive = ["dep:copager_cfl_derive"]
+derive = ["dep:copager_lang_derive"]

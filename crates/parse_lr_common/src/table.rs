@@ -3,8 +3,8 @@ use std::fmt::Display;
 
 use serde::{Serialize, Deserialize};
 
-use copager_cfl::token::{Token, TokenTag};
-use copager_cfl::rule::{Rule, RuleElem, RuleTag};
+use copager_lang::token::{Token, TokenTag};
+use copager_lang::rule::{Rule, RuleElem, RuleTag};
 
 use crate::automaton::Automaton;
 use crate::error::LRError;

@@ -25,7 +25,7 @@ pub struct Processor<Gen: GeneratorDesign> {
 
     // Phantom
     #[serde(skip)]
-    _phantom_cfl: PhantomData<Gen::Lang>,
+    _phantom_lang: PhantomData<Gen::Lang>,
     #[serde(skip)]
     _phantom_gen: PhantomData<Gen>,
 }
@@ -37,7 +37,7 @@ impl<Gen: GeneratorDesign> Processor<Gen> {
             cache_parse: None,
             lexer: None,
             parser: None,
-            _phantom_cfl: PhantomData,
+            _phantom_lang: PhantomData,
             _phantom_gen: PhantomData,
         }
     }
@@ -48,14 +48,14 @@ impl<Gen: GeneratorDesign> Processor<Gen> {
     }
 
     pub fn build_lexer(mut self) -> anyhow::Result<Self> {
-        let lexer = <Gen::Lexer as BaseLexer<Gen::Lang>>::init()?;
+        let lexer = Gen::Lexer::init()?;
         self.lexer = Some(lexer);
 
         Ok(self)
     }
 
     pub fn build_parser(mut self) -> anyhow::Result<Self> {
-        let parser = <Gen::Parser as BaseParser<Gen::Lang>>::init()?;
+        let parser = Gen::Parser::init()?;
         self.parser = Some(parser);
 
         Ok(self)

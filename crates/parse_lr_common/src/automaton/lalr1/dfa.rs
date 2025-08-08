@@ -2,8 +2,8 @@ use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 use std::sync::RwLock;
 
-use copager_cfl::token::TokenTag;
-use copager_cfl::rule::{Rule, RuleElem, RuleTag};
+use copager_lang::token::TokenTag;
+use copager_lang::rule::{Rule, RuleElem, RuleTag};
 
 use crate::automaton::lr1::dfa::{LR1DFA, LR1DFANode};
 use crate::lalr1::item::{LALR1Item, LALR1ItemSet};

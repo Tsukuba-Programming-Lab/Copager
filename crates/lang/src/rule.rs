@@ -156,7 +156,7 @@ impl<T: TokenTag> RuleElem<T> {
 
 
 #[cfg(feature = "derive")]
-pub use copager_cfl_derive::RuleSet;
+pub use copager_lang_derive::RuleSet;
 
 pub trait RuleSet<T: TokenTag> {
     type Tag: RuleTag<T>;

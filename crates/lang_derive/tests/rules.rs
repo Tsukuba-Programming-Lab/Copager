@@ -1,5 +1,5 @@
-use copager_cfl::rule::{Rule, RuleElem, RuleSet, RuleTag};
-use copager_cfl::token::{TokenSet, TokenTag};
+use copager_lang::rule::{Rule, RuleElem, RuleSet, RuleTag};
+use copager_lang::token::{TokenSet, TokenTag};
 
 #[derive(Clone, Hash, PartialEq, Eq, TokenSet)]
 enum MyToken {

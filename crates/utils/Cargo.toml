@@ -7,4 +7,4 @@ version.workspace = true
 anyhow = { workspace = true }
 thiserror = { workspace = true }
 serde = { workspace = true }
-copager_cfl = { path = "../cfl"}
+copager_lang = { path = "../lang"}

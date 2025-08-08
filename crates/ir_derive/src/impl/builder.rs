@@ -11,25 +11,25 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
     let generics = to_generics_without_where(&ast.generics);
 
     quote! {
-        #vis struct #ident_builder<'input, Lang: CFL> {
-            stack: Vec<RawIR<'input, Lang>>,
+        #vis struct #ident_builder<'input, L: Lang> {
+            stack: Vec<RawIR<'input, L>>,
         }
 
-        impl <'input, Lang: CFL> IRBuilder<'input, Lang> for #ident_builder<'input, Lang> {
+        impl <'input, L: Lang> IRBuilder<'input, L> for #ident_builder<'input, L> {
             type Output = #ident #generics;
 
-            fn new() -> #ident_builder<'input, Lang> {
+            fn new() -> #ident_builder<'input, L> {
                 #ident_builder {
                     stack: Vec::new(),
                 }
             }
 
-            fn on_read(&mut self, token: Token<'input, Lang::TokenTag>) -> anyhow::Result<()> {
+            fn on_read(&mut self, token: Token<'input, L::TokenTag>) -> anyhow::Result<()> {
                 self.stack.push(RawIR::Atom(token));
                 Ok(())
             }
 
-            fn on_parse(&mut self, rule: Lang::RuleTag, len: usize) -> anyhow::Result<()> {
+            fn on_parse(&mut self, rule: L::RuleTag, len: usize) -> anyhow::Result<()> {
                 let elems = self.stack.split_off(self.stack.len() - len);
                 let elems = elems
                     .into_iter()
@@ -44,7 +44,7 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
 
             fn build(mut self) -> anyhow::Result<Self::Output>
             where
-                Self::Output: From<RawIR<'input, Lang>>,
+                Self::Output: From<RawIR<'input, L>>,
             {
                 assert!(self.stack.len() == 1);
                 Ok(Self::Output::from(self.stack.pop().unwrap()))

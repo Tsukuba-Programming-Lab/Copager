@@ -1,8 +1,8 @@
-use copager_cfl::rule::{Rule, RuleElem, RuleSet, RuleTag};
-use copager_cfl::token::{TokenSet, TokenTag};
-use copager_cfl::CFL;
+use copager_lang::rule::{Rule, RuleElem, RuleSet, RuleTag};
+use copager_lang::token::{TokenSet, TokenTag};
+use copager_lang::Lang;
 
-#[derive(CFL)]
+#[derive(Lang)]
 struct MyLanguage (
     #[tokenset] MyToken,
     #[ruleset]  MyRule,
@@ -22,7 +22,7 @@ enum MyRule {
 }
 
 #[test]
-fn check_compile_cfl() {
+fn check_compile_lang() {
     let _ = MyLanguage (
         MyToken::A,
         MyRule::A,

@@ -1,10 +1,10 @@
-use copager_cfl::token::{Token, TokenSet, TokenTag};
-use copager_cfl::rule::{Rule, RuleElem, RuleSet, RuleTag};
-use copager_cfl::CFL;
+use copager_lang::token::{Token, TokenSet, TokenTag};
+use copager_lang::rule::{Rule, RuleElem, RuleSet, RuleTag};
+use copager_lang::Lang;
 use copager_lex::BaseLexer;
 use copager_lex_regex::RegexLexer;
 
-#[derive(CFL)]
+#[derive(Lang)]
 struct TestLang (
     #[tokenset] TestToken,
     #[ruleset]  TestRule,
