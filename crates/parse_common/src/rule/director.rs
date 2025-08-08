@@ -106,13 +106,13 @@ where
 
 #[cfg(test)]
 mod test {
-    use copager_cfl::token::TokenTag;
+    use copager_cfl::token::{TokenSet, TokenTag};
     use copager_cfl::rule::{Rule, RuleTag, RuleElem};
-    use copager_cfl::{CFLToken, CFLRule};
+    use copager_cfl::CFLRule;
 
     use super::DirectorSet;
 
-    #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]
+    #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, TokenSet)]
     enum TestToken {
         #[token(r"a")]
         A,

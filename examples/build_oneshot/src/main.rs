@@ -1,6 +1,6 @@
 use std::io::{stdin, stdout, Write};
 
-use copager::cfl::{CFL, CFLRule, CFLToken};
+use copager::cfl::{CFL, TokenSet, CFLRule};
 use copager::ir::SExp;
 use copager::template::LALR1;
 use copager::prelude::*;
@@ -12,7 +12,7 @@ struct ExprLang (
     #[ruleset] ExprRule,
 );
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq, CFLToken)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, TokenSet)]
 enum ExprToken {
     #[token(r"\+")]
     Plus,

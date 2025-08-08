@@ -1,4 +1,4 @@
-use copager::cfl::{CFL, CFLToken, CFLRule};
+use copager::cfl::{CFL, TokenSet, CFLRule};
 use copager::template::LALR1;
 use copager::prelude::*;
 
@@ -10,7 +10,7 @@ pub struct Pl0Lang (
     #[ruleset]  Pl0Rule,
 );
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, CFLToken)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, TokenSet)]
 pub enum Pl0Token {
     // キーワード
     #[token(r"const", r"CONST", ir_omit)]

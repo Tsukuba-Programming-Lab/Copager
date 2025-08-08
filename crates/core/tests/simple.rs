@@ -1,9 +1,9 @@
 use serde::{Serialize, Deserialize};
 
 use copager_core::{Generator, Processor};
-use copager_cfl::token::TokenTag;
+use copager_cfl::token::{TokenSet, TokenTag};
 use copager_cfl::rule::{RuleTag, Rule, RuleElem};
-use copager_cfl::{CFL, CFLToken, CFLRule};
+use copager_cfl::{CFL, CFLRule};
 use copager_lex_regex::RegexLexer;
 use copager_parse_lr_lr1::LR1;
 use copager_ir_void::Void;
@@ -14,7 +14,7 @@ struct ExprLang (
     #[ruleset]  ExprRule,
 );
 
-#[derive(Clone, Hash, PartialEq, Eq, CFLToken, Serialize, Deserialize)]
+#[derive(Clone, Hash, PartialEq, Eq, TokenSet, Serialize, Deserialize)]
 enum ExprToken {
     #[token(r"\+")]
     Plus,

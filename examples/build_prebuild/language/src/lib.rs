@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use copager::cfl::{CFL, CFLRule, CFLToken};
+use copager::cfl::{CFL, TokenSet, CFLRule};
 use copager::template::LALR1;
 use copager::prelude::*;
 
@@ -12,7 +12,7 @@ pub struct ArithmeticLang (
     #[ruleset] ArithmeticRule,
 );
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq, CFLToken, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, TokenSet, Serialize, Deserialize)]
 pub enum ArithmeticToken {
     #[token(r"\+")]
     Plus,

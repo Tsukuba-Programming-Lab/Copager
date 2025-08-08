@@ -1,24 +1,17 @@
 pub mod rule;
 pub mod token;
 
-use token::TokenTag;
+use token::{TokenTag, TokenSet};
 use rule::{RuleTag, RuleSetData};
 
 #[cfg(feature = "derive")]
-pub use copager_cfl_derive::{CFL, CFLToken, CFLRule};
+pub use copager_cfl_derive::{CFL, CFLRule};
 
 pub trait CFL {
     type TokenTag: TokenTag;
-    type TokenSet: CFLToken<Tag = Self::TokenTag>;
+    type TokenSet: TokenSet<Tag = Self::TokenTag>;
     type RuleTag: RuleTag<Self::TokenTag>;
     type RuleSet: CFLRule<Self::TokenTag, Tag = Self::RuleTag>;
-}
-
-pub trait CFLToken {
-    type Tag: TokenTag;
-
-    fn instantiate() -> Self;
-    fn iter(&self) -> impl Iterator<Item = Self::Tag>;
 }
 
 pub trait CFLRule<T: TokenTag> {

@@ -3,6 +3,9 @@ use std::hash::Hash;
 
 use serde::{Serialize, Deserialize};
 
+#[cfg(feature = "derive")]
+pub use copager_cfl_derive::TokenSet;
+
 pub trait TokenTag
 where
     Self: Clone + Hash + Eq,
@@ -38,4 +41,11 @@ impl<'input, T: TokenTag> Token<'input, T> {
         let (l, r) = self.full;
         &self.src[l..r]
     }
+}
+
+pub trait TokenSet {
+    type Tag: TokenTag;
+
+    fn instantiate() -> Self;
+    fn iter(&self) -> impl Iterator<Item = Self::Tag>;
 }

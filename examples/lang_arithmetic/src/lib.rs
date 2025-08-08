@@ -1,4 +1,4 @@
-use copager::cfl::{CFL, CFLRule, CFLToken};
+use copager::cfl::{CFL, CFLRule, TokenSet};
 use copager::template::LALR1;
 use copager::prelude::*;
 
@@ -10,7 +10,7 @@ pub struct ArithmeticLang (
     #[ruleset]  ArithmeticRule,
 );
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq, CFLToken)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, TokenSet)]
 pub enum ArithmeticToken {
     #[token(r"\+")]
     Plus,

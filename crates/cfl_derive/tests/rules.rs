@@ -1,8 +1,8 @@
 use copager_cfl::rule::{RuleTag, Rule, RuleElem};
-use copager_cfl::token::TokenTag;
-use copager_cfl::{CFLToken, CFLRule};
+use copager_cfl::token::{TokenSet, TokenTag};
+use copager_cfl::CFLRule;
 
-#[derive(Clone, Hash, PartialEq, Eq, CFLToken)]
+#[derive(Clone, Hash, PartialEq, Eq, TokenSet)]
 enum MyToken {
     #[token(r"\+")]
     Plus,
