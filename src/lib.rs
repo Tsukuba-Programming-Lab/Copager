@@ -3,6 +3,7 @@ pub use copager_core::*;
 pub mod cfl {
     pub use copager_cfl::*;
     pub use copager_cfl::token::TokenSet;
+    pub use copager_cfl::rule::RuleSet;
 }
 
 pub mod lex {

@@ -6,7 +6,7 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
     let data_enum = if let Data::Enum(data_enum) = ast.data {
         data_enum
     } else {
-        panic!("\"CFLRule\" proc-macro is only implemented for enum.")
+        panic!("\"RuleSet\" proc-macro is only implemented for enum.")
     };
 
     // 字句集合の型を取得
@@ -18,7 +18,7 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
         .map(|a| a.parse_args::<Ident>().unwrap());
     let tokenset_ty = match tokenset_ty {
         Some(ty) => ty,
-        None => panic!("\"CFLRule\" proc-macro requires a \"tokenset\" attribute on the enum."),
+        None => panic!("\"RuleSet\" proc-macro requires a \"tokenset\" attribute on the enum."),
     };
 
     // 各列挙子と紐づく文法規則を解析
@@ -50,7 +50,7 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
             }
         }
 
-        impl CFLRule<#tokenset_ty> for #enum_name {
+        impl RuleSet<#tokenset_ty> for #enum_name {
             type Tag = Self;
 
             fn instantiate() -> Self {

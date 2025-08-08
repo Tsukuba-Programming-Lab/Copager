@@ -1,4 +1,4 @@
-use copager::cfl::{CFLRule, TokenSet, CFL};
+use copager::cfl::{RuleSet, TokenSet, CFL};
 use copager::template::LALR1;
 use copager::prelude::*;
 
@@ -35,7 +35,7 @@ pub enum XmlToken {
     _Whitespace,
 }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq, CFLRule)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, RuleSet)]
 pub enum XmlRule {
     // 字句集合
     #[tokenset(XmlToken)]

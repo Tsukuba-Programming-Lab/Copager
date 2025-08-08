@@ -1,6 +1,6 @@
-use copager_cfl::rule::{RuleTag, Rule, RuleElem};
+use copager_cfl::rule::{Rule, RuleElem, RuleSet, RuleTag};
 use copager_cfl::token::{TokenSet, TokenTag};
-use copager_cfl::{CFL, CFLRule};
+use copager_cfl::CFL;
 
 #[derive(CFL)]
 struct MyLanguage (
@@ -14,7 +14,7 @@ enum MyToken {
     A,
 }
 
-#[derive(Clone, Hash, PartialEq, Eq, CFLRule)]
+#[derive(Clone, Hash, PartialEq, Eq, RuleSet)]
 enum MyRule {
     #[tokenset(MyToken)]
     #[rule("<a> ::= A")]

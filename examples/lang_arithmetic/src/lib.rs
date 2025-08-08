@@ -1,4 +1,4 @@
-use copager::cfl::{CFL, CFLRule, TokenSet};
+use copager::cfl::{CFL, RuleSet, TokenSet};
 use copager::template::LALR1;
 use copager::prelude::*;
 
@@ -30,7 +30,7 @@ pub enum ArithmeticToken {
     _Whitespace,
 }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq, CFLRule)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, RuleSet)]
 pub enum ArithmeticRule {
     #[tokenset(ArithmeticToken)]
     #[rule("<expr> ::= <expr> Plus <term>")]

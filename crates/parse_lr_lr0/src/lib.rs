@@ -5,8 +5,8 @@ use std::marker::PhantomData;
 use serde::{Serialize, Deserialize};
 
 use copager_cfl::token::{Token, TokenSet, TokenTag};
-use copager_cfl::rule::{Rule, RuleElem, RuleTag};
-use copager_cfl::{CFL, CFLRule};
+use copager_cfl::rule::{Rule, RuleElem, RuleSet, RuleTag};
+use copager_cfl::CFL;
 use copager_parse::{BaseParser, ParseEvent};
 use copager_parse_lr_common::lr0::item::LR0Item;
 use copager_parse_lr_common::lr0::LR0DFA;

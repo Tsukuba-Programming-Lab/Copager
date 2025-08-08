@@ -1,4 +1,4 @@
-use copager::cfl::{CFL, TokenSet, CFLRule};
+use copager::cfl::{CFL, TokenSet, RuleSet};
 use copager::template::LALR1;
 use copager::prelude::*;
 
@@ -85,7 +85,7 @@ pub enum Pl0Token {
     _Whitespace,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, CFLRule)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, RuleSet)]
 pub enum Pl0Rule {
     // 字句集合
     #[tokenset(Pl0Token)]

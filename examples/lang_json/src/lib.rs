@@ -1,4 +1,4 @@
-use copager::cfl::{CFL, CFLRule, TokenSet};
+use copager::cfl::{CFL, RuleSet, TokenSet};
 use copager::template::LALR1;
 use copager::prelude::*;
 
@@ -49,7 +49,7 @@ pub enum JsonToken {
     _Whitespace,
 }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq, CFLRule)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, RuleSet)]
 pub enum JsonRule {
     // 字句集合
     #[tokenset(JsonToken)]

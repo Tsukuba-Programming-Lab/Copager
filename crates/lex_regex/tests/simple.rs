@@ -1,6 +1,6 @@
 use copager_cfl::token::{Token, TokenSet, TokenTag};
-use copager_cfl::rule::{Rule, RuleTag, RuleElem};
-use copager_cfl::{CFL, CFLRule};
+use copager_cfl::rule::{Rule, RuleElem, RuleSet, RuleTag};
+use copager_cfl::CFL;
 use copager_lex::BaseLexer;
 use copager_lex_regex::RegexLexer;
 
@@ -28,7 +28,7 @@ enum TestToken {
     Num,
 }
 
-#[derive(Clone, Hash, PartialEq, Eq, CFLRule)]
+#[derive(Clone, Hash, PartialEq, Eq, RuleSet)]
 enum TestRule {
     #[tokenset(TestToken)]
     #[rule("<expr> ::= <expr> Plus <term>")]

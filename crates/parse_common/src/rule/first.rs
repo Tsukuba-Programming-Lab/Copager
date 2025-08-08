@@ -143,8 +143,7 @@ where
 #[cfg(test)]
 mod test {
     use copager_cfl::token::{TokenSet, TokenTag};
-    use copager_cfl::rule::{Rule, RuleTag, RuleElem};
-    use copager_cfl::CFLRule;
+    use copager_cfl::rule::{Rule, RuleElem, RuleSet, RuleTag};
 
     use super::FirstSet;
 
@@ -156,7 +155,7 @@ mod test {
         B,
     }
 
-    #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
+    #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, RuleSet)]
     enum TestRule {
         #[tokenset(TestToken)]
         #[rule("<S> ::= <A> <B>")]

@@ -154,6 +154,29 @@ impl<T: TokenTag> RuleElem<T> {
     }
 }
 
+
+#[cfg(feature = "derive")]
+pub use copager_cfl_derive::RuleSet;
+
+pub trait RuleSet<T: TokenTag> {
+    type Tag: RuleTag<T>;
+
+    fn instantiate() -> Self;
+    fn iter(&self) -> impl Iterator<Item = Self::Tag>;
+
+    fn into_ruleset(&self) -> RuleSetData<T, Self::Tag> {
+        let set_id_for_all = |(id, tag): (usize, Self::Tag)| {
+            tag.as_rules()
+                .into_iter()
+                .map(move |mut rule| { rule.id = id; rule })
+        };
+        self.iter()
+            .enumerate()
+            .flat_map(set_id_for_all)
+            .collect::<RuleSetData<_, _>>()
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct RuleSetData<T, R>
 where
