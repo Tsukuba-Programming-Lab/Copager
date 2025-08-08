@@ -12,7 +12,7 @@ pub struct ArithmeticLang (
     #[ruleset] ArithmeticRule,
 );
 
-#[derive(Clone, Hash, PartialEq, Eq, CFLToken, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, CFLToken, Serialize, Deserialize)]
 pub enum ArithmeticToken {
     #[token(r"\+")]
     Plus,
@@ -32,7 +32,7 @@ pub enum ArithmeticToken {
     _Whitespace,
 }
 
-#[derive(Clone, Hash, PartialEq, Eq, CFLRule, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, CFLRule, Serialize, Deserialize)]
 pub enum ArithmeticRule {
     #[tokenset(ArithmeticToken)]
     #[rule("<expr> ::= <expr> Plus <term>")]
