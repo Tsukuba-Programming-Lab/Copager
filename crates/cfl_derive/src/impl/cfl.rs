@@ -9,17 +9,18 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
         panic!("\"CFL\" proc-macro is only implemented for struct.")
     };
 
+    let struct_fields = FieldsWrapper::from(&data_struct.fields);
+    let (tokenset_ident, tokenset_ty) = struct_fields.pickup("tokenset");
+    let (ruleset_ident, ruleset_ty) = struct_fields.pickup("ruleset");
+
     let struct_name = &ast.ident;
-    let (tokenset_field, ruleset_field) = parse_fields(&data_struct.fields);
-    let (tokenset_ident, tokenset_type) = (&tokenset_field.ident, tokenset_field.ty);
-    let (ruleset_ident, ruleset_type) = (&ruleset_field.ident, ruleset_field.ty);
 
     quote!{
         impl CFL for #struct_name {
-            type TokenTag = #tokenset_type;
-            type Tokens = #tokenset_type;
-            type RuleTag = #ruleset_type;
-            type Rules = #ruleset_type;
+            type TokenTag = #tokenset_ty;
+            type Tokens = #tokenset_ty;
+            type RuleTag = #ruleset_ty;
+            type Rules = #ruleset_ty;
 
             fn instantiate_tokens(&self) -> Self::Tokens {
                 self.#tokenset_ident
@@ -32,52 +33,47 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
     }
 }
 
-struct FieldInfo<'a> {
-    ident: TokenStream,
-    ty: &'a Type,
+struct FieldsWrapper<'a> {
+    fields: &'a Fields,
 }
 
-impl<'a> From<(usize, &'a Field)> for  FieldInfo<'a> {
-    fn from((idx, field): (usize, &'a Field)) -> Self {
-        let ident = match &field.ident {
-            Some(ident) => quote!{ #ident },
-            None => {
-                let idx = Index::from(idx);
-                quote! { #idx }
+impl<'a> From<&'a Fields> for FieldsWrapper<'a> {
+    fn from(fields: &'a Fields) -> Self {
+        FieldsWrapper { fields }
+    }
+}
+
+impl<'a> FieldsWrapper<'a> {
+    fn pickup(&'a self, name: &str) -> (TokenStream, &'a Type) {
+        // 指定された名前の attribute を持つフィールドを探す (複数 -> ×)
+        let (mut found_at, mut found_field) = (None, None);
+        for (idx, field) in self.fields.iter().enumerate() {
+            for attr in &field.attrs {
+                let attr = attr.path();
+                if attr.is_ident(name) {
+                    if found_field.is_some() {
+                        panic!("Multiple #[{}] attributes are not allowed.", name);
+                    }
+                    found_at = Some(idx);
+                    found_field = Some(field);
+                }
             }
+        }
+
+        // フィールド名，型を取得
+        let (ident, ty) = match &found_field {
+            // 名前付きフィールド
+            Some(Field { ident: Some(ident), .. }) => {
+                (quote! { #ident }, &found_field.unwrap().ty)
+            }
+            // 無名フィールド (タプル構造体)
+            Some(Field { ident: None, .. }) => {
+                let idx = Index::from(found_at.unwrap());
+                (quote! { #idx }, &found_field.unwrap().ty)
+            }
+            None => panic!("Field with #[{}] attribute must have an identifier.", name),
         };
-        FieldInfo {
-            ident,
-            ty: &field.ty,
-        }
-    }
-}
 
-fn parse_fields(fields: &Fields) -> (FieldInfo, FieldInfo) {
-    let mut tokenset_field = None;
-    let mut ruleset_field = None;
-    for (idx, field) in fields.iter().enumerate() {
-        for attr in &field.attrs {
-            let attr = attr.path();
-            if attr.is_ident("tokenset") {
-                if tokenset_field.is_some() {
-                    panic!("Multiple #[tokenset] attributes are not allowed.");
-                }
-                tokenset_field = Some(FieldInfo::from((idx, field)));
-            } else if attr.is_ident("ruleset") {
-                if ruleset_field.is_some() {
-                    panic!("Multiple #[ruleset] attributes are not allowed.");
-                }
-                ruleset_field = Some(FieldInfo::from((idx, field)));
-            }
-        }
+        (ident, ty)
     }
-    if tokenset_field.is_none() {
-        panic!("No #[tokenset] attribute found.");
-    }
-    if ruleset_field.is_none() {
-        panic!("No #[ruleset] attribute found.");
-    }
-
-    (tokenset_field.unwrap(), ruleset_field.unwrap())
 }
