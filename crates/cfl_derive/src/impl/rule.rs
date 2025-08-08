@@ -71,7 +71,7 @@ impl<'a> VariantInfo<'a> {
         for attr in &variant.attrs {
             if attr.path().is_ident("rule") {
                 let attr = attr.parse_args::<LitStr>().unwrap().value();
-                rule_lhs_rhs_tuples.push(parse_rule(tokenset_ty, &attr));
+                rule_lhs_rhs_tuples.push(BNF::parse(tokenset_ty, &attr));
             }
         }
 
@@ -94,30 +94,104 @@ impl<'a> VariantInfo<'a> {
     }
 }
 
-fn parse_rule(tokenset_ty: &Ident, input: &str) -> TokenStream {
-    let mut splitted = input.split("::=");
+struct BNF<'a> {
+    tokenset_ty: &'a Ident,
+    src: &'a str,
+    cursor: usize,
+    row: usize,
+    col: usize,
+}
 
-    let lhs = splitted.next().unwrap().trim();
-    let lhs = &lhs[1..lhs.len() - 1];
-    let lhs = quote! { RuleElem::new_nonterm(#lhs) };
+impl<'a> BNF<'a> {
+    // <bnf> ::= <rule>
+    fn parse(tokenset_ty: &'a Ident, src: &'a str) -> TokenStream {
+        BNF { tokenset_ty, src, cursor: 0, row: 1, col: 1 }.parse_rule()
+    }
 
-    let rhs = splitted.collect::<String>()
-        .split_whitespace()
-        .map(|elem| {
-            if elem.starts_with('<') {
-                let elem = &elem[1..elem.len() - 1];
-                quote! { RuleElem::new_nonterm(#elem) }
-            } else {
-                let ident = elem.parse::<TokenStream>().unwrap();
-                quote! { RuleElem::new_term(#tokenset_ty :: #ident) }
+    // <rule> ::= <nonterm> '::=' <rhs>
+    fn parse_rule(&mut self) -> TokenStream {
+        let lhs = self.parse_nonterm();
+        self.consume("::=");
+        let rhs = self.parse_rhs();
+        quote! { #lhs, vec![ #( #rhs, )* ], }
+    }
+
+    // <rhs> ::= ((<nonterm> | <ident>)*)?
+    fn parse_rhs(&mut self) -> Vec<TokenStream> {
+        let mut rhs = vec![];
+        loop {
+            self.skip_spaces();
+            if self.src[self.cursor..].is_empty() {
+                break;
             }
-        })
-        .collect::<Vec<_>>();
-    let rhs = if rhs.len() == 0 {
-        vec![quote! { RuleElem::Epsilon }]
-    } else {
+            if self.src[self.cursor..].starts_with('<') {
+                rhs.push(self.parse_nonterm());
+            } else {
+                let tokenset_ty = self.tokenset_ty;
+                let ident = self.parse_ident().parse::<TokenStream>().unwrap();
+                rhs.push(quote! { RuleElem::new_term(#tokenset_ty :: #ident) });
+            }
+        }
+        if rhs.is_empty() {
+            rhs.push(quote! { RuleElem::Epsilon });
+        }
         rhs
-    };
+    }
 
-    quote! { #lhs, vec![ #( #rhs, )* ], }
+    // <nonterm> ::= '<' <nonterm> '>'
+    fn parse_nonterm(&mut self) -> TokenStream {
+        self.consume("<");
+        let ident = self.parse_ident();
+        let lhs = quote! { RuleElem::new_nonterm(#ident) };
+        self.consume(">");
+        lhs
+    }
+
+    // <ident> ::= [a-zA-Z_][a-zA-Z0-9_]*
+    fn parse_ident(&mut self) -> &str {
+        self.skip_spaces();
+
+        let end_idx = self.src[self.cursor..]
+            .find(|c: char| !c.is_alphanumeric() && c != '_')
+            .unwrap_or(self.src[self.cursor..].len());
+        if end_idx == 0 {
+            self.error("Expected an identifier");
+        }
+
+        let ident = &self.src[self.cursor..self.cursor+end_idx];
+        self.cursor += end_idx;
+        self.col += end_idx;
+
+        ident
+    }
+
+    fn consume(&mut self, expected: &str) {
+        self.skip_spaces();
+        if self.src[self.cursor..].starts_with(expected) {
+            self.cursor += expected.len();
+            self.col += expected.len();
+        } else {
+            self.error(&format!("Expected '{}'", expected));
+        }
+    }
+
+    fn skip_spaces(&mut self) {
+        while let Some(c) = self.src[self.cursor..].chars().next() {
+            if c.is_whitespace() {
+                self.cursor += c.len_utf8();
+                if c == '\n' {
+                    self.row += 1;
+                    self.col = 1;
+                } else {
+                    self.col += c.len_utf8();
+                }
+            } else {
+                break;
+            }
+        }
+    }
+
+    fn error(&self, msg: &str) {
+        panic!("{}\n  {}\n  {}^ here\n", msg, self.src, " ".repeat(self.col-1));
+    }
 }
