@@ -8,7 +8,7 @@ use crate::token::TokenTag;
 
 pub trait RuleTag<T: TokenTag>
 where
-    Self: Debug + Copy + Clone + Hash + Eq,
+    Self: Clone + Hash + Eq,
 {
     fn as_rules(&self) -> Vec<Rule<T, Self>>;
 }

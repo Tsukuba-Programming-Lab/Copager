@@ -14,10 +14,7 @@ struct ExprLang (
     #[ruleset]  ExprRule,
 );
 
-#[derive(
-    Debug, Copy, Clone, Hash, PartialEq, Eq,
-    CFLToken, Serialize, Deserialize
-)]
+#[derive(Clone, Hash, PartialEq, Eq, CFLToken, Serialize, Deserialize)]
 enum ExprToken {
     #[token(r"\+")]
     Plus,
@@ -37,10 +34,7 @@ enum ExprToken {
     _Whitespace,
 }
 
-#[derive(
-    Debug, Copy, Clone, Hash, PartialEq, Eq,
-    CFLRule, Serialize, Deserialize
-)]
+#[derive(Clone, Hash, PartialEq, Eq, CFLRule, Serialize, Deserialize)]
 enum ExprRule {
     #[tokenset(ExprToken)]
     #[rule("<expr> ::= <expr> Plus <term>")]

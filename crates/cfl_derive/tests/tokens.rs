@@ -1,7 +1,7 @@
 use copager_cfl::token::TokenTag;
 use copager_cfl::CFLToken;
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]
+#[derive(Clone, Hash, PartialEq, Eq, CFLToken)]
 enum MyToken {
     #[token(r"\+", r"plus")]
     Plus,

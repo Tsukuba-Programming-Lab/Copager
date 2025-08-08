@@ -73,7 +73,7 @@ impl<'input, Lang: CFL> RegexLexer<Lang> {
             .map(|idx| &self.regex_map[idx])
             .map(|(regex, token)| {
                 let accepted = regex.find(&src[body_begin..]).unwrap().as_str();
-                (*token, accepted)
+                (token.clone(), accepted)
             })
             .next()?;
         let body_end = body_begin + accepted.len();

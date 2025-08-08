@@ -24,8 +24,8 @@ where
 
 impl<'a, 'b, T, R> Debug for LR1DFANode<'a, 'b, T, R>
 where
-    T: TokenTag,
-    R: RuleTag<T>,
+    T: TokenTag + Debug,
+    R: RuleTag<T> + Debug,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         #[derive(Debug)]

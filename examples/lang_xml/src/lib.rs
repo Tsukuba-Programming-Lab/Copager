@@ -4,13 +4,13 @@ use copager::prelude::*;
 
 pub type Xml = LALR1<XmlLang>;
 
-#[derive(Debug, CFL)]
+#[derive(CFL)]
 pub struct XmlLang (
     #[tokenset] XmlToken,
     #[ruleset]  XmlRule,
 );
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, CFLToken)]
 pub enum XmlToken {
     // 記号
     #[token(r"<", ir_omit)]
@@ -35,7 +35,7 @@ pub enum XmlToken {
     _Whitespace,
 }
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, CFLRule)]
 pub enum XmlRule {
     // 字句集合
     #[tokenset(XmlToken)]

@@ -89,7 +89,11 @@ impl<Lang: CFL> SLR1Table<Lang> {
                 for term in follow_set.get(lhs).unwrap() {
                     match term {
                         RuleElem::Term(term) => {
-                            builder.try_set(node.id, Some(*term), LRAction::Reduce(rule.clone()))?;
+                            builder.try_set(
+                                node.id,
+                                Some(term.clone()),
+                                LRAction::Reduce(rule.clone())
+                            )?;
                         }
                         RuleElem::EOF => {
                             builder.try_set(node.id, None, LRAction::Reduce(rule.clone()))?;

@@ -6,16 +6,13 @@ use copager::prelude::*;
 
 pub type Arithmetic = LALR1<ArithmeticLang>;
 
-#[derive(Debug, Clone, CFL, Serialize, Deserialize)]
+#[derive(CFL, Serialize, Deserialize)]
 pub struct ArithmeticLang (
     #[tokenset] ArithmeticToken,
     #[ruleset] ArithmeticRule,
 );
 
-#[derive(
-    Debug, Copy, Clone, Hash, PartialEq, Eq,
-    CFLToken, Serialize, Deserialize,
-)]
+#[derive(Clone, Hash, PartialEq, Eq, CFLToken, Serialize, Deserialize)]
 pub enum ArithmeticToken {
     #[token(r"\+")]
     Plus,
@@ -35,10 +32,7 @@ pub enum ArithmeticToken {
     _Whitespace,
 }
 
-#[derive(
-    Debug, Copy, Clone, Hash, PartialEq, Eq,
-    CFLRule, Serialize, Deserialize,
-)]
+#[derive(Clone, Hash, PartialEq, Eq, CFLRule, Serialize, Deserialize)]
 pub enum ArithmeticRule {
     #[tokenset(ArithmeticToken)]
     #[rule("<expr> ::= <expr> Plus <term>")]

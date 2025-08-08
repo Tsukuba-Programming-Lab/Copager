@@ -31,11 +31,7 @@ pub trait CFLRule<T: TokenTag> {
         let set_id_for_all = |(id, tag): (usize, Self::Tag)| {
             tag.as_rules()
                 .into_iter()
-                .map(move |rule| {
-                    let mut rule = rule.clone();
-                    rule.id = id;
-                    rule
-                })
+                .map(move |mut rule| { rule.id = id; rule })
         };
         self.iter()
             .enumerate()

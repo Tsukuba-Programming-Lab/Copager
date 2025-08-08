@@ -6,13 +6,13 @@ use copager_lex_regex::RegexLexer;
 use copager_parse_lr_lalr1::LALR1;
 use copager_ir_void::Void;
 
-#[derive(Debug, CFL)]
+#[derive(CFL)]
 struct TestLang (
     #[tokenset] TestToken,
     #[ruleset]  TestRule,
 );
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]
+#[derive(Clone, Hash, PartialEq, Eq, CFLToken)]
 enum TestToken {
     #[token(r"\+")]
     Plus,
@@ -32,7 +32,7 @@ enum TestToken {
     _Whitespace,
 }
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
+#[derive(Clone, Hash, PartialEq, Eq, CFLRule)]
 enum TestRule {
     #[tokenset(TestToken)]
     #[rule("<expr> ::= <expr> Plus <term>")]

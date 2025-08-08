@@ -89,10 +89,18 @@ impl<Lang: CFL> LALR1Table<Lang> {
                 for la_token in la_tokens {
                     match la_token {
                         RuleElem::Term(term) => {
-                            builder.try_set(node.id, Some(*term), LRAction::Reduce(rule.clone()))?;
+                            builder.try_set(
+                                node.id,
+                                Some(term.clone()),
+                                LRAction::Reduce(rule.clone())
+                            )?;
                         }
                         RuleElem::EOF => {
-                            builder.try_set(node.id, None, LRAction::Reduce(rule.clone()))?;
+                            builder.try_set(
+                                node.id,
+                                None,
+                                LRAction::Reduce(rule.clone())
+                            )?;
                         }
                         _ => {}
                     }

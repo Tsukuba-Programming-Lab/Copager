@@ -23,8 +23,8 @@ impl<'input, Lang: CFL> From<RawIR<'input, Lang>> for Tree<'input, Lang> {
     fn from(raw: RawIR<'input, Lang>) -> Self {
         match raw {
             RawIR::Atom(token) => {
-                let tag = token.kind;
                 let text = token.as_str();
+                let tag = token.kind;
                 Tree::Leaf { tag, text }
             },
             RawIR::List { rule: tag, elems } => {

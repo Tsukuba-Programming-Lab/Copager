@@ -2,7 +2,7 @@ use copager_cfl::rule::{RuleTag, Rule, RuleElem};
 use copager_cfl::token::TokenTag;
 use copager_cfl::{CFLToken, CFLRule};
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]
+#[derive(Clone, Hash, PartialEq, Eq, CFLToken)]
 enum MyToken {
     #[token(r"\+")]
     Plus,
@@ -12,7 +12,7 @@ enum MyToken {
     Number,
 }
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
+#[derive(Clone, Hash, PartialEq, Eq, CFLRule)]
 enum MyRule {
     #[tokenset(MyToken)]
     #[rule("<expr> ::= <expr> Plus Number")]

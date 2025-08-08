@@ -10,7 +10,7 @@ struct TestLang (
     #[ruleset]  TestRule,
 );
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]
+#[derive(Clone, Hash, PartialEq, Eq, CFLToken)]
 enum TestToken {
     #[token(r"\+")]
     Plus,
@@ -28,7 +28,7 @@ enum TestToken {
     Num,
 }
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
+#[derive(Clone, Hash, PartialEq, Eq, CFLRule)]
 enum TestRule {
     #[tokenset(TestToken)]
     #[rule("<expr> ::= <expr> Plus <term>")]

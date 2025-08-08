@@ -87,10 +87,18 @@ impl<Lang: CFL> LR1Table<Lang> {
                 // A -> α β . [la_token] を含む場合，la_token 列に対して Reduce をマーク
                 match la_token {
                     RuleElem::Term(term) => {
-                        builder.try_set(node.id, Some(*term), LRAction::Reduce(rule.clone()))?;
+                        builder.try_set(
+                            node.id,
+                            Some(term.clone()),
+                            LRAction::Reduce(rule.clone())
+                        )?;
                     }
                     RuleElem::EOF => {
-                        builder.try_set(node.id, None, LRAction::Reduce(rule.clone()))?;
+                        builder.try_set(
+                            node.id,
+                            None,
+                            LRAction::Reduce(rule.clone())
+                        )?;
                     }
                     _ => {}
                 }

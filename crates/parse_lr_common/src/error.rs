@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use thiserror::Error;
 
 use copager_cfl::token::{TokenTag, Token};
@@ -32,9 +34,12 @@ impl LRError {
         PrettyError::from(LRError::Conflilct{ action_a, action_b })
     }
 
-    pub fn new_unexpected_token<T: TokenTag>(expected: Token<T>) -> PrettyError {
+    pub fn new_unexpected_token<T>(expected: Token<T>) -> PrettyError
+    where
+        T: TokenTag,
+    {
         let err = LRError::UnexpectedToken {
-            actual: format!("{:?}", expected.kind),
+            actual: format!("{:?}", "TODO") // TODO: expected.kind),
         };
         PrettyError::from(err).with(expected)
     }

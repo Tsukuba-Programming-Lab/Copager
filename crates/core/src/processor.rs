@@ -84,7 +84,6 @@ impl<Gen: GeneratorDesign> Processor<Gen> {
 impl<Gen> Processor<Gen>
 where
     Gen: GeneratorDesign<Lexer: Cacheable<()>>,
-    Gen::Lang: Clone,
 {
     pub fn prebuild_lexer(mut self) -> anyhow::Result<Self> {
         let cache_lex = Gen::Lexer::cache(())?;
@@ -106,7 +105,6 @@ where
 impl<Gen> Processor<Gen>
 where
     Gen: GeneratorDesign< Parser: Cacheable<()>>,
-    Gen::Lang: Clone,
 {
     pub fn prebuild_parser(mut self) -> anyhow::Result<Self> {
         let cache_parse = Gen::Parser::cache(())?;

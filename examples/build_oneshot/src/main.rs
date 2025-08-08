@@ -6,13 +6,13 @@ use copager::template::LALR1;
 use copager::prelude::*;
 use copager::Processor;
 
-#[derive(Debug, CFL)]
+#[derive(CFL)]
 struct ExprLang (
     #[tokenset] ExprToken,
     #[ruleset] ExprRule,
 );
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, CFLToken)]
 enum ExprToken {
     #[token(r"\+")]
     Plus,
@@ -32,7 +32,7 @@ enum ExprToken {
     _Whitespace,
 }
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, CFLRule)]
 enum ExprRule {
     #[tokenset(ExprToken)]
     #[rule("<expr> ::= <expr> Plus <term>")]

@@ -8,13 +8,13 @@ struct MyLanguage (
     #[ruleset]  MyRule,
 );
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]
+#[derive(Clone, Hash, PartialEq, Eq, CFLToken)]
 enum MyToken {
     #[token(r"a")]
     A,
 }
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
+#[derive(Clone, Hash, PartialEq, Eq, CFLRule)]
 enum MyRule {
     #[tokenset(MyToken)]
     #[rule("<a> ::= A")]
