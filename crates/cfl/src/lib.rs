@@ -2,7 +2,7 @@ pub mod rule;
 pub mod token;
 
 use token::TokenTag;
-use rule::{RuleTag, RuleSet};
+use rule::{RuleTag, RuleSetData};
 
 #[cfg(feature = "derive")]
 pub use copager_cfl_derive::{CFL, CFLToken, CFLRule};
@@ -27,7 +27,7 @@ pub trait CFLRule<T: TokenTag> {
     fn instantiate() -> Self;
     fn iter(&self) -> impl Iterator<Item = Self::Tag>;
 
-    fn into_ruleset(&self) -> RuleSet<T, Self::Tag> {
+    fn into_ruleset(&self) -> RuleSetData<T, Self::Tag> {
         let set_id_for_all = |(id, tag): (usize, Self::Tag)| {
             tag.as_rules()
                 .into_iter()
@@ -36,6 +36,6 @@ pub trait CFLRule<T: TokenTag> {
         self.iter()
             .enumerate()
             .flat_map(set_id_for_all)
-            .collect::<RuleSet<_, _>>()
+            .collect::<RuleSetData<_, _>>()
     }
 }

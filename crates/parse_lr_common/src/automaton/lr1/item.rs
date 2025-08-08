@@ -3,7 +3,7 @@ use std::fmt::{Display, Debug};
 use std::hash::Hash;
 
 use copager_cfl::token::TokenTag;
-use copager_cfl::rule::{Rule, RuleElem, RuleSet, RuleTag};
+use copager_cfl::rule::{Rule, RuleElem, RuleSetData, RuleTag};
 use copager_parse_common::rule::FirstSet;
 
 #[derive(Clone, Hash, PartialEq, Eq)]
@@ -94,7 +94,7 @@ where
     R: RuleTag<T>,
 {
     pub items: HashSet<LR1Item<'a, T, R>>,
-    ruleset: &'a RuleSet<T, R>,
+    ruleset: &'a RuleSetData<T, R>,
     first_set: &'b FirstSet<'a, T, R>,
 }
 
@@ -133,13 +133,13 @@ where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    pub fn new(items: HashSet<LR1Item<'a, T, R>>, ruleset: &'a RuleSet<T, R>, first_set: &'b FirstSet<'a, T, R>) -> Self {
+    pub fn new(items: HashSet<LR1Item<'a, T, R>>, ruleset: &'a RuleSetData<T, R>, first_set: &'b FirstSet<'a, T, R>) -> Self {
         let mut itemset= LR1ItemSet { items, ruleset, first_set };
         itemset.expand();
         itemset
     }
 
-    pub fn new_top(rule: &'a Rule<T, R>, ruleset: &'a RuleSet<T, R>, first_set: &'b FirstSet<'a, T, R>) -> Self {
+    pub fn new_top(rule: &'a Rule<T, R>, ruleset: &'a RuleSetData<T, R>, first_set: &'b FirstSet<'a, T, R>) -> Self {
         let items = HashSet::from([LR1Item::from((rule, &RuleElem::EOF))]);
         LR1ItemSet::new(items, ruleset, first_set)
     }

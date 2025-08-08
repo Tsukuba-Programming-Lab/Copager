@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
 use copager_cfl::token::TokenTag;
-use copager_cfl::rule::{Rule, RuleElem, RuleSet, RuleTag};
+use copager_cfl::rule::{Rule, RuleElem, RuleSetData, RuleTag};
 
 use crate::rule::{FirstSet, FollowSet};
 
@@ -14,12 +14,12 @@ where
     map: HashMap<&'a Rule<T, R>, Vec<&'a RuleElem<T>>>,
 }
 
-impl<'a, T, R> From<&'a RuleSet<T, R>> for DirectorSet<'a, T, R>
+impl<'a, T, R> From<&'a RuleSetData<T, R>> for DirectorSet<'a, T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    fn from(ruleset: &'a RuleSet<T, R>) -> Self {
+    fn from(ruleset: &'a RuleSetData<T, R>) -> Self {
         let build = DirectorSetBuilder::from(ruleset).calc();
         let map = build.map
             .into_iter()
@@ -46,17 +46,17 @@ where
     R: RuleTag<T>,
 {
     map: HashMap<&'a Rule<T, R>, HashSet<&'a RuleElem<T>>>,
-    ruleset: &'a RuleSet<T, R>,
+    ruleset: &'a RuleSetData<T, R>,
     first_set: FirstSet<'a, T, R>,
     follow_set: FollowSet<'a, T, R>,
 }
 
-impl<'a, T, R> From<&'a RuleSet<T, R>> for DirectorSetBuilder<'a, T, R>
+impl<'a, T, R> From<&'a RuleSetData<T, R>> for DirectorSetBuilder<'a, T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    fn from(ruleset: &'a RuleSet<T, R>) -> Self {
+    fn from(ruleset: &'a RuleSetData<T, R>) -> Self {
         let first_set = FirstSet::from(ruleset);
         let follow_set = FollowSet::from(ruleset);
 

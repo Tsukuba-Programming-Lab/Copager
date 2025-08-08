@@ -155,7 +155,7 @@ impl<T: TokenTag> RuleElem<T> {
 }
 
 #[derive(Debug, Clone)]
-pub struct RuleSet<T, R>
+pub struct RuleSetData<T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,
@@ -164,7 +164,7 @@ where
     pub rules: Vec<Rule<T, R>>,
 }
 
-impl<T, R> FromIterator<Rule<T, R>> for RuleSet<T, R>
+impl<T, R> FromIterator<Rule<T, R>> for RuleSetData<T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,
@@ -178,11 +178,11 @@ where
             RuleElem::NonTerm(s) => s.clone(),
             _ => unreachable!(),
         };
-        RuleSet { top, rules }
+        RuleSetData { top, rules }
     }
 }
 
-impl<T, R> RuleSet<T, R>
+impl<T, R> RuleSetData<T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,

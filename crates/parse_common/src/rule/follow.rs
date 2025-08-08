@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
 use copager_cfl::token::TokenTag;
-use copager_cfl::rule::{RuleElem, RuleSet, RuleTag};
+use copager_cfl::rule::{RuleElem, RuleSetData, RuleTag};
 
 use crate::rule::FirstSet;
 
@@ -12,15 +12,15 @@ where
     R: RuleTag<T>,
 {
     map: HashMap<String, Vec<&'a RuleElem<T>>>,
-    _ruleset: &'a RuleSet<T, R>,
+    _ruleset: &'a RuleSetData<T, R>,
 }
 
-impl<'a, T, R> From<&'a RuleSet<T, R>> for FollowSet<'a, T, R>
+impl<'a, T, R> From<&'a RuleSetData<T, R>> for FollowSet<'a, T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    fn from(ruleset: &'a RuleSet<T, R>) -> Self {
+    fn from(ruleset: &'a RuleSetData<T, R>) -> Self {
         let build = FollowSetBuilder::from(ruleset).expand();
         let map = build.map
             .into_iter()
@@ -50,16 +50,16 @@ where
     R: RuleTag<T>,
 {
     map: HashMap<String, HashSet<&'a RuleElem<T>>>,
-    ruleset: &'a RuleSet<T, R>,
+    ruleset: &'a RuleSetData<T, R>,
     first_set: FirstSet<'a, T, R>,
 }
 
-impl<'a, T, R> From<&'a RuleSet<T, R>> for FollowSetBuilder<'a, T, R>
+impl<'a, T, R> From<&'a RuleSetData<T, R>> for FollowSetBuilder<'a, T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    fn from(ruleset: &'a RuleSet<T, R>) -> Self {
+    fn from(ruleset: &'a RuleSetData<T, R>) -> Self {
         let mut map = HashMap::new();
         for nonterm in ruleset.nonterms() {
             if let RuleElem::NonTerm(nonterm) = nonterm {
