@@ -33,6 +33,7 @@ pub enum ArithmeticToken {
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
 pub enum ArithmeticRule {
+    #[tokenset(ArithmeticToken)]
     #[default]
     #[rule("<expr> ::= <expr> Plus <term>")]
     #[rule("<expr> ::= <expr> Minus <term>")]

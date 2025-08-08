@@ -38,6 +38,9 @@ pub enum XmlToken {
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
 pub enum XmlRule {
+    // 字句集合
+    #[tokenset(XmlToken)]
+
     // XML本体
     #[default]
     #[rule("<xml> ::= <tag_list>")]

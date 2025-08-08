@@ -88,6 +88,9 @@ pub enum Pl0Token {
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, CFLRule)]
 pub enum Pl0Rule {
+    // 字句集合
+    #[tokenset(Pl0Token)]
+
     // プログラム本体
     #[default]
     #[rule("<program> ::= <block> Period")]

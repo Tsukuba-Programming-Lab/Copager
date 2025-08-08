@@ -158,6 +158,7 @@ mod test {
 
     #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
     enum TestRule {
+        #[tokenset(TestToken)]
         #[default]
         #[rule("<S> ::= <A> <B>")]
         S,

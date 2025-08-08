@@ -17,6 +17,7 @@ enum MyToken {
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
 enum MyRule {
+    #[tokenset(MyToken)]
     #[default]
     #[rule("<a> ::= A")]
     A,

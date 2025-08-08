@@ -52,6 +52,9 @@ pub enum JsonToken {
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
 pub enum JsonRule {
+    // 字句集合
+    #[tokenset(JsonToken)]
+
     // JSON本体
     #[default]
     #[rule("<json> ::= <json> <item>")]

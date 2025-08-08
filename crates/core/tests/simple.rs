@@ -43,6 +43,7 @@ enum ExprToken {
     CFLRule, Serialize, Deserialize
 )]
 enum ExprRule {
+    #[tokenset(ExprToken)]
     #[default]
     #[rule("<expr> ::= <expr> Plus <term>")]
     #[rule("<expr> ::= <expr> Minus <term>")]

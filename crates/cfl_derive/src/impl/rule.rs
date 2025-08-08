@@ -9,34 +9,44 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
         panic!("\"CFLRule\" proc-macro is only implemented for enum.")
     };
 
+    // 字句集合の型を取得
+    let tokenset_ty = data_enum
+        .variants
+        .iter()
+        .filter_map(|v| v.attrs.iter().find(|a| a.path().is_ident("tokenset")))
+        .next()
+        .map(|a| a.parse_args::<Ident>().unwrap());
+    let tokenset_ty = match tokenset_ty {
+        Some(ty) => ty,
+        None => panic!("\"CFLRule\" proc-macro requires a \"tokenset\" attribute on the enum."),
+    };
+
+    // 各列挙子と紐づく文法規則を解析
     let parsed_variantes = data_enum
         .variants
         .iter()
-        .map(|variant| VariantInfo::parse(&ast.ident, variant))
+        .map(|variant| VariantInfo::parse(&tokenset_ty, variant))
         .collect::<Vec<_>>();
 
+    // 列挙型に関する情報を用意
     let enum_name = &ast.ident;
-    let enum_matcher_table_i2r = parsed_variantes
+    let enum_rule_matchers = parsed_variantes
         .iter()
         .map(|variant| variant.gen_matcher_ident_to_rule());
-    let enum_assoc_type = format!("{}", enum_name)
-        .replace("Rule", "Token")
-        .parse::<TokenStream>()
-        .unwrap();
     let enum_variants = parsed_variantes
         .iter()
         .map(|variant| variant.gen_ident());
 
     quote! {
-        impl RuleTag<#enum_assoc_type> for #enum_name {
-            fn as_rules(&self) -> Vec<Rule<#enum_assoc_type, Self>> {
+        impl RuleTag<#tokenset_ty> for #enum_name {
+            fn as_rules(&self) -> Vec<Rule<#tokenset_ty, Self>> {
                 match self {
-                    #( #enum_matcher_table_i2r, )*
+                    #( #enum_rule_matchers, )*
                 }
             }
         }
 
-        impl CFLRule<#enum_assoc_type> for #enum_name {
+        impl CFLRule<#tokenset_ty> for #enum_name {
             type Tag = Self;
 
             fn iter(&self) -> impl Iterator<Item = Self> {
@@ -47,39 +57,30 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
 }
 
 struct VariantInfo<'a> {
-    parent_ident: &'a Ident,
-    self_ident: &'a Ident,
+    ident: &'a Ident,
     rule_lhs_rhs_tuples: Vec<TokenStream>,
 }
 
 impl<'a> VariantInfo<'a> {
-    fn parse(parent_ident: &'a Ident, variant: &'a Variant) -> VariantInfo<'a> {
-        let self_ident = &variant.ident;
-        let token_ident = format!("{}", parent_ident)
-            .replace("Rule", "Token")
-            .parse::<TokenStream>()
-            .unwrap();
+    fn parse(tokenset_ty: &Ident, variant: &'a Variant) -> VariantInfo<'a> {
+        // 列挙子名
+        let ident = &variant.ident;
 
+        // 文法規則を収集
         let mut rule_lhs_rhs_tuples = vec![];
         for attr in &variant.attrs {
             if attr.path().is_ident("rule") {
                 let attr = attr.parse_args::<LitStr>().unwrap().value();
-                rule_lhs_rhs_tuples.push(parse_rule(&token_ident, &attr));
+                rule_lhs_rhs_tuples.push(parse_rule(tokenset_ty, &attr));
             }
         }
 
-        VariantInfo {
-            parent_ident,
-            self_ident,
-            rule_lhs_rhs_tuples,
-        }
+        VariantInfo { ident, rule_lhs_rhs_tuples }
     }
 
     fn gen_ident(&self) -> TokenStream {
-        let parent_ident = self.parent_ident;
-        let self_ident = self.self_ident;
-
-        quote! { #parent_ident :: #self_ident }
+        let ident = self.ident;
+        quote! { Self :: #ident }
     }
 
     fn gen_matcher_ident_to_rule(&self) -> TokenStream {
@@ -93,7 +94,7 @@ impl<'a> VariantInfo<'a> {
     }
 }
 
-fn parse_rule(token: &TokenStream, input: &str) -> TokenStream {
+fn parse_rule(tokenset_ty: &Ident, input: &str) -> TokenStream {
     let mut splitted = input.split("::=");
 
     let lhs = splitted.next().unwrap().trim();
@@ -108,7 +109,7 @@ fn parse_rule(token: &TokenStream, input: &str) -> TokenStream {
                 quote! { RuleElem::new_nonterm(#elem) }
             } else {
                 let ident = elem.parse::<TokenStream>().unwrap();
-                quote! { RuleElem::new_term(#token::#ident) }
+                quote! { RuleElem::new_term(#tokenset_ty :: #ident) }
             }
         })
         .collect::<Vec<_>>();

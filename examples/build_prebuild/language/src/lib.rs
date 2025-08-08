@@ -41,6 +41,7 @@ pub enum ArithmeticToken {
     CFLRule, Serialize, Deserialize,
 )]
 pub enum ArithmeticRule {
+    #[tokenset(ArithmeticToken)]
     #[default]
     #[rule("<expr> ::= <expr> Plus <term>")]
     #[rule("<expr> ::= <expr> Minus <term>")]

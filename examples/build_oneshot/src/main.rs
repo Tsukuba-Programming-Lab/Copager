@@ -35,6 +35,7 @@ enum ExprToken {
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
 enum ExprRule {
+    #[tokenset(ExprToken)]
     #[default]
     #[rule("<expr> ::= <expr> Plus <term>")]
     #[rule("<expr> ::= <expr> Minus <term>")]
