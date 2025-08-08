@@ -18,9 +18,9 @@ pub struct LR0<Lang: CFL> {
 }
 
 impl<Lang: CFL> BaseParser<Lang> for LR0<Lang>{
-    fn try_from(cfl: &Lang) -> anyhow::Result<Self> {
+    fn init() -> anyhow::Result<Self> {
         Ok(LR0 {
-            table: LR0Table::try_from(cfl)?,
+            table: LR0Table::<Lang>::init()?,
         })
     }
 
@@ -37,7 +37,7 @@ impl<Lang: CFL> BaseParser<Lang> for LR0<Lang>{
     }
 }
 
-impl<Lang> Cacheable<Lang> for LR0<Lang>
+impl<Lang> Cacheable<()> for LR0<Lang>
 where
     Lang: CFL,
     Lang::TokenTag: Serialize + for<'de> Deserialize<'de>,
@@ -45,8 +45,8 @@ where
 {
     type Cache = LRTable<Lang::TokenTag, Lang::RuleTag>;
 
-    fn new(cfl: Lang) -> anyhow::Result<Self::Cache> {
-        Ok(LR0Table::try_from(&cfl)?)
+    fn cache(_: ()) -> anyhow::Result<Self::Cache> {
+        Ok(LR0Table::<Lang>::init()?)
     }
 
     fn restore(table: Self::Cache) -> Self {
@@ -60,13 +60,13 @@ pub struct LR0Table<Lang: CFL> {
 }
 
 impl<Lang: CFL> LR0Table<Lang> {
-    pub fn try_from(cfl: &Lang) -> anyhow::Result<LRTable<Lang::TokenTag, Lang::RuleTag>> {
-        // Tokens，Rules 準備
-        let tokens = cfl.instantiate_tokens();
-        let rules = cfl.instantiate_rules();
+    pub fn init() -> anyhow::Result<LRTable<Lang::TokenTag, Lang::RuleTag>> {
+        // Toks 準備
+        let tokenset = Lang::TokenSet::instantiate();
+        let ruleset = Lang::RuleSet::instantiate();
 
         // 最上位規則を追加して RuleSet を更新
-        let mut ruleset = rules.into_ruleset();
+        let mut ruleset = ruleset.into_ruleset();
         let top_dummy = Rule::new(
             None,
             RuleElem::new_nonterm("__top_dummy"),
@@ -90,7 +90,7 @@ impl<Lang: CFL> LR0Table<Lang> {
 
                 // A -> α β . を含む場合 全列に Reduce をマーク
                 builder.try_set(node.id, None, LRAction::Reduce(rule.clone()))?;
-                for token in tokens.iter() {
+                for token in tokenset.iter() {
                     builder.try_set(node.id, Some(token), LRAction::Reduce(rule.clone()))?;
                 }
             }

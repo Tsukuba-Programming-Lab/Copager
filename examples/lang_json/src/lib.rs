@@ -4,13 +4,13 @@ use copager::prelude::*;
 
 pub type Json = LALR1<JsonLang>;
 
-#[derive(Debug, Default, CFL)]
+#[derive(Debug, CFL)]
 pub struct JsonLang (
     #[tokenset] JsonToken,
     #[ruleset]  JsonRule,
 );
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]
 pub enum JsonToken {
     // 記号
     #[token(r"\:", ir_omit)]
@@ -33,7 +33,6 @@ pub enum JsonToken {
     Number,
 
     // オブジェクト用括弧
-    #[default]
     #[token(r"\{", ir_omit)]
     CurlyBracketL,
     #[token(r"\}", ir_omit)]
@@ -50,13 +49,12 @@ pub enum JsonToken {
     _Whitespace,
 }
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
 pub enum JsonRule {
     // 字句集合
     #[tokenset(JsonToken)]
 
     // JSON本体
-    #[default]
     #[rule("<json> ::= <json> <item>")]
     #[rule("<json> ::= <item>")]
     Json,

@@ -19,9 +19,9 @@ pub struct LR1<Lang: CFL> {
 }
 
 impl<Lang: CFL> BaseParser<Lang> for LR1<Lang> {
-    fn try_from(cfl: &Lang) -> anyhow::Result<Self> {
+    fn init() -> anyhow::Result<Self> {
         Ok(LR1 {
-            table: LR1Table::try_from(cfl)?,
+            table: LR1Table::<Lang>::init()?,
         })
     }
 
@@ -38,7 +38,7 @@ impl<Lang: CFL> BaseParser<Lang> for LR1<Lang> {
     }
 }
 
-impl<Lang> Cacheable<Lang> for LR1<Lang>
+impl<Lang> Cacheable<()> for LR1<Lang>
 where
     Lang: CFL,
     Lang::TokenTag: Serialize + for<'de> Deserialize<'de>,
@@ -46,8 +46,8 @@ where
 {
     type Cache = LRTable<Lang::TokenTag, Lang::RuleTag>;
 
-    fn new(cfl: Lang) -> anyhow::Result<Self::Cache> {
-        Ok(LR1Table::try_from(&cfl)?)
+    fn cache(_: ()) -> anyhow::Result<Self::Cache> {
+        Ok(LR1Table::<Lang>::init()?)
     }
 
     fn restore(table: Self::Cache) -> Self {
@@ -60,12 +60,12 @@ pub struct LR1Table<Lang: CFL> {
 }
 
 impl<Lang: CFL> LR1Table<Lang> {
-    pub fn try_from(cfl: &Lang) -> anyhow::Result<LRTable<Lang::TokenTag, Lang::RuleTag>> {
+    pub fn init() -> anyhow::Result<LRTable<Lang::TokenTag, Lang::RuleTag>> {
         // Rules 準備
-        let rules = cfl.instantiate_rules();
+        let ruleset = Lang::RuleSet::instantiate();
 
         // 最上位規則を追加して RuleSet を更新
-        let mut ruleset = rules.into_ruleset();
+        let mut ruleset = ruleset.into_ruleset();
         let top_dummy = Rule::new(
             None,
             RuleElem::new_nonterm("__top_dummy"),

@@ -6,6 +6,6 @@ where
 {
     type Cache: Serialize + for<'de> Deserialize<'de>;
 
-    fn new(from: F) -> anyhow::Result<Self::Cache>;
+    fn cache(from: F) -> anyhow::Result<Self::Cache>;
     fn restore(cache: Self::Cache) -> Self;
 }

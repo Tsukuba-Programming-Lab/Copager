@@ -15,8 +15,8 @@ pub struct RegexLexer<Lang: CFL> {
 }
 
 impl<Lang: CFL> BaseLexer<Lang> for RegexLexer<Lang> {
-    fn try_from(cfl: &Lang) -> anyhow::Result<Self> {
-        let tokens = cfl.instantiate_tokens();
+    fn init() -> anyhow::Result<Self> {
+        let tokens = Lang::TokenSet::instantiate();
 
         // Trivia 用正規表現の準備
         let regex_pre_trivia = get_regex_by_opts(&tokens, "pre_trivia")?

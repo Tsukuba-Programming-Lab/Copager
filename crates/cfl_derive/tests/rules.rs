@@ -12,10 +12,9 @@ enum MyToken {
     Number,
 }
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
 enum MyRule {
     #[tokenset(MyToken)]
-    #[default]
     #[rule("<expr> ::= <expr> Plus Number")]
     #[rule("<expr> ::= <expr> Minus Number")]
     #[rule("<expr> ::= Number")]
@@ -25,7 +24,7 @@ enum MyRule {
 #[test]
 fn check_compile_rules() {
     // CFLRule
-    let myrule = MyRule::default();
+    let myrule = MyRule::instantiate();
     assert_eq!(myrule.iter().count(), 1);
 
     // RuleTag

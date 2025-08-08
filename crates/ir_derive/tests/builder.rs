@@ -8,15 +8,14 @@ use copager_lex_regex::RegexLexer;
 use copager_parse_lr_lalr1::LALR1;
 use copager_ir::{IR, IRBuilder, RawIR};
 
-#[derive(Default, CFL)]
+#[derive(CFL)]
 struct TestLang (
     #[tokenset] TestToken,
     #[ruleset]  TestRule,
 );
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]
 enum TestToken {
-    #[default]
     #[token(r"\+")]
     Plus,
     #[token(r"-")]
@@ -35,10 +34,9 @@ enum TestToken {
     _Whitespace,
 }
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
 enum TestRule {
     #[tokenset(TestToken)]
-    #[default]
     #[rule("<Test> ::= <Test> Plus <term>")]
     #[rule("<Test> ::= <Test> Minus <term>")]
     #[rule("<Test> ::= <term>")]

@@ -6,7 +6,7 @@ where
     Self: Sized,
     Lang: CFL,
 {
-    fn try_from(cfl: &Lang) -> anyhow::Result<Self>;
+    fn init() -> anyhow::Result<Self>;
     fn run<'input>(&self, input: &'input str)
         -> impl Iterator<Item = Token<'input, Lang::TokenTag>>;
 }

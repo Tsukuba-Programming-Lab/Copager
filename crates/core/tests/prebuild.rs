@@ -10,18 +10,17 @@ use copager_lex_regex::RegexLexer;
 use copager_parse_lr_lr1::LR1;
 use copager_ir_void::Void;
 
-#[derive(Default, Clone, CFL, Serialize, Deserialize)]
+#[derive(Clone, CFL, Serialize, Deserialize)]
 struct ExprLang (
     #[tokenset] ExprToken,
     #[ruleset]  ExprRule,
 );
 
 #[derive(
-    Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
+    Debug, Copy, Clone, Hash, PartialEq, Eq,
     CFLToken, Serialize, Deserialize
 )]
 enum ExprToken {
-    #[default]
     #[token(r"\+")]
     Plus,
     #[token(r"-")]
@@ -41,12 +40,11 @@ enum ExprToken {
 }
 
 #[derive(
-    Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
+    Debug, Copy, Clone, Hash, PartialEq, Eq,
     CFLRule, Serialize, Deserialize
 )]
 enum ExprRule {
     #[tokenset(ExprToken)]
-    #[default]
     #[rule("<expr> ::= <expr> Plus <term>")]
     #[rule("<expr> ::= <expr> Minus <term>")]
     #[rule("<expr> ::= <term>")]

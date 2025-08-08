@@ -13,9 +13,6 @@ use crate::generator::GeneratorDesign;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Processor<Gen: GeneratorDesign> {
-    // CFL
-    cfl: Gen::Lang,
-
     // Cache
     cache_lex: Option<Vec<u8>>,
     cache_parse: Option<Vec<u8>>,
@@ -28,33 +25,19 @@ pub struct Processor<Gen: GeneratorDesign> {
 
     // Phantom
     #[serde(skip)]
+    _phantom_cfl: PhantomData<Gen::Lang>,
+    #[serde(skip)]
     _phantom_gen: PhantomData<Gen>,
 }
 
-impl<Gen> Processor<Gen>
-where
-    Gen: GeneratorDesign<Lang: Default>,
-{
+impl<Gen: GeneratorDesign> Processor<Gen> {
     pub fn new() -> Self {
         Processor {
-            cfl: Gen::Lang::default(),
             cache_lex: None,
             cache_parse: None,
             lexer: None,
             parser: None,
-            _phantom_gen: PhantomData,
-        }
-    }
-}
-
-impl<Gen: GeneratorDesign> Processor<Gen> {
-    pub fn from(cfl: Gen::Lang) -> Self {
-        Processor {
-            cfl,
-            cache_lex: None,
-            cache_parse: None,
-            lexer: None,
-            parser: None,
+            _phantom_cfl: PhantomData,
             _phantom_gen: PhantomData,
         }
     }
@@ -65,14 +48,14 @@ impl<Gen: GeneratorDesign> Processor<Gen> {
     }
 
     pub fn build_lexer(mut self) -> anyhow::Result<Self> {
-        let lexer = <Gen::Lexer as BaseLexer<Gen::Lang>>::try_from(&self.cfl)?;
+        let lexer = <Gen::Lexer as BaseLexer<Gen::Lang>>::init()?;
         self.lexer = Some(lexer);
 
         Ok(self)
     }
 
     pub fn build_parser(mut self) -> anyhow::Result<Self> {
-        let parser = <Gen::Parser as BaseParser<Gen::Lang>>::try_from(&self.cfl)?;
+        let parser = <Gen::Parser as BaseParser<Gen::Lang>>::init()?;
         self.parser = Some(parser);
 
         Ok(self)
@@ -100,12 +83,11 @@ impl<Gen: GeneratorDesign> Processor<Gen> {
 
 impl<Gen> Processor<Gen>
 where
-    Gen: GeneratorDesign<Lexer: Cacheable<Gen::Lang>>,
+    Gen: GeneratorDesign<Lexer: Cacheable<()>>,
     Gen::Lang: Clone,
 {
     pub fn prebuild_lexer(mut self) -> anyhow::Result<Self> {
-        let cfl = self.cfl.clone();
-        let cache_lex = <Gen::Lexer as Cacheable<Gen::Lang>>::new(cfl)?;
+        let cache_lex = Gen::Lexer::cache(())?;
         self.cache_lex = Some(to_vec_packed(&cache_lex)?);
 
         Ok(self)
@@ -113,8 +95,8 @@ where
 
     pub fn restore_lexer_by_cache(mut self) -> Self {
         let cache_lex = self.cache_lex.as_ref().unwrap();
-        let cache_lex = from_slice(cache_lex);
-        let lexer = <Gen::Lexer as Cacheable<Gen::Lang>>::restore(cache_lex.unwrap());
+        let cache_lex = from_slice(cache_lex).unwrap();
+        let lexer = Gen::Lexer::restore(cache_lex);
         self.lexer = Some(lexer);
 
         self
@@ -123,12 +105,11 @@ where
 
 impl<Gen> Processor<Gen>
 where
-    Gen: GeneratorDesign< Parser: Cacheable<Gen::Lang>>,
+    Gen: GeneratorDesign< Parser: Cacheable<()>>,
     Gen::Lang: Clone,
 {
     pub fn prebuild_parser(mut self) -> anyhow::Result<Self> {
-        let cfl = self.cfl.clone();
-        let cache_parse = <Gen::Parser as Cacheable<Gen::Lang>>::new(cfl)?;
+        let cache_parse = Gen::Parser::cache(())?;
         self.cache_parse = Some(to_vec_packed(&cache_parse)?);
 
         Ok(self)
@@ -136,8 +117,8 @@ where
 
     pub fn restore_parser_by_cache(mut self) -> Self {
         let cache_parse = self.cache_parse.as_ref().unwrap();
-        let cache_parse = from_slice(cache_parse);
-        let parser = <Gen::Parser as Cacheable<Gen::Lang>>::restore(cache_parse.unwrap());
+        let cache_parse = from_slice(cache_parse).unwrap();
+        let parser = Gen::Parser::restore(cache_parse);
         self.parser = Some(parser);
 
         self

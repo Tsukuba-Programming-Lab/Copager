@@ -156,10 +156,9 @@ mod test {
         B,
     }
 
-    #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
+    #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
     enum TestRule {
         #[tokenset(TestToken)]
-        #[default]
         #[rule("<S> ::= <A> <B>")]
         S,
         #[rule("<A> ::= A")]
@@ -196,7 +195,7 @@ mod test {
             ($expr:expr) => { RuleElem::new_nonterm($expr) };
         }
 
-        let ruleset = TestRule::default().into_ruleset();
+        let ruleset = TestRule::instantiate().into_ruleset();
         let first_set = FirstSet::from(&ruleset);
 
         let expected = vec![term!(A)];

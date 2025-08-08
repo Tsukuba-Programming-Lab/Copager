@@ -4,15 +4,14 @@ use copager_cfl::{CFL, CFLToken, CFLRule};
 use copager_lex::BaseLexer;
 use copager_lex_regex::RegexLexer;
 
-#[derive(Default, CFL)]
+#[derive(CFL)]
 struct TestLang (
     #[tokenset] TestToken,
     #[ruleset]  TestRule,
 );
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]
 enum TestToken {
-    #[default]
     #[token(r"\+")]
     Plus,
     #[token(r"-")]
@@ -29,10 +28,9 @@ enum TestToken {
     Num,
 }
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
 enum TestRule {
     #[tokenset(TestToken)]
-    #[default]
     #[rule("<expr> ::= <expr> Plus <term>")]
     #[rule("<expr> ::= <expr> Minus <term>")]
     #[rule("<expr> ::= <term>")]
@@ -50,16 +48,14 @@ type MyLexer = RegexLexer<TestLang>;
 
 #[test]
 fn simple_success() {
-    let cfl = TestLang::default();
-    let lexer = <MyLexer as BaseLexer<TestLang>>::try_from(&cfl).unwrap();
+    let lexer = MyLexer::init().unwrap();
     let lexer = lexer.run("1+2*3");
     assert_eq_tokens(lexer, &["1", "+", "2", "*", "3"]);
 }
 
 #[test]
 fn simple_failed() {
-    let cfl = TestLang::default();
-    let lexer = <MyLexer as BaseLexer<TestLang>>::try_from(&cfl).unwrap();
+    let lexer = MyLexer::init().unwrap();
     let lexer = lexer.run("1+2*stop3");
     assert_eq_tokens(lexer, &["1", "+", "2", "*"]);
 }

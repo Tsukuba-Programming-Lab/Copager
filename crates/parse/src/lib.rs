@@ -7,7 +7,7 @@ where
     Self: Sized,
     Lang: CFL,
 {
-    fn try_from(cfl: &Lang) -> anyhow::Result<Self>;
+    fn init() -> anyhow::Result<Self>;
     fn run<'input, Il>(&self, lexer: Il)
         -> impl Iterator<Item = ParseEvent<'input, Lang::TokenTag, Lang::RuleTag>>
     where

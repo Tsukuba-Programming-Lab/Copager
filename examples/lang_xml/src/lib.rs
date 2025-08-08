@@ -4,16 +4,15 @@ use copager::prelude::*;
 
 pub type Xml = LALR1<XmlLang>;
 
-#[derive(Debug, Default, CFL)]
+#[derive(Debug, CFL)]
 pub struct XmlLang (
     #[tokenset] XmlToken,
     #[ruleset]  XmlRule,
 );
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]
 pub enum XmlToken {
     // 記号
-    #[default]
     #[token(r"<", ir_omit)]
     TagL,
     #[token(r">", ir_omit)]
@@ -36,13 +35,12 @@ pub enum XmlToken {
     _Whitespace,
 }
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLRule)]
 pub enum XmlRule {
     // 字句集合
     #[tokenset(XmlToken)]
 
     // XML本体
-    #[default]
     #[rule("<xml> ::= <tag_list>")]
     Xml,
 

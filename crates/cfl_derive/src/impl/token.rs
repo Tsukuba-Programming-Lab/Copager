@@ -24,6 +24,10 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
     let enum_opts_matchers = parsed_variantes
         .iter()
         .map(|variant| variant.gen_option_matcher());
+    let enum_first_variant = parsed_variantes
+        .first()
+        .unwrap()
+        .gen_ident();
     let enum_variants = parsed_variantes
         .iter()
         .map(|variant| variant.gen_ident());
@@ -45,6 +49,10 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
 
         impl CFLToken for #enum_name {
             type Tag = Self;
+
+            fn instantiate() -> Self {
+                #enum_first_variant
+            }
 
             fn iter(&self) -> impl Iterator<Item = Self::Tag> {
                 vec![ #( #enum_variants, )* ].into_iter()

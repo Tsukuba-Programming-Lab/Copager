@@ -4,16 +4,15 @@ use copager::prelude::*;
 
 pub type Pl0 = LALR1<Pl0Lang>;
 
-#[derive(Debug, Default, CFL)]
+#[derive(Debug, CFL)]
 pub struct Pl0Lang (
     #[tokenset] Pl0Token,
     #[ruleset]  Pl0Rule,
 );
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, CFLToken)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, CFLToken)]
 pub enum Pl0Token {
     // キーワード
-    #[default]
     #[token(r"const", r"CONST", ir_omit)]
     Const,
     #[token(r"var", r"VAR", ir_omit)]
@@ -86,13 +85,12 @@ pub enum Pl0Token {
     _Whitespace,
 }
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, CFLRule)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, CFLRule)]
 pub enum Pl0Rule {
     // 字句集合
     #[tokenset(Pl0Token)]
 
     // プログラム本体
-    #[default]
     #[rule("<program> ::= <block> Period")]
     Program,
 
