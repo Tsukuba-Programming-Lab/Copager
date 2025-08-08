@@ -70,8 +70,12 @@ impl<'a> VariantInfo<'a> {
         let mut rule_lhs_rhs_tuples = vec![];
         for attr in &variant.attrs {
             if attr.path().is_ident("rule") {
-                let attr = attr.parse_args::<LitStr>().unwrap().value();
-                rule_lhs_rhs_tuples.push(BNF::parse(tokenset_ty, &attr));
+                let attr = attr.parse_args::<LitStr>().unwrap();
+                let bnf = match BNF::parse(tokenset_ty, &attr.value().as_str()) {
+                    Ok(bnf) => bnf,
+                    Err(e) => syn::Error::new(attr.span(), e).to_compile_error(),
+                };
+                rule_lhs_rhs_tuples.push(bnf);
             }
         }
 
@@ -104,20 +108,20 @@ struct BNF<'a> {
 
 impl<'a> BNF<'a> {
     // <bnf> ::= <rule>
-    fn parse(tokenset_ty: &'a Ident, src: &'a str) -> TokenStream {
+    fn parse(tokenset_ty: &'a Ident, src: &'a str) -> Result<TokenStream, String> {
         BNF { tokenset_ty, src, cursor: 0, row: 1, col: 1 }.parse_rule()
     }
 
     // <rule> ::= <nonterm> '::=' <rhs>
-    fn parse_rule(&mut self) -> TokenStream {
-        let lhs = self.parse_nonterm();
-        self.consume("::=");
-        let rhs = self.parse_rhs();
-        quote! { #lhs, vec![ #( #rhs, )* ], }
+    fn parse_rule(&mut self) -> Result<TokenStream, String> {
+        let lhs = self.parse_nonterm()?;
+        self.consume("::=")?;
+        let rhs = self.parse_rhs()?;
+        Ok(quote! { #lhs, vec![ #( #rhs, )* ], })
     }
 
     // <rhs> ::= ((<nonterm> | <ident>)*)?
-    fn parse_rhs(&mut self) -> Vec<TokenStream> {
+    fn parse_rhs(&mut self) -> Result<Vec<TokenStream>, String> {
         let mut rhs = vec![];
         loop {
             self.skip_spaces();
@@ -125,53 +129,54 @@ impl<'a> BNF<'a> {
                 break;
             }
             if self.src[self.cursor..].starts_with('<') {
-                rhs.push(self.parse_nonterm());
+                rhs.push(self.parse_nonterm()?);
             } else {
                 let tokenset_ty = self.tokenset_ty;
-                let ident = self.parse_ident().parse::<TokenStream>().unwrap();
+                let ident = self.parse_ident()?.parse::<TokenStream>().unwrap();
                 rhs.push(quote! { RuleElem::new_term(#tokenset_ty :: #ident) });
             }
         }
         if rhs.is_empty() {
             rhs.push(quote! { RuleElem::Epsilon });
         }
-        rhs
+        Ok(rhs)
     }
 
     // <nonterm> ::= '<' <nonterm> '>'
-    fn parse_nonterm(&mut self) -> TokenStream {
-        self.consume("<");
-        let ident = self.parse_ident();
+    fn parse_nonterm(&mut self) -> Result<TokenStream, String> {
+        self.consume("<")?;
+        let ident = self.parse_ident()?;
         let lhs = quote! { RuleElem::new_nonterm(#ident) };
-        self.consume(">");
-        lhs
+        self.consume(">")?;
+        Ok(lhs)
     }
 
     // <ident> ::= [a-zA-Z_][a-zA-Z0-9_]*
-    fn parse_ident(&mut self) -> &str {
+    fn parse_ident(&mut self) -> Result<&str, String> {
         self.skip_spaces();
 
         let end_idx = self.src[self.cursor..]
             .find(|c: char| !c.is_alphanumeric() && c != '_')
             .unwrap_or(self.src[self.cursor..].len());
         if end_idx == 0 {
-            self.error("Expected an identifier");
+            self.error("Expected an identifier")?;
         }
 
         let ident = &self.src[self.cursor..self.cursor+end_idx];
         self.cursor += end_idx;
         self.col += end_idx;
 
-        ident
+        Ok(ident)
     }
 
-    fn consume(&mut self, expected: &str) {
+    fn consume(&mut self, expected: &str) -> Result<(), String> {
         self.skip_spaces();
         if self.src[self.cursor..].starts_with(expected) {
             self.cursor += expected.len();
             self.col += expected.len();
+            Ok(())
         } else {
-            self.error(&format!("Expected '{}'", expected));
+            self.error(&format!("Expected '{}'", expected))
         }
     }
 
@@ -191,7 +196,12 @@ impl<'a> BNF<'a> {
         }
     }
 
-    fn error(&self, msg: &str) {
-        panic!("{}\n  {}\n  {}^ here\n", msg, self.src, " ".repeat(self.col-1));
+    fn error(&self, msg: &str) -> Result<(), String> {
+        Err(format!(
+            "Error: {}\n{}\n{}^ here\n",
+            msg,
+            self.src,
+            " ".repeat(self.col-1),
+        ))
     }
 }
