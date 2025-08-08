@@ -1,18 +1,17 @@
-use copager_cfl::token::TokenTag;
-use copager_cfl::rule::{Rule, RuleTag, RuleElem};
-use copager_cfl::{CFL, CFLTokens, CFLRules};
+use copager_lang::token::{TokenSet, TokenTag};
+use copager_lang::rule::{Rule, RuleElem, RuleSet, RuleTag};
+use copager_lang::Lang;
 use copager_lex::BaseLexer;
 use copager_lex_regex::RegexLexer;
 
-#[derive(Default, CFL)]
+#[derive(Lang)]
 struct TestLang (
-    #[tokens] TestToken,
-    #[rules]  TestRule,
+    #[tokenset] TestToken,
+    #[ruleset]  TestRule,
 );
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
+#[derive(Clone, Hash, PartialEq, Eq, TokenSet)]
 enum TestToken {
-    #[default]
     #[token(r"\+")]
     Plus,
     #[token(r"-")]
@@ -32,9 +31,9 @@ enum TestToken {
     _Trivia,
 }
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
+#[derive(Clone, Hash, PartialEq, Eq, RuleSet)]
 enum TestRule {
-    #[default]
+    #[tokenset(TestToken)]
     #[rule("<expr> ::= <expr> Plus <term>")]
     #[rule("<expr> ::= <expr> Minus <term>")]
     #[rule("<expr> ::= <term>")]
@@ -58,8 +57,7 @@ fn with_pp_trivia_success() {
     1 + 2 * 3 // This is a comment
     ";
 
-    let cfl = TestLang::default();
-    let lexer = <MyLexer as BaseLexer<TestLang>>::try_from(&cfl).unwrap();
+    let lexer = <MyLexer as BaseLexer<TestLang>>::init().unwrap();
     let lexed_tokens = lexer
         .run(TEST_INPUT)
         .collect::<Vec<_>>();

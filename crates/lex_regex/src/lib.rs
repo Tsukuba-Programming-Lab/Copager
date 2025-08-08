@@ -2,21 +2,21 @@
 
 use regex::{Regex, RegexSet};
 
-use copager_cfl::token::{TokenTag, Token};
-use copager_cfl::{CFL, CFLTokens};
+use copager_lang::token::{Token, TokenSet, TokenTag};
+use copager_lang::Lang;
 use copager_lex::BaseLexer;
 
 #[derive(Debug)]
-pub struct RegexLexer<Lang: CFL> {
+pub struct RegexLexer<L: Lang> {
     regex_pre_trivia: Option<Regex>,
     regex_post_trivia: Option<Regex>,
     regex_set: RegexSet,
-    regex_map: Vec<(Regex, Lang::TokenTag)>,
+    regex_map: Vec<(Regex, L::TokenTag)>,
 }
 
-impl<Lang: CFL> BaseLexer<Lang> for RegexLexer<Lang> {
-    fn try_from(cfl: &Lang) -> anyhow::Result<Self> {
-        let tokens = cfl.instantiate_tokens();
+impl<L: Lang> BaseLexer<L> for RegexLexer<L> {
+    fn init() -> anyhow::Result<Self> {
+        let tokens = L::TokenSet::instantiate();
 
         // Trivia 用正規表現の準備
         let regex_pre_trivia = get_regex_by_opts(&tokens, "pre_trivia")?
@@ -46,7 +46,7 @@ impl<Lang: CFL> BaseLexer<Lang> for RegexLexer<Lang> {
         })
     }
 
-    gen fn run<'input>(&self, input: &'input str) -> Token<'input, Lang::TokenTag> {
+    gen fn run<'input>(&self, input: &'input str) -> Token<'input, L::TokenTag> {
         let mut pos = 0;
         loop {
             match self.extract_token(input, pos) {
@@ -60,8 +60,8 @@ impl<Lang: CFL> BaseLexer<Lang> for RegexLexer<Lang> {
     }
 }
 
-impl<'input, Lang: CFL> RegexLexer<Lang> {
-    fn extract_token(&self, src: &'input str, begin: usize) -> Option<Token<'input, Lang::TokenTag>> {
+impl<'input, L: Lang> RegexLexer<L> {
+    fn extract_token(&self, src: &'input str, begin: usize) -> Option<Token<'input, L::TokenTag>> {
         let full_begin = begin;
         let pre_trivia_end = full_begin + self.pre_trivia_len(&src[full_begin..]);
 
@@ -73,7 +73,7 @@ impl<'input, Lang: CFL> RegexLexer<Lang> {
             .map(|idx| &self.regex_map[idx])
             .map(|(regex, token)| {
                 let accepted = regex.find(&src[body_begin..]).unwrap().as_str();
-                (*token, accepted)
+                (token.clone(), accepted)
             })
             .next()?;
         let body_end = body_begin + accepted.len();
@@ -130,7 +130,7 @@ fn to_or_regex<T: AsRef<str>>(str_list: &[T]) -> String {
     format!("^({})", str_list)
 }
 
-fn get_regex_by_opts<Ts: CFLTokens>(tokens: &Ts, opt: &str) -> anyhow::Result<Option<Regex>> {
+fn get_regex_by_opts<Ts: TokenSet>(tokens: &Ts, opt: &str) -> anyhow::Result<Option<Regex>> {
     let tokens = tokens.iter()
         .filter(|token| token.as_option_list().contains(&opt))
         .map(|token| token.as_str_list().join("|"))

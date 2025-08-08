@@ -5,13 +5,13 @@ use serde::{Serialize, Deserialize};
 
 pub trait TokenTag
 where
-    Self: Debug + Copy + Clone + Hash + Eq,
+    Self: Clone + Hash + Eq,
 {
     fn as_str_list<'a, 'b>(&'a self) -> &'a[&'b str];
     fn as_option_list<'a, 'b>(&'a self) -> &'a[&'b str] { &[] }
 }
 
-#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Token<'input, T: TokenTag> {
     pub kind: T,
     pub src: &'input str,
@@ -38,4 +38,14 @@ impl<'input, T: TokenTag> Token<'input, T> {
         let (l, r) = self.full;
         &self.src[l..r]
     }
+}
+
+#[cfg(feature = "derive")]
+pub use copager_lang_derive::TokenSet;
+
+pub trait TokenSet {
+    type Tag: TokenTag;
+
+    fn instantiate() -> Self;
+    fn iter(&self) -> impl Iterator<Item = Self::Tag>;
 }

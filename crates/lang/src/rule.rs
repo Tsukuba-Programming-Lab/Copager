@@ -8,7 +8,7 @@ use crate::token::TokenTag;
 
 pub trait RuleTag<T: TokenTag>
 where
-    Self: Debug + Copy + Clone + Hash + Eq,
+    Self: Clone + Hash + Eq,
 {
     fn as_rules(&self) -> Vec<Rule<T, Self>>;
 }
@@ -154,8 +154,31 @@ impl<T: TokenTag> RuleElem<T> {
     }
 }
 
+
+#[cfg(feature = "derive")]
+pub use copager_lang_derive::RuleSet;
+
+pub trait RuleSet<T: TokenTag> {
+    type Tag: RuleTag<T>;
+
+    fn instantiate() -> Self;
+    fn iter(&self) -> impl Iterator<Item = Self::Tag>;
+
+    fn into_ruleset(&self) -> RuleSetData<T, Self::Tag> {
+        let set_id_for_all = |(id, tag): (usize, Self::Tag)| {
+            tag.as_rules()
+                .into_iter()
+                .map(move |mut rule| { rule.id = id; rule })
+        };
+        self.iter()
+            .enumerate()
+            .flat_map(set_id_for_all)
+            .collect::<RuleSetData<_, _>>()
+    }
+}
+
 #[derive(Debug, Clone)]
-pub struct RuleSet<T, R>
+pub struct RuleSetData<T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,
@@ -164,7 +187,7 @@ where
     pub rules: Vec<Rule<T, R>>,
 }
 
-impl<T, R> FromIterator<Rule<T, R>> for RuleSet<T, R>
+impl<T, R> FromIterator<Rule<T, R>> for RuleSetData<T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,
@@ -178,11 +201,11 @@ where
             RuleElem::NonTerm(s) => s.clone(),
             _ => unreachable!(),
         };
-        RuleSet { top, rules }
+        RuleSetData { top, rules }
     }
 }
 
-impl<T, R> RuleSet<T, R>
+impl<T, R> RuleSetData<T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,

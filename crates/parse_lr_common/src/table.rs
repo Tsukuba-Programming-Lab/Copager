@@ -3,8 +3,8 @@ use std::fmt::Display;
 
 use serde::{Serialize, Deserialize};
 
-use copager_cfl::token::{Token, TokenTag};
-use copager_cfl::rule::{Rule, RuleElem, RuleTag};
+use copager_lang::token::{Token, TokenTag};
+use copager_lang::rule::{Rule, RuleElem, RuleTag};
 
 use crate::automaton::Automaton;
 use crate::error::LRError;
@@ -52,7 +52,7 @@ where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    pub fn get_action(&self, state: usize, token: Option<Token<T>>) -> &LRAction<T, R> {
+    pub fn get_action(&self, state: usize, token: &Option<Token<T>>) -> &LRAction<T, R> {
         if let Some(token) = token {
             return &self.action_table[state].get(&token.kind).unwrap_or(&LRAction::None)
         } else {
@@ -98,7 +98,7 @@ where
         for (from, to, elem) in automaton.edges() {
             match elem {
                 RuleElem::Term(token) => {
-                    action_table[*from].insert(*token, LRAction::Shift(*to));
+                    action_table[*from].insert(token.clone(), LRAction::Shift(*to));
                 }
                 RuleElem::NonTerm(name) => {
                     goto_table[*from].insert(name.clone(), *to);

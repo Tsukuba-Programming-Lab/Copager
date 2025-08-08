@@ -10,8 +10,8 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
     let generics = to_generics_without_where(&ast.generics);
 
     quote! {
-        impl<'input, Lang: CFL> IR<'input, Lang> for #ident #generics {
-            type Builder = #ident_builder<'input, Lang>;
+        impl<'input, L: Lang> IR<'input, L> for #ident #generics {
+            type Builder = #ident_builder<'input, L>;
         }
     }
 }

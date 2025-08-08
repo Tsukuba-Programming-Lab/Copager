@@ -1,20 +1,19 @@
 use std::io::{stdin, stdout, Write};
 
-use copager::cfl::{CFL, CFLRules, CFLTokens};
+use copager::lang::{Lang, TokenSet, RuleSet};
 use copager::ir::SExp;
 use copager::template::LALR1;
 use copager::prelude::*;
 use copager::Processor;
 
-#[derive(Debug, Default, CFL)]
+#[derive(Lang)]
 struct ExprLang (
-    #[tokens] ExprToken,
-    #[rules] ExprRule,
+    #[tokenset] ExprToken,
+    #[ruleset] ExprRule,
 );
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, TokenSet)]
 enum ExprToken {
-    #[default]
     #[token(r"\+")]
     Plus,
     #[token(r"-")]
@@ -33,9 +32,9 @@ enum ExprToken {
     _Whitespace,
 }
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, RuleSet)]
 enum ExprRule {
-    #[default]
+    #[tokenset(ExprToken)]
     #[rule("<expr> ::= <expr> Plus <term>")]
     #[rule("<expr> ::= <expr> Minus <term>")]
     #[rule("<expr> ::= <term>")]

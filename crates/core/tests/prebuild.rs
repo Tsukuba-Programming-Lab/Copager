@@ -3,25 +3,21 @@ use serde_cbor::ser::to_vec_packed;
 use serde_cbor::de::from_slice;
 
 use copager_core::{Generator, Processor};
-use copager_cfl::token::TokenTag;
-use copager_cfl::rule::{RuleTag, Rule, RuleElem};
-use copager_cfl::{CFL, CFLTokens, CFLRules};
+use copager_lang::token::{TokenSet, TokenTag};
+use copager_lang::rule::{Rule, RuleElem, RuleSet, RuleTag};
+use copager_lang::Lang;
 use copager_lex_regex::RegexLexer;
 use copager_parse_lr_lr1::LR1;
 use copager_ir_void::Void;
 
-#[derive(Default, Clone, CFL, Serialize, Deserialize)]
+#[derive(Clone, Lang, Serialize, Deserialize)]
 struct ExprLang (
-    #[tokens] ExprToken,
-    #[rules]  ExprRule
+    #[tokenset] ExprToken,
+    #[ruleset]  ExprRule,
 );
 
-#[derive(
-    Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
-    CFLTokens, Serialize, Deserialize
-)]
+#[derive(Clone, Hash, PartialEq, Eq, TokenSet, Serialize, Deserialize)]
 enum ExprToken {
-    #[default]
     #[token(r"\+")]
     Plus,
     #[token(r"-")]
@@ -40,12 +36,9 @@ enum ExprToken {
     _Whitespace,
 }
 
-#[derive(
-    Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
-    CFLRules, Serialize, Deserialize
-)]
+#[derive(Clone, Hash, PartialEq, Eq, RuleSet, Serialize, Deserialize)]
 enum ExprRule {
-    #[default]
+    #[tokenset(ExprToken)]
     #[rule("<expr> ::= <expr> Plus <term>")]
     #[rule("<expr> ::= <expr> Minus <term>")]
     #[rule("<expr> ::= <term>")]

@@ -1,9 +1,7 @@
-use copager_cfl::token::TokenTag;
-use copager_cfl::CFLTokens;
+use copager_lang::token::{TokenSet, TokenTag};
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
+#[derive(Clone, Hash, PartialEq, Eq, TokenSet)]
 enum MyToken {
-    #[default]
     #[token(r"\+", r"plus")]
     Plus,
     #[token(r"\-", r"minus")]
@@ -14,8 +12,8 @@ enum MyToken {
 
 #[test]
 fn check_compile_tokens() {
-    // CFLTokens
-    let mytoken = MyToken::default();
+    // TokenSet
+    let mytoken = MyToken::instantiate();
     assert_eq!(mytoken.iter().count(), 3);
 
     // TokenTag

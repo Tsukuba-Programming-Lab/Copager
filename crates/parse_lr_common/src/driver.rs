@@ -1,5 +1,5 @@
-use copager_cfl::token::{TokenTag, Token};
-use copager_cfl::rule::{RuleElem, RuleTag};
+use copager_lang::token::{TokenTag, Token};
+use copager_lang::rule::{RuleElem, RuleTag};
 use copager_parse::ParseEvent;
 
 use crate::error::LRError;
@@ -41,15 +41,15 @@ where
     pub gen fn consume(&mut self, token: Option<Token<'input, T>>) -> ParseEvent<'input, T, R> {
         loop {
             let top = self.stack[self.stack.len() - 1];
-            let action = self.table.get_action(top, token);
-            match (action, token) {
+            let action = self.table.get_action(top, &token);
+            match (action, &token) {
                 (LRAction::Shift(new_state), Some(token)) => {
                     self.stack.push(*new_state);
-                    yield ParseEvent::Read(token);
+                    yield ParseEvent::Read(token.clone());
                     break;
                 },
                 (LRAction::Reduce(rule), _) => {
-                    let tag = rule.tag.unwrap();
+                    let tag = rule.tag.clone().unwrap();
                     let lhs = lhs_as_str(&rule.lhs);
                     let rhs_len = rhs_len(&rule.rhs);
                     self.stack.truncate(self.stack.len() - rhs_len);
@@ -61,7 +61,7 @@ where
                     return;
                 }
                 (LRAction::None, Some(token)) => {
-                    yield ParseEvent::Err(LRError::new_unexpected_token(token).into());
+                    yield ParseEvent::Err(LRError::new_unexpected_token(token.clone()).into());
                     return;
                 }
                 (LRAction::None, None) => {

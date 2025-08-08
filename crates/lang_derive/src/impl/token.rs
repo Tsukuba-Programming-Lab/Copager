@@ -8,22 +8,26 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
     let data_enum = if let Data::Enum(data_enum) = ast.data {
         data_enum
     } else {
-        panic!("\"CFLTokens\" proc-macro is only implemented for enum.")
+        panic!("\"TokenSet\" proc-macro is only implemented for enum.")
     };
 
     let parsed_variantes = data_enum
         .variants
         .iter()
-        .map(|variant| VariantInfo::parse(&ast.ident, variant))
+        .map(|variant| TokenDefVariant::parse(variant))
         .collect::<Vec<_>>();
 
     let enum_name = &ast.ident;
-    let enum_str_matcher_table = parsed_variantes
+    let enum_str_matchers = parsed_variantes
         .iter()
         .map(|variant| variant.gen_str_matcher());
-    let enum_opts_matcher_table = parsed_variantes
+    let enum_opts_matchers = parsed_variantes
         .iter()
         .map(|variant| variant.gen_option_matcher());
+    let enum_first_variant = parsed_variantes
+        .first()
+        .unwrap()
+        .gen_ident();
     let enum_variants = parsed_variantes
         .iter()
         .map(|variant| variant.gen_ident());
@@ -32,19 +36,23 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
         impl TokenTag for #enum_name {
             fn as_str_list<'a, 'b>(&'a self) -> &'a[&'b str] {
                 match self {
-                    #( #enum_str_matcher_table, )*
+                    #( #enum_str_matchers, )*
                 }
             }
 
             fn as_option_list<'a, 'b>(&'a self) -> &'a[&'b str] {
                 match self {
-                    #( #enum_opts_matcher_table, )*
+                    #( #enum_opts_matchers, )*
                 }
             }
         }
 
-        impl CFLTokens for #enum_name {
+        impl TokenSet for #enum_name {
             type Tag = Self;
+
+            fn instantiate() -> Self {
+                #enum_first_variant
+            }
 
             fn iter(&self) -> impl Iterator<Item = Self::Tag> {
                 vec![ #( #enum_variants, )* ].into_iter()
@@ -54,17 +62,18 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
 }
 
 #[derive(Debug)]
-struct VariantInfo<'a> {
-    parent_ident: &'a Ident,
-    self_ident: &'a Ident,
+struct TokenDefVariant<'a> {
+    ident: &'a Ident,
     texts: Vec<TokenStream>,
     options: Vec<TokenStream>,
 }
 
-impl<'a> VariantInfo<'a> {
-    fn parse(parent_ident: &'a Ident, variant: &'a Variant) -> VariantInfo<'a> {
-        let self_ident = &variant.ident;
+impl<'a> TokenDefVariant<'a> {
+    fn parse(variant: &'a Variant) -> TokenDefVariant<'a> {
+        // 列挙子名
+        let ident = &variant.ident;
 
+        // 字句定義とオプションを抽出
         let mut texts = vec![];
         let mut options = vec![];
         for attr in variant.attrs.iter().filter(|attr| attr.path().is_ident("token")) {
@@ -78,18 +87,12 @@ impl<'a> VariantInfo<'a> {
             }
         }
 
-        VariantInfo {
-            parent_ident,
-            self_ident,
-            texts,
-            options,
-        }
+        TokenDefVariant { ident, texts, options }
     }
 
     fn gen_ident(&self) -> TokenStream {
-        let parent_ident = self.parent_ident;
-        let self_ident = self.self_ident;
-        quote! { #parent_ident :: #self_ident }
+        let ident = self.ident;
+        quote! { Self :: #ident }
     }
 
     fn gen_str_matcher(&self) -> TokenStream {

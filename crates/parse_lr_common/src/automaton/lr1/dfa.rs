@@ -4,8 +4,8 @@ use std::rc::Rc;
 use std::sync::RwLock;
 use std::marker::PhantomData;
 
-use copager_cfl::token::TokenTag;
-use copager_cfl::rule::{Rule, RuleElem, RuleSet, RuleTag};
+use copager_lang::token::TokenTag;
+use copager_lang::rule::{Rule, RuleElem, RuleSetData, RuleTag};
 use copager_parse_common::rule::FirstSet;
 
 use crate::automaton::Automaton;
@@ -24,8 +24,8 @@ where
 
 impl<'a, 'b, T, R> Debug for LR1DFANode<'a, 'b, T, R>
 where
-    T: TokenTag,
-    R: RuleTag<T>,
+    T: TokenTag + Debug,
+    R: RuleTag<T> + Debug,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         #[derive(Debug)]
@@ -102,12 +102,12 @@ where
     pub edges: Vec<(usize, usize, &'a RuleElem<T>)>,
 }
 
-impl<'a, 'b, T, R> From<(&'a RuleSet<T, R>, &'b FirstSet<'a, T, R>)> for LR1DFA<'a, 'b, T, R>
+impl<'a, 'b, T, R> From<(&'a RuleSetData<T, R>, &'b FirstSet<'a, T, R>)> for LR1DFA<'a, 'b, T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    fn from((ruleset, first_set): (&'a RuleSet<T, R>, &'b FirstSet<'a, T, R>)) -> Self {
+    fn from((ruleset, first_set): (&'a RuleSetData<T, R>, &'b FirstSet<'a, T, R>)) -> Self {
         let dfa_top = LR1DFABuilder::new().start(ruleset, &first_set);
 
         let mut nodes = BTreeMap::new();
@@ -175,7 +175,7 @@ where
         }
     }
 
-    fn start(mut self, ruleset: &'a RuleSet<T, R>, first_set: &'b FirstSet<'a, T, R>) -> Rc<RwLock<LR1DFANode<'a, 'b, T, R>>> {
+    fn start(mut self, ruleset: &'a RuleSetData<T, R>, first_set: &'b FirstSet<'a, T, R>) -> Rc<RwLock<LR1DFANode<'a, 'b, T, R>>> {
         let top = RuleElem::NonTerm(ruleset.top.clone());
         let top = ruleset.rules
             .iter()

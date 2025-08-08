@@ -1,5 +1,5 @@
-use copager_cfl::token::TokenTag;
-use copager_cfl::rule::RuleElem;
+use copager_lang::token::TokenTag;
+use copager_lang::rule::RuleElem;
 
 pub mod lr0;
 pub mod lr1;

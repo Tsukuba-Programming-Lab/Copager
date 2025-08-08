@@ -1,12 +1,12 @@
-use copager_cfl::token::Token;
-use copager_cfl::CFL;
+use copager_lang::token::Token;
+use copager_lang::Lang;
 
-pub trait BaseLexer<Lang>
+pub trait BaseLexer<L>
 where
     Self: Sized,
-    Lang: CFL,
+    L: Lang,
 {
-    fn try_from(cfl: &Lang) -> anyhow::Result<Self>;
+    fn init() -> anyhow::Result<Self>;
     fn run<'input>(&self, input: &'input str)
-        -> impl Iterator<Item = Token<'input, Lang::TokenTag>>;
+        -> impl Iterator<Item = Token<'input, L::TokenTag>>;
 }
