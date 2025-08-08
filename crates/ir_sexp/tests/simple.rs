@@ -8,8 +8,8 @@ use copager_ir_sexp::{SExp, SExpOwned};
 
 #[derive(Default, CFL)]
 struct TestLang (
-    #[tokens] TestToken,
-    #[rules]  TestRule
+    #[tokenset] TestToken,
+    #[ruleset]  TestRule,
 );
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]

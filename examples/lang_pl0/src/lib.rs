@@ -6,8 +6,8 @@ pub type Pl0 = LALR1<Pl0Lang>;
 
 #[derive(Debug, Default, CFL)]
 pub struct Pl0Lang (
-    #[tokens] Pl0Token,
-    #[rules]  Pl0Rule,
+    #[tokenset] Pl0Token,
+    #[ruleset]  Pl0Rule,
 );
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, CFLToken)]

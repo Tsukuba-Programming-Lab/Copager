@@ -6,8 +6,8 @@ use copager_lex_regex::RegexLexer;
 
 #[derive(Default, CFL)]
 struct TestLang (
-    #[tokens] TestToken,
-    #[rules]  TestRule,
+    #[tokenset] TestToken,
+    #[ruleset]  TestRule,
 );
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]

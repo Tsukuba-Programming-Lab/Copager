@@ -6,8 +6,8 @@ pub type Xml = LALR1<XmlLang>;
 
 #[derive(Debug, Default, CFL)]
 pub struct XmlLang (
-    #[tokens] XmlToken,
-    #[rules]  XmlRule,
+    #[tokenset] XmlToken,
+    #[ruleset]  XmlRule,
 );
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]

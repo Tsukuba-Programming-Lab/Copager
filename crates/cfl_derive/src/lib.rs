@@ -2,7 +2,7 @@ mod r#impl;
 
 use syn::{parse_macro_input, DeriveInput};
 
-#[proc_macro_derive(CFL, attributes(tokens, rules))]
+#[proc_macro_derive(CFL, attributes(tokenset, ruleset))]
 pub fn derive_cfl(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let ast = parse_macro_input!(input as DeriveInput);
     r#impl::cfl::proc_macro_impl(ast).into()

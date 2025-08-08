@@ -8,8 +8,8 @@ use copager::Processor;
 
 #[derive(Debug, Default, CFL)]
 struct ExprLang (
-    #[tokens] ExprToken,
-    #[rules] ExprRule,
+    #[tokenset] ExprToken,
+    #[ruleset] ExprRule,
 );
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]

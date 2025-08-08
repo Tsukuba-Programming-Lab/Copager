@@ -8,8 +8,8 @@ use copager_ir_void::Void;
 
 #[derive(Debug, Default, CFL)]
 struct TestLang (
-    #[tokens] TestToken,
-    #[rules] TestRule,
+    #[tokenset] TestToken,
+    #[ruleset]  TestRule,
 );
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]

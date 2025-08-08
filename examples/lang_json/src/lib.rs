@@ -6,8 +6,8 @@ pub type Json = LALR1<JsonLang>;
 
 #[derive(Debug, Default, CFL)]
 pub struct JsonLang (
-    #[tokens] JsonToken,
-    #[rules]  JsonRule,
+    #[tokenset] JsonToken,
+    #[ruleset]  JsonRule,
 );
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]

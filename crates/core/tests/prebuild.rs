@@ -12,8 +12,8 @@ use copager_ir_void::Void;
 
 #[derive(Default, Clone, CFL, Serialize, Deserialize)]
 struct ExprLang (
-    #[tokens] ExprToken,
-    #[rules]  ExprRule
+    #[tokenset] ExprToken,
+    #[ruleset]  ExprRule,
 );
 
 #[derive(

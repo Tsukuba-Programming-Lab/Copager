@@ -4,8 +4,8 @@ use copager_cfl::{CFL, CFLToken, CFLRule};
 
 #[derive(Default, CFL)]
 struct MyLanguage (
-    #[tokens] MyToken,
-    #[rules]  MyRule,
+    #[tokenset] MyToken,
+    #[ruleset]  MyRule,
 );
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLToken)]

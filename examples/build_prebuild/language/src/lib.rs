@@ -8,8 +8,8 @@ pub type Arithmetic = LALR1<ArithmeticLang>;
 
 #[derive(Debug, Default, Clone, CFL, Serialize, Deserialize)]
 pub struct ArithmeticLang (
-    #[tokens] ArithmeticToken,
-    #[rules] ArithmeticRule,
+    #[tokenset] ArithmeticToken,
+    #[ruleset] ArithmeticRule,
 );
 
 #[derive(
