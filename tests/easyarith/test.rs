@@ -6,7 +6,7 @@ use copager::Processor;
 
 use utils::{Expect, test_dir};
 
-use example_lang_easyarith::EasyArith;
+use example_lang_easyarith::syntax::EasyArith;
 
 #[test]
 fn success() {

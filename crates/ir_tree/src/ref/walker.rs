@@ -35,9 +35,9 @@ impl<'src, L: Lang> CSTreeWalker<'src, L> {
         }
     }
 
-    pub fn expect_leaf(&mut self) -> L::TokenTag {
+    pub fn expect_leaf(&mut self) -> (L::TokenTag, &'src str) {
         match self.pop_front() {
-            Some(CSTree::Leaf { tag, .. }) => tag,
+            Some(CSTree::Leaf { tag, text }) => (tag, text),
             Some(..) => panic!("Expected a leaf but found a node"),
             None => panic!("No more elements in the CSTreeWalker"),
         }
@@ -166,7 +166,7 @@ mod tests {
         let mut walker = CSTreeWalker::from(cst);
 
         assert_eq!(walker.peek(), (Some(TestToken::A), None));
-        assert_eq!(walker.expect_leaf(), TestToken::A);
+        assert_eq!(walker.expect_leaf().0, TestToken::A);
         assert_eq!(walker.peek(), (None, Some(TestRule::RuleB)));
 
         Ok(())
@@ -179,7 +179,7 @@ mod tests {
 
         impl From<CSTreeWalker<'_, TestLang>> for AstA {
             fn from(mut walker: CSTreeWalker<'_, TestLang>) -> Self {
-                assert_eq!(walker.expect_leaf(), TestToken::A);
+                assert_eq!(walker.expect_leaf().0, TestToken::A);
                 assert_eq!(walker.expect_node::<AstB>(), AstB);
                 AstA
             }
@@ -190,7 +190,7 @@ mod tests {
 
         impl From<CSTreeWalker<'_, TestLang>> for AstB {
             fn from(mut walker: CSTreeWalker<'_, TestLang>) -> Self {
-                assert_eq!(walker.expect_leaf(), TestToken::B);
+                assert_eq!(walker.expect_leaf().0, TestToken::B);
                 assert_eq!(walker.expect_nodes::<AstC>(), vec![AstC, AstC, AstC]);
                 assert_eq!(walker.expect_nodes::<AstD>(), vec![]);
                 AstB
@@ -202,7 +202,7 @@ mod tests {
 
         impl From<CSTreeWalker<'_, TestLang>> for AstC {
             fn from(mut walker: CSTreeWalker<'_, TestLang>) -> Self {
-                assert_eq!(walker.expect_leaf(), TestToken::C);
+                assert_eq!(walker.expect_leaf().0, TestToken::C);
                 AstC
             }
         }
@@ -212,7 +212,7 @@ mod tests {
 
         impl From<CSTreeWalker<'_, TestLang>> for AstD {
             fn from(mut walker: CSTreeWalker<'_, TestLang>) -> Self {
-                assert_eq!(walker.expect_leaf(), TestToken::D);
+                assert_eq!(walker.expect_leaf().0, TestToken::D);
                 AstD
             }
         }
