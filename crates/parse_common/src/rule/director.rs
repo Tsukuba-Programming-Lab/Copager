@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
-use copager_cfl::token::TokenTag;
-use copager_cfl::rule::{Rule, RuleElem, RuleSet, RuleTag};
+use copager_lang::token::TokenTag;
+use copager_lang::rule::{Rule, RuleElem, RuleSetData, RuleTag};
 
 use crate::rule::{FirstSet, FollowSet};
 
@@ -14,12 +14,12 @@ where
     map: HashMap<&'a Rule<T, R>, Vec<&'a RuleElem<T>>>,
 }
 
-impl<'a, T, R> From<&'a RuleSet<T, R>> for DirectorSet<'a, T, R>
+impl<'a, T, R> From<&'a RuleSetData<T, R>> for DirectorSet<'a, T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    fn from(ruleset: &'a RuleSet<T, R>) -> Self {
+    fn from(ruleset: &'a RuleSetData<T, R>) -> Self {
         let build = DirectorSetBuilder::from(ruleset).calc();
         let map = build.map
             .into_iter()
@@ -46,17 +46,17 @@ where
     R: RuleTag<T>,
 {
     map: HashMap<&'a Rule<T, R>, HashSet<&'a RuleElem<T>>>,
-    ruleset: &'a RuleSet<T, R>,
+    ruleset: &'a RuleSetData<T, R>,
     first_set: FirstSet<'a, T, R>,
     follow_set: FollowSet<'a, T, R>,
 }
 
-impl<'a, T, R> From<&'a RuleSet<T, R>> for DirectorSetBuilder<'a, T, R>
+impl<'a, T, R> From<&'a RuleSetData<T, R>> for DirectorSetBuilder<'a, T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    fn from(ruleset: &'a RuleSet<T, R>) -> Self {
+    fn from(ruleset: &'a RuleSetData<T, R>) -> Self {
         let first_set = FirstSet::from(ruleset);
         let follow_set = FollowSet::from(ruleset);
 
@@ -106,13 +106,12 @@ where
 
 #[cfg(test)]
 mod test {
-    use copager_cfl::token::TokenTag;
-    use copager_cfl::rule::{Rule, RuleTag, RuleElem};
-    use copager_cfl::{CFLTokens, CFLRules};
+    use copager_lang::token::{TokenSet, TokenTag};
+    use copager_lang::rule::{Rule, RuleElem, RuleSet, RuleTag};
 
     use super::DirectorSet;
 
-    #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
+    #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, TokenSet)]
     enum TestToken {
         #[token(r"a")]
         A,
@@ -120,9 +119,9 @@ mod test {
         B,
     }
 
-    #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
+    #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, RuleSet)]
     enum TestRule {
-        #[default]
+        #[tokenset(TestToken)]
         #[rule("<S> ::= <A> <B>")]
         S,
         #[rule("<A> ::= A")]
@@ -156,7 +155,7 @@ mod test {
             ($expr:ident) => { RuleElem::new_term(TestToken::$expr) };
         }
 
-        let ruleset = TestRule::default().into_ruleset();
+        let ruleset = TestRule::instantiate().into_ruleset();
         let director_set = DirectorSet::from(&ruleset);
 
         let rule = &TestRule::S.as_rules()[0];

@@ -1,13 +1,13 @@
 use std::marker::PhantomData;
 
-use copager_cfl::CFL;
+use copager_lang::Lang as LangTrait;
 use copager_lex::BaseLexer;
 use copager_parse::BaseParser;
 
 #[derive(Debug)]
 pub struct Generator<Lang, Lexer, Parser>
 where
-    Lang: CFL,
+    Lang: LangTrait,
     Lexer: BaseLexer<Lang>,
     Parser: BaseParser<Lang>
 {
@@ -18,7 +18,7 @@ where
 
 impl<Lang, Lexer, Parser> GeneratorDesign for Generator<Lang, Lexer, Parser>
 where
-    Lang: CFL,
+    Lang: LangTrait,
     Lexer: BaseLexer<Lang>,
     Parser: BaseParser<Lang>
 {
@@ -28,7 +28,7 @@ where
 }
 
 pub trait GeneratorDesign {
-    type Lang: CFL;
+    type Lang: LangTrait;
     type Lexer: BaseLexer<Self::Lang>;
     type Parser: BaseParser<Self::Lang>;
 }

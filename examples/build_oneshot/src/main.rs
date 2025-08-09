@@ -1,20 +1,20 @@
-use std::io::{stdin, stdout, Write};
+use std::io::{stdin, Read};
 
-use copager::cfl::{CFL, CFLRules, CFLTokens};
+use copager::lang::{Lang, TokenSet, RuleSet};
 use copager::ir::SExp;
 use copager::template::LALR1;
 use copager::prelude::*;
 use copager::Processor;
 
-#[derive(Debug, Default, CFL)]
-struct ExprLang (
-    #[tokens] ExprToken,
-    #[rules] ExprRule,
+#[allow(dead_code)]
+#[derive(Lang)]
+struct Arithmetic (
+    #[tokenset] ArithmeticToken,
+    #[ruleset] ArithmeticRule,
 );
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
-enum ExprToken {
-    #[default]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, TokenSet)]
+enum ArithmeticToken {
     #[token(r"\+")]
     Plus,
     #[token(r"-")]
@@ -33,9 +33,9 @@ enum ExprToken {
     _Whitespace,
 }
 
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
-enum ExprRule {
-    #[default]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, RuleSet)]
+enum ArithmeticRule {
+    #[tokenset(ArithmeticToken)]
     #[rule("<expr> ::= <expr> Plus <term>")]
     #[rule("<expr> ::= <expr> Minus <term>")]
     #[rule("<expr> ::= <term>")]
@@ -49,15 +49,14 @@ enum ExprRule {
     Num,
 }
 
+type Config = LALR1<Arithmetic>;
+type MyProcessor = Processor<Config>;
+
 fn main() -> anyhow::Result<()> {
-    println!("Example <one-shot>");
-    print!("Input: ");
-    stdout().flush()?;
-
     let mut input = String::new();
-    stdin().read_line(&mut input)?;
+    stdin().read_to_string(&mut input)?;
 
-    let sexp = Processor::<LALR1<ExprLang>>::new()
+    let sexp = MyProcessor::new()
         .build()?
         .process::<SExp<_>>(&input)?;
     println!("Success: {}", sexp);

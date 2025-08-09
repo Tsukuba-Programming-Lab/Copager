@@ -1,23 +1,17 @@
 use serde::{Deserialize, Serialize};
 
-use copager::cfl::{CFL, CFLRules, CFLTokens};
-use copager::template::LALR1;
+use copager::lang::{Lang, TokenSet, RuleSet};
 use copager::prelude::*;
 
-pub type Arithmetic = LALR1<ArithmeticLang>;
-
-#[derive(Debug, Default, Clone, CFL, Serialize, Deserialize)]
-pub struct ArithmeticLang (
-    #[tokens] ArithmeticToken,
-    #[rules] ArithmeticRule,
+#[allow(dead_code)]
+#[derive(Lang, Serialize, Deserialize)]
+pub struct Arithmetic (
+    #[tokenset] ArithmeticToken,
+    #[ruleset] ArithmeticRule,
 );
 
-#[derive(
-    Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
-    CFLTokens, Serialize, Deserialize,
-)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, TokenSet, Serialize, Deserialize)]
 pub enum ArithmeticToken {
-    #[default]
     #[token(r"\+")]
     Plus,
     #[token(r"-")]
@@ -36,12 +30,9 @@ pub enum ArithmeticToken {
     _Whitespace,
 }
 
-#[derive(
-    Debug, Default, Copy, Clone, Hash, PartialEq, Eq,
-    CFLRules, Serialize, Deserialize,
-)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, RuleSet, Serialize, Deserialize)]
 pub enum ArithmeticRule {
-    #[default]
+    #[tokenset(ArithmeticToken)]
     #[rule("<expr> ::= <expr> Plus <term>")]
     #[rule("<expr> ::= <expr> Minus <term>")]
     #[rule("<expr> ::= <term>")]

@@ -1,15 +1,13 @@
-cargo-features = ["edition2024"]
-
 [package]
 name = "copager"
-version = "0.3.0"
+version = "0.3.2"
 edition = "2024"
 
 [dependencies]
 serde_json = { version = "1.0.117", optional = true }
 copager_core = { path = "./crates/core" }
 copager_core_macros = { path = "./crates/core_macros" }
-copager_cfl = { path = "./crates/cfl" }
+copager_lang = { path = "./crates/lang" }
 copager_lex = { path = "./crates/lex", optional = true }
 copager_lex_regex = { path = "./crates/lex_regex", optional = true }
 copager_parse = { path = "./crates/parse", optional = true }
@@ -29,7 +27,7 @@ anyhow = { workspace = true }
 serde = { workspace = true }
 serde_json = "1.0.117"
 copager = { path = ".", features = ["all"] }
-example_lang_arithmetic = { path = "./examples/lang_arithmetic" }
+example_lang_easyarith = { path = "./examples/lang_easyarith" }
 example_lang_json = { path = "./examples/lang_json" }
 example_lang_pl0 = { path = "./examples/lang_pl0" }
 example_lang_xml = { path = "./examples/lang_xml" }
@@ -45,7 +43,7 @@ all = [
 
 # common
 default = ["dep:copager_lex", "dep:copager_parse"]
-derive = ["copager_cfl/derive"]
+derive = ["copager_lang/derive"]
 prebuild = ["dep:serde_json"]
 template = ["dep:copager_lex_regex"]
 dev = ["dep:copager_parse_common", "dep:copager_parse_lr_common"]
@@ -70,8 +68,8 @@ members = [
     # Copager
     "./crates/core",
     "./crates/core_macros",
-    "./crates/cfl",
-    "./crates/cfl_derive",
+    "./crates/lang",
+    "./crates/lang_derive",
     "./crates/lex",
     "./crates/lex_regex",
     "./crates/parse",
@@ -91,7 +89,7 @@ members = [
     # Examples
     "./examples/build_oneshot",
     "./examples/build_prebuild",
-    "./examples/lang_arithmetic",
+    "./examples/lang_easyarith",
     "./examples/lang_json",
     "./examples/lang_pl0",
     "./examples/lang_xml",
@@ -99,7 +97,7 @@ members = [
 exclude = []
 
 [workspace.package]
-version = "0.3.1"
+version = "0.3.2"
 
 [workspace.dependencies]
 anyhow = "1.0.82"
@@ -107,8 +105,8 @@ thiserror = "1.0.58"
 serde = { version = "1.0.197", features = ["derive"] }
 
 [[test]]
-name = "test_by_arithmetic"
-path = "./tests/arithmetic/test.rs"
+name = "test_by_easyarith"
+path = "./tests/easyarith/test.rs"
 
 [[test]]
 name = "test_by_json"

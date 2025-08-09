@@ -1,0 +1,196 @@
+use copager::lang::{Lang, TokenSet, RuleSet};
+use copager::prelude::*;
+
+#[allow(dead_code)]
+#[derive(Lang)]
+pub struct Pl0 (
+    #[tokenset] Pl0Token,
+    #[ruleset]  Pl0Rule,
+);
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, TokenSet)]
+pub enum Pl0Token {
+    // キーワード
+    #[token(r"const", r"CONST", ir_omit)]
+    Const,
+    #[token(r"var", r"VAR", ir_omit)]
+    Var,
+    #[token(r"procedure", r"PROCEDURE", ir_omit)]
+    Procedure,
+    #[token(r"call", r"CALL", ir_omit)]
+    Call,
+    #[token(r"begin", r"BEGIN", ir_omit)]
+    Begin,
+    #[token(r"end", r"END", ir_omit)]
+    End,
+    #[token(r"if", r"IF", ir_omit)]
+    If,
+    #[token(r"then", r"THEN", ir_omit)]
+    Then,
+    #[token(r"while", r"WHILE", ir_omit)]
+    While,
+    #[token(r"do", r"DO", ir_omit)]
+    Do,
+    #[token(r"odd", r"ODD", ir_omit)]
+    Odd,
+    #[token(r"write", r"WRITE", ir_omit)]
+    Write,
+    #[token(r"read", r"READ", ir_omit)]
+    Read,
+
+    // 識別子と数値
+    #[token(r"[a-zA-Z_][a-zA-Z0-9_]*")]
+    Ident,
+    #[token(r"\d+")]
+    Number,
+
+    // 演算子と記号
+    #[token(r"\+")]
+    Plus,
+    #[token(r"-")]
+    Minus,
+    #[token(r"\*")]
+    Times,
+    #[token(r"/")]
+    Slash,
+    #[token(r"=")]
+    Eql,
+    #[token(r"#")]
+    Neq,
+    #[token(r"<=")]
+    Leq,
+    #[token(r"<")]
+    Lss,
+    #[token(r">=")]
+    Geq,
+    #[token(r">")]
+    Gtr,
+    #[token(r"\(", ir_omit)]
+    ParenL,
+    #[token(r"\)", ir_omit)]
+    ParenR,
+    #[token(r",", ir_omit)]
+    Comma,
+    #[token(r"\.", ir_omit)]
+    Period,
+    #[token(r";", ir_omit)]
+    Semicolon,
+    #[token(r":=", ir_omit)]
+    Becomes,
+
+    // 空白
+    #[token(r"[ \t\n\r]+", trivia)]
+    _Whitespace,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, RuleSet)]
+pub enum Pl0Rule {
+    // 字句集合
+    #[tokenset(Pl0Token)]
+
+    // プログラム本体
+    #[rule("<program> ::= <block> Period")]
+    Program,
+
+    // ブロック
+    #[rule("<block> ::= <decl_list> <stmt>")]
+    #[rule("<block> ::= <stmt>")]
+    Block,
+
+    // 宣言
+    #[rule("<decl_list> ::= <decl_list> <decl>")]
+    #[rule("<decl_list> ::= <decl>")]
+    DeclList,
+
+    #[rule("<decl> ::= <const_decl>")]
+    #[rule("<decl> ::= <var_decl>")]
+    #[rule("<decl> ::= <proc_decl>")]
+    Decl,
+
+    // 定数宣言
+    #[rule("<const_decl> ::= Const <const_def_list> Semicolon")]
+    ConstDecl,
+
+    #[rule("<const_def_list> ::= <const_def_list> Comma <const_def>")]
+    #[rule("<const_def_list> ::= <const_def>")]
+    ConstDefList,
+
+    #[rule("<const_def> ::= Ident Eql Number")]
+    ConstDef,
+
+    // 変数宣言
+    #[rule("<var_decl> ::= Var <ident_list> Semicolon")]
+    VarDecl,
+
+    #[rule("<ident_list> ::= <ident_list> Comma Ident")]
+    #[rule("<ident_list> ::= Ident")]
+    IdentList,
+
+    // 手続き宣言
+    #[rule("<proc_decl> ::= Procedure Ident Semicolon <block> Semicolon")]
+    ProcDecl,
+
+    // 文
+    #[rule("<stmt> ::= <assign_stmt>")]
+    #[rule("<stmt> ::= <call_stmt>")]
+    #[rule("<stmt> ::= <begin_stmt>")]
+    #[rule("<stmt> ::= <if_stmt>")]
+    #[rule("<stmt> ::= <while_stmt>")]
+    #[rule("<stmt> ::= <read_stmt>")]
+    #[rule("<stmt> ::= <write_stmt>")]
+    Stmt,
+
+    #[rule("<assign_stmt> ::= Ident Becomes <expr>")]
+    AssignStmt,
+
+    #[rule("<call_stmt> ::= Call Ident")]
+    CallStmt,
+
+    #[rule("<begin_stmt> ::= Begin <stmt> <stmt_list> End")]
+    #[rule("<begin_stmt> ::= Begin <stmt> End")]
+    BeginStmt,
+
+    #[rule("<stmt_list> ::= <stmt_list> Semicolon <stmt>")]
+    #[rule("<stmt_list> ::= Semicolon <stmt>")]
+    StmtList,
+
+    #[rule("<if_stmt> ::= If <condition> Then <stmt>")]
+    IfStmt,
+
+    #[rule("<while_stmt> ::= While <condition> Do <stmt>")]
+    WhileStmt,
+
+    #[rule("<read_stmt> ::= Read ParenL Ident ParenR")]
+    ReadStmt,
+
+    #[rule("<write_stmt> ::= Write ParenL <expr> ParenR")]
+    WriteStmt,
+
+    // 式
+    #[rule("<condition> ::= Odd <expr>")]
+    #[rule("<condition> ::= <expr> <relop> <expr>")]
+    Condition,
+
+    #[rule("<relop> ::= Eql")]
+    #[rule("<relop> ::= Neq")]
+    #[rule("<relop> ::= Lss")]
+    #[rule("<relop> ::= Leq")]
+    #[rule("<relop> ::= Gtr")]
+    #[rule("<relop> ::= Geq")]
+    RelOp,
+
+    #[rule("<expr> ::= <expr> Plus <term>")]
+    #[rule("<expr> ::= <expr> Minus <term>")]
+    #[rule("<expr> ::= <term>")]
+    Expr,
+
+    #[rule("<term> ::= <term> Times <factor>")]
+    #[rule("<term> ::= <term> Slash <factor>")]
+    #[rule("<term> ::= <factor>")]
+    Term,
+
+    #[rule("<factor> ::= Ident")]
+    #[rule("<factor> ::= Number")]
+    #[rule("<factor> ::= ParenL <expr> ParenR")]
+    Factor,
+}

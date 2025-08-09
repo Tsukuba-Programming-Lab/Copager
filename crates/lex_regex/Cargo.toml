@@ -1,5 +1,3 @@
-cargo-features = ["edition2024"]
-
 [package]
 name = "copager_lex_regex"
 edition = "2024"
@@ -10,10 +8,10 @@ anyhow = { workspace = true }
 thiserror = { workspace = true }
 regex = "1.10.4"
 regex-macro = "0.2.0"
-copager_cfl = { path = "../cfl" }
+copager_lang = { path = "../lang" }
 copager_lex = { path = "../lex" }
 copager_utils = { path = "../utils" }
 
 [dev-dependencies]
-copager_cfl = { path = "../cfl", features = ["derive"] }
+copager_lang = { path = "../lang", features = ["derive"] }
 copager_lex_regex = { path = "." }

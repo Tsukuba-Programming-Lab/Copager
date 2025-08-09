@@ -1,8 +1,8 @@
 use std::collections::{HashMap, HashSet};
 use std::marker::PhantomData;
 
-use copager_cfl::token::TokenTag;
-use copager_cfl::rule::{RuleElem, RuleSet, RuleTag};
+use copager_lang::token::TokenTag;
+use copager_lang::rule::{RuleElem, RuleSetData, RuleTag};
 
 #[derive(Debug)]
 pub struct FirstSet<'a, T, R>
@@ -14,12 +14,12 @@ where
     _phantom: PhantomData<R>,
 }
 
-impl<'a, T, R> From<&'a RuleSet<T, R>> for FirstSet<'a, T, R>
+impl<'a, T, R> From<&'a RuleSetData<T, R>> for FirstSet<'a, T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    fn from(ruleset: &'a RuleSet<T, R>) -> Self {
+    fn from(ruleset: &'a RuleSetData<T, R>) -> Self {
         let build = FirstSetBuilder::from(ruleset).expand();
         let map = build.map
             .into_iter()
@@ -68,16 +68,16 @@ where
     R: RuleTag<T>,
 {
     map: HashMap<&'a RuleElem<T>, HashSet<&'a RuleElem<T>>>,
-    ruleset: &'a RuleSet<T, R>,
+    ruleset: &'a RuleSetData<T, R>,
     nonterms: Vec<&'a RuleElem<T>>,
 }
 
-impl<'a, T, R> From<&'a RuleSet<T, R>> for FirstSetBuilder<'a, T, R>
+impl<'a, T, R> From<&'a RuleSetData<T, R>> for FirstSetBuilder<'a, T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    fn from(ruleset: &'a RuleSet<T, R>) -> Self {
+    fn from(ruleset: &'a RuleSetData<T, R>) -> Self {
         let mut map = HashMap::new();
         ruleset.nonterms().iter().for_each(|&nonterm| {
             map.insert(nonterm, HashSet::new());
@@ -129,7 +129,7 @@ where
     }
 }
 
-fn rhs_first_symbol<'a, T, R>(ruleset: &'a RuleSet<T, R>, nonterm: &RuleElem<T>) -> impl Iterator<Item = &'a RuleElem<T>>
+fn rhs_first_symbol<'a, T, R>(ruleset: &'a RuleSetData<T, R>, nonterm: &RuleElem<T>) -> impl Iterator<Item = &'a RuleElem<T>>
 where
     T: TokenTag,
     R: RuleTag<T>,
@@ -142,13 +142,12 @@ where
 
 #[cfg(test)]
 mod test {
-    use copager_cfl::token::TokenTag;
-    use copager_cfl::rule::{Rule, RuleTag, RuleElem};
-    use copager_cfl::{CFLTokens, CFLRules};
+    use copager_lang::token::{TokenSet, TokenTag};
+    use copager_lang::rule::{Rule, RuleElem, RuleSet, RuleTag};
 
     use super::FirstSet;
 
-    #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
+    #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, TokenSet)]
     enum TestToken {
         #[token(r"a")]
         A,
@@ -156,9 +155,9 @@ mod test {
         B,
     }
 
-    #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
+    #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, RuleSet)]
     enum TestRule {
-        #[default]
+        #[tokenset(TestToken)]
         #[rule("<S> ::= <A> <B>")]
         S,
         #[rule("<A> ::= A")]
@@ -195,7 +194,7 @@ mod test {
             ($expr:expr) => { RuleElem::new_nonterm($expr) };
         }
 
-        let ruleset = TestRule::default().into_ruleset();
+        let ruleset = TestRule::instantiate().into_ruleset();
         let first_set = FirstSet::from(&ruleset);
 
         let expected = vec![term!(A)];

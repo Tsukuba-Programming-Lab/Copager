@@ -1,11 +1,12 @@
 mod utils;
 
+use copager::template::LALR1;
 use copager::ir::Void;
 use copager::Processor;
 
 use utils::{Expect, test_dir};
 
-use example_lang_json::Json;
+use example_lang_json::syntax::Json;
 
 #[test]
 fn success() {
@@ -18,7 +19,10 @@ fn fail() {
 }
 
 fn parse(input: &str) -> anyhow::Result<()> {
-    Processor::<Json>::new()
+    type Config = LALR1<Json>;
+    type MyProcessor = Processor<Config>;
+
+    MyProcessor::new()
         .build()?
         .process::<Void>(input)
         .and_then(|_| Ok(()))

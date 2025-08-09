@@ -4,7 +4,7 @@ use std::fmt::Display;
 
 use thiserror::Error;
 
-use copager_cfl::token::{TokenTag, Token};
+use copager_lang::token::{TokenTag, Token};
 
 #[derive(Debug, Error)]
 pub struct PrettyError {

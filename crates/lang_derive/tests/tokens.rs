@@ -1,0 +1,26 @@
+use copager_lang::token::{TokenSet, TokenTag};
+
+#[derive(Clone, Hash, PartialEq, Eq, TokenSet)]
+enum MyToken {
+    #[token(r"\+", r"plus")]
+    Plus,
+    #[token(r"\-", r"minus")]
+    Minus,
+    #[token(r"[1-9]+")]
+    Number,
+}
+
+#[test]
+fn check_compile_tokens() {
+    // TokenSet
+    let mytoken = MyToken::instantiate();
+    assert_eq!(mytoken.iter().count(), 3);
+
+    // TokenTag
+    assert_eq!(MyToken::Plus.as_str_list(), &[r"\+", r"plus"]);
+    assert_eq!(MyToken::Plus.as_option_list().len(), 0);
+    assert_eq!(MyToken::Minus.as_str_list(), &[r"\-", r"minus"]);
+    assert_eq!(MyToken::Minus.as_option_list().len(), 0);
+    assert_eq!(MyToken::Number.as_str_list(), &[r"[1-9]+"]);
+    assert_eq!(MyToken::Number.as_option_list().len(), 0);
+}

@@ -1,11 +1,12 @@
 mod utils;
 
+use copager::template::LALR1;
 use copager::ir::Void;
 use copager::Processor;
 
 use utils::{Expect, test_dir};
 
-use example_lang_pl0::Pl0;
+use example_lang_pl0::syntax::Pl0;
 
 #[test]
 fn success() {
@@ -18,7 +19,10 @@ fn fail() {
 }
 
 fn parse(input: &str) -> anyhow::Result<()> {
-    Processor::<Pl0>::new()
+    type Config = LALR1<Pl0>;
+    type MyProcessor = Processor<Config>;
+
+    MyProcessor::new()
         .build()?
         .process::<Void>(input)
         .and_then(|_| Ok(()))

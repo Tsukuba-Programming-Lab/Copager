@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
-use copager_cfl::token::TokenTag;
-use copager_cfl::rule::{RuleElem, RuleSet, RuleTag};
+use copager_lang::token::TokenTag;
+use copager_lang::rule::{RuleElem, RuleSetData, RuleTag};
 
 use crate::rule::FirstSet;
 
@@ -12,15 +12,15 @@ where
     R: RuleTag<T>,
 {
     map: HashMap<String, Vec<&'a RuleElem<T>>>,
-    _ruleset: &'a RuleSet<T, R>,
+    _ruleset: &'a RuleSetData<T, R>,
 }
 
-impl<'a, T, R> From<&'a RuleSet<T, R>> for FollowSet<'a, T, R>
+impl<'a, T, R> From<&'a RuleSetData<T, R>> for FollowSet<'a, T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    fn from(ruleset: &'a RuleSet<T, R>) -> Self {
+    fn from(ruleset: &'a RuleSetData<T, R>) -> Self {
         let build = FollowSetBuilder::from(ruleset).expand();
         let map = build.map
             .into_iter()
@@ -50,16 +50,16 @@ where
     R: RuleTag<T>,
 {
     map: HashMap<String, HashSet<&'a RuleElem<T>>>,
-    ruleset: &'a RuleSet<T, R>,
+    ruleset: &'a RuleSetData<T, R>,
     first_set: FirstSet<'a, T, R>,
 }
 
-impl<'a, T, R> From<&'a RuleSet<T, R>> for FollowSetBuilder<'a, T, R>
+impl<'a, T, R> From<&'a RuleSetData<T, R>> for FollowSetBuilder<'a, T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    fn from(ruleset: &'a RuleSet<T, R>) -> Self {
+    fn from(ruleset: &'a RuleSetData<T, R>) -> Self {
         let mut map = HashMap::new();
         for nonterm in ruleset.nonterms() {
             if let RuleElem::NonTerm(nonterm) = nonterm {
@@ -131,13 +131,12 @@ where
 
 #[cfg(test)]
 mod test {
-    use copager_cfl::token::TokenTag;
-    use copager_cfl::rule::{Rule, RuleTag, RuleElem};
-    use copager_cfl::{CFLTokens, CFLRules};
+    use copager_lang::token::{TokenSet, TokenTag};
+    use copager_lang::rule::{Rule, RuleElem, RuleSet, RuleTag};
 
     use super::FollowSet;
 
-    #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, CFLTokens)]
+    #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, TokenSet)]
     enum TestToken {
         #[token(r"a")]
         A,
@@ -145,9 +144,9 @@ mod test {
         B,
     }
 
-    #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq, CFLRules)]
+    #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, RuleSet)]
     enum TestRule {
-        #[default]
+        #[tokenset(TestToken)]
         #[rule("<S> ::= <A> <B>")]
         S,
         #[rule("<A> ::= A")]
@@ -181,7 +180,7 @@ mod test {
             ($expr:ident) => { RuleElem::new_term(TestToken::$expr) };
         }
 
-        let ruleset = TestRule::default().into_ruleset();
+        let ruleset = TestRule::instantiate().into_ruleset();
         let follow_set = FollowSet::from(&ruleset);
 
         let expected = vec![term!(B), RuleElem::EOF];

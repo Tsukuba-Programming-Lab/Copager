@@ -2,8 +2,8 @@ use std::collections::{HashMap, HashSet};
 use std::fmt::{Display, Debug};
 use std::hash::Hash;
 
-use copager_cfl::token::TokenTag;
-use copager_cfl::rule::{Rule, RuleElem, RuleSet, RuleTag};
+use copager_lang::token::TokenTag;
+use copager_lang::rule::{Rule, RuleElem, RuleSetData, RuleTag};
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq)]
 pub struct LR0Item<'a, T, R>
@@ -88,7 +88,7 @@ where
     R: RuleTag<T>,
 {
     pub items: Vec<LR0Item<'a, T, R>>,
-    ruleset: &'a RuleSet<T, R>,
+    ruleset: &'a RuleSetData<T, R>,
 }
 
 impl<'a, T, R> Debug for LR0ItemSet<'a, T, R>
@@ -105,12 +105,12 @@ where
     }
 }
 
-impl<'a, T, R> From<&'a RuleSet<T, R>> for LR0ItemSet<'a, T, R>
+impl<'a, T, R> From<&'a RuleSetData<T, R>> for LR0ItemSet<'a, T, R>
 where
     T: TokenTag,
     R: RuleTag<T>,
 {
-    fn from(ruleset: &'a RuleSet<T, R>) -> Self {
+    fn from(ruleset: &'a RuleSetData<T, R>) -> Self {
         LR0ItemSet {
             items: vec![],
             ruleset,
