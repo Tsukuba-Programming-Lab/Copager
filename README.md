@@ -2,6 +2,25 @@
 
 Rust製組み込み型パーサジェネレータ（**Constructible** **Pa**rser **Ge**nerator on **R**ust）
 
+## Examples
+
+- [example_build_oneshot](examples/build_oneshot) [(main.rs)](examples/build_oneshot/src/main.rs)
+- [example_build_prebuild](examples/build_prebuild) [(main.rs)](examples/build_prebuild/src/main.rs)
+- [example_lang_easyarith](examples/lang_easyarith) [(syntax.rs)](examples/lang_easyarith/src/syntax.rs)
+- [example_lang_json](examples/lang_json) [(syntax.rs)](examples/lang_json/src/syntax.rs)
+- [example_lang_pl0](examples/lang_pl0) [(syntax.rs)](examples/lang_pl0/src/syntax.rs)
+- [example_lang_xml](examples/lang_xml) [(syntax.rs)](examples/lang_xml/src/syntax.rs)
+
+```
+$ cargo run -p example_lang_easyarith
+var x;
+var y;
+x = 10;
+y = 0x10;
+print (x + x) * (y + y);
+640
+```
+
 ## Features
 
 ### Common
@@ -35,25 +54,6 @@ copager = { ..., features = ["derive", "regexlex", "lr1", "sexp"] }
 
 // RegexLex(lex) + LALR1(parse) + Void(ir)
 copager = { ..., features = ["derive", "regexlex", "lalr1", "void"] }
-```
-
-## Examples
-
-- [example_build_oneshot](examples/build_oneshot) [(main.rs)](examples/build_oneshot/src/main.rs)
-- [example_build_prebuild](examples/build_prebuild) [(main.rs)](examples/build_prebuild/src/main.rs)
-- [example_lang_easyarith](examples/lang_easyarith) [(syntax.rs)](examples/lang_easyarith/src/syntax.rs)
-- [example_lang_json](examples/lang_json) [(syntax.rs)](examples/lang_json/src/syntax.rs)
-- [example_lang_pl0](examples/lang_pl0) [(syntax.rs)](examples/lang_pl0/src/syntax.rs)
-- [example_lang_xml](examples/lang_xml) [(syntax.rs)](examples/lang_xml/src/syntax.rs)
-
-```
-$ cargo run -p example_lang_easyarith
-var x;
-var y;
-x = 10;
-y = 0x10;
-print (x + x) * (y + y);
-640
 ```
 
 ## Test
