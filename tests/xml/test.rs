@@ -6,7 +6,7 @@ use copager::Processor;
 
 use utils::{Expect, test_dir};
 
-use example_lang_xml::Xml;
+use example_lang_xml::syntax::Xml;
 
 #[test]
 fn success() {

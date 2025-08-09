@@ -6,7 +6,7 @@ use copager::Processor;
 
 use utils::{Expect, test_dir};
 
-use example_lang_pl0::Pl0;
+use example_lang_pl0::syntax::Pl0;
 
 #[test]
 fn success() {

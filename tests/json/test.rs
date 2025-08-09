@@ -6,7 +6,7 @@ use copager::Processor;
 
 use utils::{Expect, test_dir};
 
-use example_lang_json::Json;
+use example_lang_json::syntax::Json;
 
 #[test]
 fn success() {
