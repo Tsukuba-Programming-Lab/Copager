@@ -1,10 +1,12 @@
 use std::io::{stdin, Read};
 
 use copager::template::LALR1;
-use copager::ir::SExp;
+use copager::ir::r#ref::CSTree;
 use copager::Processor;
 
-use example_lang_easyarith::EasyArith;
+use example_lang_easyarith::ast::Top;
+use example_lang_easyarith::eval::eval;
+use example_lang_easyarith::syntax::EasyArith;
 
 type Config = LALR1<EasyArith>;
 type MyProcessor = Processor<Config>;
@@ -13,10 +15,11 @@ fn main() -> anyhow::Result<()> {
     let mut input = String::new();
     stdin().read_to_string(&mut input)?;
 
-    let sexp = MyProcessor::new()
+    let cst = MyProcessor::new()
         .build()?
-        .process::<SExp<_>>(&input)?;
-    println!("Success: {}", sexp);
+        .process::<CSTree<_>>(&input)?;
+    let ast = Top::from(cst);
+    eval(&ast);
 
     Ok(())
 }
