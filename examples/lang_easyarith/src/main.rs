@@ -1,9 +1,13 @@
 use std::io::{stdin, stdout, Write};
 
+use copager::template::LALR1;
 use copager::ir::SExp;
 use copager::Processor;
 
-use example_lang_arithmetic::Arithmetic;
+use example_lang_easyarith::EasyArith;
+
+type Config = LALR1<EasyArith>;
+type MyProcessor = Processor<Config>;
 
 fn main() -> anyhow::Result<()> {
     println!("Example <arithmetic>");
@@ -13,7 +17,7 @@ fn main() -> anyhow::Result<()> {
     let mut input = String::new();
     stdin().read_line(&mut input)?;
 
-    let sexp = Processor::<Arithmetic>::new()
+    let sexp = MyProcessor::new()
         .build()?
         .process::<SExp<_>>(&input)?;
     println!("Success: {}", sexp);
