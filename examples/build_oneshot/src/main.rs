@@ -1,4 +1,4 @@
-use std::io::{stdin, stdout, Write};
+use std::io::{stdin, Read};
 
 use copager::lang::{Lang, TokenSet, RuleSet};
 use copager::ir::SExp;
@@ -52,12 +52,8 @@ type Config = LALR1<Arithmetic>;
 type MyProcessor = Processor<Config>;
 
 fn main() -> anyhow::Result<()> {
-    println!("Example <one-shot>");
-    print!("Input: ");
-    stdout().flush()?;
-
     let mut input = String::new();
-    stdin().read_line(&mut input)?;
+    stdin().read_to_string(&mut input)?;
 
     let sexp = MyProcessor::new()
         .build()?
