@@ -1,6 +1,7 @@
 use copager::lang::{Lang, RuleSet, TokenSet};
 use copager::prelude::*;
 
+#[allow(dead_code)]
 #[derive(Lang)]
 pub struct Json (
     #[tokenset] JsonToken,

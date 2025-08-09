@@ -1,7 +1,7 @@
 use copager::lang::{Lang, TokenSet, RuleSet};
-use copager::template::LALR1;
 use copager::prelude::*;
 
+#[allow(dead_code)]
 #[derive(Lang)]
 pub struct Pl0 (
     #[tokenset] Pl0Token,

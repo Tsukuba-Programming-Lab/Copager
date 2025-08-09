@@ -111,6 +111,7 @@ mod tests {
 
     use super::{CSTreeOwned, CSTreeOwnedWalker};
 
+    #[allow(dead_code)]
     #[derive(Lang)]
     struct TestLang (
         #[tokenset] TestToken,

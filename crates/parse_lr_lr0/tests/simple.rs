@@ -6,6 +6,7 @@ use copager_lex_regex::RegexLexer;
 use copager_parse_lr_lr0::LR0;
 use copager_ir_void::Void;
 
+#[allow(dead_code)]
 #[derive(Lang)]
 struct TestLang (
     #[tokenset] TestToken,

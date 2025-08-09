@@ -6,6 +6,7 @@ use copager::template::LALR1;
 use copager::prelude::*;
 use copager::Processor;
 
+#[allow(dead_code)]
 #[derive(Lang)]
 struct Arithmetic (
     #[tokenset] ArithmeticToken,

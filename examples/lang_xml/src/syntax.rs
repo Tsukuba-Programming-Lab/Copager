@@ -1,6 +1,7 @@
 use copager::lang::{RuleSet, TokenSet, Lang};
 use copager::prelude::*;
 
+#[allow(dead_code)]
 #[derive(Lang)]
 pub struct Xml (
     #[tokenset] XmlToken,

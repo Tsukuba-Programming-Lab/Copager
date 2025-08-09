@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use copager::lang::{Lang, TokenSet, RuleSet};
 use copager::prelude::*;
 
+#[allow(dead_code)]
 #[derive(Lang, Serialize, Deserialize)]
 pub struct Arithmetic (
     #[tokenset] ArithmeticToken,
