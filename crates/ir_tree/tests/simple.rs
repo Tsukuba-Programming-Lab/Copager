@@ -4,7 +4,8 @@ use copager_lang::rule::{Rule, RuleElem, RuleSet, RuleTag};
 use copager_lang::Lang;
 use copager_lex_regex::RegexLexer;
 use copager_parse_lr_lr1::LR1;
-use copager_ir_tree::{Tree, TreeOwned};
+use copager_ir_tree::r#ref::CSTree;
+use copager_ir_tree::owned::CSTreeOwned;
 
 #[derive(Lang)]
 struct TestLang (
@@ -55,11 +56,11 @@ fn check_compile() -> anyhow::Result<()> {
 
     TestProcessor::new()
         .build()?
-        .process::<Tree<_>>("1 + 2 * 3")?;
+        .process::<CSTree<_>>("1 + 2 * 3")?;
 
     TestProcessor::new()
         .build()?
-        .process::<TreeOwned<_>>("1 + 2 * 3")?;
+        .process::<CSTreeOwned<_>>("1 + 2 * 3")?;
 
     Ok(())
 }
