@@ -1,6 +1,6 @@
 # Copager
 
-「言語処理系生成系」の生成系（**Constructible** **Pa**rser **Ge**nerator on **R**ust）
+Rust製組み込み型パーサジェネレータ（**Constructible** **Pa**rser **Ge**nerator on **R**ust）
 
 ## Features
 
@@ -41,16 +41,19 @@ copager = { ..., features = ["derive", "regexlex", "lalr1", "void"] }
 
 - [example_build_oneshot](examples/build_oneshot)
 - [example_build_prebuild](examples/build_prebuild)
-- [example_lang_arithmetic](examples/lang_arithmetic) [(lib.rs)](examples/lang_arithmetic/src/lib.rs)
+- [example_lang_easyarith](examples/lang_easyarith) [(syntax.rs)](examples/lang_easyarith/src/syntax.rs)
 - [example_lang_json](examples/lang_json) [(lib.rs)](examples/lang_json/src/lib.rs)
 - [example_lang_pl0](examples/lang_pl0) [(lib.rs)](examples/lang_pl0/src/lib.rs)
 - [example_lang_xml](examples/lang_xml) [(lib.rs)](examples/lang_xml/src/lib.rs)
 
 ```
-$ cargo run -p example_build_oneshot
-Example <one-shot>
-Input: 10 * 20 + 30
-Success: (Expr (Expr (Term (Term (Num "10")) "*" (Num "20"))) "+" (Term (Num "30")))
+$ cargo run -p example_lang_easyarith
+var x;
+var y;
+x = 10;
+y = 0x10;
+print (x + x) * (y + y);
+640
 ```
 
 ## Test
