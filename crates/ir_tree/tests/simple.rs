@@ -7,6 +7,7 @@ use copager_parse_lr_lr1::LR1;
 use copager_ir_tree::r#ref::CSTree;
 use copager_ir_tree::owned::CSTreeOwned;
 
+#[allow(dead_code)]
 #[derive(Lang)]
 struct TestLang (
     #[tokenset] TestToken,

@@ -8,6 +8,7 @@ use copager_lex_regex::RegexLexer;
 use copager_parse_lr_lalr1::LALR1;
 use copager_ir::{IR, IRBuilder, RawIR};
 
+#[allow(dead_code)]
 #[derive(Lang)]
 struct TestLang (
     #[tokenset] TestToken,

@@ -1,6 +1,7 @@
 use copager::lang::{Lang, RuleSet, TokenSet};
 use copager::prelude::*;
 
+#[allow(dead_code)]
 #[derive(Debug, Lang)]
 pub struct EasyArith (
     #[tokenset] EAToken,

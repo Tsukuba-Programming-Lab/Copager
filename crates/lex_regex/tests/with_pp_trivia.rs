@@ -4,6 +4,7 @@ use copager_lang::Lang;
 use copager_lex::BaseLexer;
 use copager_lex_regex::RegexLexer;
 
+#[allow(dead_code)]
 #[derive(Lang)]
 struct TestLang (
     #[tokenset] TestToken,
