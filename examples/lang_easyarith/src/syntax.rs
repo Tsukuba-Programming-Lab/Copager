@@ -1,7 +1,7 @@
 use copager::lang::{Lang, RuleSet, TokenSet};
 use copager::prelude::*;
 
-#[derive(Lang)]
+#[derive(Debug, Lang)]
 pub struct EasyArith (
     #[tokenset] EAToken,
     #[ruleset]  EARule,
@@ -49,11 +49,12 @@ pub enum EARule {
     #[tokenset(EAToken)]
 
     // トップレベル要素
-    #[rule("<top> ::= <top> <stmt>")]
-    #[rule("<top> ::= <stmt>")]
+    #[rule("<top> ::= <stmt_list>")]
     Top,
 
     // 文
+    #[rule("<stmt_list> ::= <stmt_list> <stmt>")]
+    #[rule("<stmt_list> ::= <stmt>")]
     #[rule("<stmt> ::= <decl>")]
     #[rule("<stmt> ::= <assign>")]
     #[rule("<stmt> ::= <print>")]

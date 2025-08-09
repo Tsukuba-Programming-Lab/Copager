@@ -1,7 +1,7 @@
 use std::io::{stdin, Read};
 
 use copager::template::LALR1;
-use copager::ir::r#ref::CSTree;
+use copager::ir::r#ref::{CSTree, CSTreeWalker};
 use copager::Processor;
 
 use example_lang_easyarith::ast::Top;
@@ -18,7 +18,8 @@ fn main() -> anyhow::Result<()> {
     let cst = MyProcessor::new()
         .build()?
         .process::<CSTree<_>>(&input)?;
-    let ast = Top::from(cst);
+    let cst_walker = CSTreeWalker::from(cst);
+    let ast = Top::from(cst_walker);
     eval(&ast);
 
     Ok(())
