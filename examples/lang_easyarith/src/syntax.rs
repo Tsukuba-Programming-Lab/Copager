@@ -10,23 +10,23 @@ pub struct EasyArith (
 #[derive(Debug, Clone, PartialEq, Eq, Hash, TokenSet)]
 pub enum EAToken {
     // 予約語
-    #[token(r"var")]
+    #[token(r"var", ir_omit)]
     Var,
-    #[token(r"print")]
+    #[token(r"print", ir_omit)]
     Print,
 
     // 記号
-    #[token(r"\+")]
+    #[token(r"\+", ir_omit)]
     Plus,
-    #[token(r"\*")]
+    #[token(r"\*", ir_omit)]
     Mul,
-    #[token(r"=")]
+    #[token(r"=", ir_omit)]
     Eql,
-    #[token(r"\(")]
+    #[token(r"\(", ir_omit)]
     LPar,
-    #[token(r"\)")]
+    #[token(r"\)", ir_omit)]
     RPar,
-    #[token(r";")]
+    #[token(r";", ir_omit)]
     Semi,
 
     // 値

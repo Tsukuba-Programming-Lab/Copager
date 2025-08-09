@@ -13,7 +13,6 @@ pub struct Assign<'input> {
 impl<'input> From<CSTreeWalker<'input, EasyArith>> for Assign<'input> {
     fn from(mut walker: CSTreeWalker<'input, EasyArith>) -> Self {
         let name = walker.expect_leaf().1;
-        let _ = walker.expect_leaf();  // '='
         let expr = walker.expect_node();
         Assign { name, expr }
     }

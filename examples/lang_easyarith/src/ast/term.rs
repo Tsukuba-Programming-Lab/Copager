@@ -18,7 +18,6 @@ impl<'input> From<CSTreeWalker<'input, EasyArith>> for Term<'input> {
         match walker.peek().1.unwrap() {
             EARule::Term => {
                 let lhs = Box::new(walker.expect_node());
-                let _ = walker.expect_leaf();
                 let rhs = walker.expect_node();
                 Term::Mul { lhs, rhs }
             }

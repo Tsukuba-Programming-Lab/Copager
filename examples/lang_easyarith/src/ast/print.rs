@@ -11,7 +11,6 @@ pub struct Print<'input> {
 
 impl<'input> From<CSTreeWalker<'input, EasyArith>> for Print<'input> {
     fn from(mut walker: CSTreeWalker<'input, EasyArith>) -> Self {
-        let _ = walker.expect_leaf();  // 'print'
         let expr = walker.expect_node();
         Print { expr }
     }

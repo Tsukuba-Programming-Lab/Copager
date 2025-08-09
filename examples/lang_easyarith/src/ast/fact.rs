@@ -13,8 +13,8 @@ pub enum Fact<'input> {
 
 impl<'input> From<CSTreeWalker<'input, EasyArith>> for Fact<'input> {
     fn from(mut walker: CSTreeWalker<'input, EasyArith>) -> Self {
-        match walker.peek().0.unwrap() {
-            EAToken::Num => {
+        match walker.peek().0 {
+            Some(EAToken::Num) => {
                 let s = walker.expect_leaf().1;
                 let num = match s {
                     "0" => Ok(0),
@@ -25,17 +25,14 @@ impl<'input> From<CSTreeWalker<'input, EasyArith>> for Fact<'input> {
                 }.unwrap();
                 Fact::Num(num)
             }
-            EAToken::Id => {
+            Some(EAToken::Id) => {
                 let var = walker.expect_leaf().1;
                 Fact::Var(var)
             }
-            EAToken::LPar => {
-                let _ = walker.expect_leaf();  // '('
+            _ => {
                 let expr = walker.expect_node();
-                let _ = walker.expect_leaf();  // ')
                 Fact::Expr(Box::new(expr))
             }
-            _ => unreachable!(),
         }
     }
 }

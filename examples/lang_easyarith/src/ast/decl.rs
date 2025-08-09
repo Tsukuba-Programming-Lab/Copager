@@ -10,7 +10,6 @@ pub struct Decl<'input> {
 
 impl<'input> From<CSTreeWalker<'input, EasyArith>> for Decl<'input> {
     fn from(mut walker: CSTreeWalker<'input, EasyArith>) -> Self {
-        let _ = walker.expect_leaf();  // 'var'
         let name = walker.expect_leaf().1;
         Decl { name }
     }
