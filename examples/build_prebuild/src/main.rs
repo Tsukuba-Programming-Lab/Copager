@@ -1,11 +1,13 @@
 use std::io::{stdin, stdout, Write};
 
+use copager::template::LALR1;
 use copager::ir::SExp;
 use copager::Processor;
 
 use language::Arithmetic;
 
-type MyProcessor = Processor<Arithmetic>;
+type Config = LALR1<Arithmetic>;
+type MyProcessor = Processor<Config>;
 
 #[copager::load]
 fn main(processor: MyProcessor) -> anyhow::Result<()> {

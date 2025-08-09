@@ -7,13 +7,13 @@ use copager::prelude::*;
 use copager::Processor;
 
 #[derive(Lang)]
-struct ExprLang (
-    #[tokenset] ExprToken,
-    #[ruleset] ExprRule,
+struct Arithmetic (
+    #[tokenset] ArithmeticToken,
+    #[ruleset] ArithmeticRule,
 );
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, TokenSet)]
-enum ExprToken {
+enum ArithmeticToken {
     #[token(r"\+")]
     Plus,
     #[token(r"-")]
@@ -33,8 +33,8 @@ enum ExprToken {
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, RuleSet)]
-enum ExprRule {
-    #[tokenset(ExprToken)]
+enum ArithmeticRule {
+    #[tokenset(ArithmeticToken)]
     #[rule("<expr> ::= <expr> Plus <term>")]
     #[rule("<expr> ::= <expr> Minus <term>")]
     #[rule("<expr> ::= <term>")]
@@ -48,6 +48,9 @@ enum ExprRule {
     Num,
 }
 
+type Config = LALR1<Arithmetic>;
+type MyProcessor = Processor<Config>;
+
 fn main() -> anyhow::Result<()> {
     println!("Example <one-shot>");
     print!("Input: ");
@@ -56,7 +59,7 @@ fn main() -> anyhow::Result<()> {
     let mut input = String::new();
     stdin().read_line(&mut input)?;
 
-    let sexp = Processor::<LALR1<ExprLang>>::new()
+    let sexp = MyProcessor::new()
         .build()?
         .process::<SExp<_>>(&input)?;
     println!("Success: {}", sexp);

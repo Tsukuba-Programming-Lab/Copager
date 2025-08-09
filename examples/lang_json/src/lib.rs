@@ -1,11 +1,8 @@
 use copager::lang::{Lang, RuleSet, TokenSet};
-use copager::template::LALR1;
 use copager::prelude::*;
 
-pub type Json = LALR1<JsonLang>;
-
 #[derive(Lang)]
-pub struct JsonLang (
+pub struct Json (
     #[tokenset] JsonToken,
     #[ruleset]  JsonRule,
 );

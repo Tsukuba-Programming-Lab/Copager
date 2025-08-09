@@ -2,10 +2,8 @@ use copager::lang::{Lang, TokenSet, RuleSet};
 use copager::template::LALR1;
 use copager::prelude::*;
 
-pub type Pl0 = LALR1<Pl0Lang>;
-
 #[derive(Lang)]
-pub struct Pl0Lang (
+pub struct Pl0 (
     #[tokenset] Pl0Token,
     #[ruleset]  Pl0Rule,
 );

@@ -1,11 +1,8 @@
 use copager::lang::{RuleSet, TokenSet, Lang};
-use copager::template::LALR1;
 use copager::prelude::*;
 
-pub type Xml = LALR1<XmlLang>;
-
 #[derive(Lang)]
-pub struct XmlLang (
+pub struct Xml (
     #[tokenset] XmlToken,
     #[ruleset]  XmlRule,
 );

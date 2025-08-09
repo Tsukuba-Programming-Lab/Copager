@@ -1,9 +1,13 @@
 use std::io::{stdin, stdout, Write};
 
+use copager::template::LALR1;
 use copager::ir::SExp;
 use copager::Processor;
 
 use example_lang_xml::Xml;
+
+type Config = LALR1<Xml>;
+type MyProcessor = Processor<Config>;
 
 fn main() -> anyhow::Result<()> {
     println!("Example <xml>");
@@ -13,7 +17,7 @@ fn main() -> anyhow::Result<()> {
     let mut input = String::new();
     stdin().read_line(&mut input)?;
 
-    let sexp = Processor::<Xml>::new()
+    let sexp = MyProcessor::new()
         .build()?
         .process::<SExp<_>>(&input)?;
     println!("Success: {}", sexp);
