@@ -39,7 +39,7 @@ dependencies = [
  "copager_parse_lr_lr0",
  "copager_parse_lr_lr1",
  "copager_parse_lr_slr1",
- "example_lang_arithmetic",
+ "example_lang_easyarith",
  "example_lang_json",
  "example_lang_pl0",
  "example_lang_xml",
@@ -331,7 +331,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "example_lang_arithmetic"
+name = "example_lang_easyarith"
 version = "0.1.0"
 dependencies = [
  "anyhow",

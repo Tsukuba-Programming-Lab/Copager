@@ -1,5 +1,6 @@
 mod utils;
 
+use copager::template::LALR1;
 use copager::ir::Void;
 use copager::Processor;
 
@@ -18,7 +19,10 @@ fn fail() {
 }
 
 fn parse(input: &str) -> anyhow::Result<()> {
-    Processor::<Xml>::new()
+    type Config = LALR1<Xml>;
+    type MyProcessor = Processor<Config>;
+
+    MyProcessor::new()
         .build()?
         .process::<Void>(input)
         .and_then(|_| Ok(()))

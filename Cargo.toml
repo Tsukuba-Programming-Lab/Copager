@@ -27,7 +27,7 @@ anyhow = { workspace = true }
 serde = { workspace = true }
 serde_json = "1.0.117"
 copager = { path = ".", features = ["all"] }
-example_lang_arithmetic = { path = "./examples/lang_arithmetic" }
+example_lang_easyarith = { path = "./examples/lang_easyarith" }
 example_lang_json = { path = "./examples/lang_json" }
 example_lang_pl0 = { path = "./examples/lang_pl0" }
 example_lang_xml = { path = "./examples/lang_xml" }
@@ -89,7 +89,7 @@ members = [
     # Examples
     "./examples/build_oneshot",
     "./examples/build_prebuild",
-    "./examples/lang_arithmetic",
+    "./examples/lang_easyarith",
     "./examples/lang_json",
     "./examples/lang_pl0",
     "./examples/lang_xml",
@@ -105,8 +105,8 @@ thiserror = "1.0.58"
 serde = { version = "1.0.197", features = ["derive"] }
 
 [[test]]
-name = "test_by_arithmetic"
-path = "./tests/arithmetic/test.rs"
+name = "test_by_easyarith"
+path = "./tests/easyarith/test.rs"
 
 [[test]]
 name = "test_by_json"
