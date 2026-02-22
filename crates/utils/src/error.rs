@@ -8,7 +8,7 @@ use copager_lang::token::{TokenTag, Token};
 
 #[derive(Debug, Error)]
 pub struct DiagnosticError {
-    pub err: Box<dyn StdError>,
+    pub err: Box<dyn StdError + Send + Sync>,
     pub diagnostics: Option<Diagnostics>,
 }
 
@@ -25,7 +25,7 @@ impl Display for DiagnosticError {
 impl DiagnosticError {
     pub fn from<E>(err: E) -> DiagnosticError
     where
-        E: StdError + 'static,
+        E: StdError + Send + Sync + 'static,
     {
         DiagnosticError {
             err: Box::new(err),

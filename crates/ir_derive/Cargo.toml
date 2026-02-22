@@ -14,6 +14,7 @@ copager_lang = { path = "../lang", features = ["derive"] }
 copager_ir = { path = "../ir", features = ["derive"] }
 copager_lex_regex = { path = "../lex_regex" }
 copager_parse_lr_lalr1 = { path = "../parse_lr_lalr1" }
+copager_utils = { path = "../utils" }
 
 [lib]
 proc-macro = true

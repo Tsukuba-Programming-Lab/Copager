@@ -13,10 +13,8 @@ copager_ir = {  path = "../ir" }
 copager_utils = { path = "../utils" }
 
 [dev-dependencies]
+anyhow = { workspace = true }
 copager_core = { path = "." }
-copager_lang = { path = "../lang", features = ["derive"] }
-copager_lex = { path = "../lex" }
 copager_lex_regex = { path = "../lex_regex" }
-copager_parse = { path = "../parse" }
 copager_parse_lr_lr1 = { path = "../parse_lr_lr1" }
 copager_ir_void = { path = "../ir_void" }

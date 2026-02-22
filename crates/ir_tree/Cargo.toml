@@ -12,6 +12,7 @@ copager_ir = { path = "../ir", features = ["derive"] }
 copager_utils = { path = "../utils" }
 
 [dev-dependencies]
+anyhow = { workspace = true }
 copager_core = { path = "../core" }
 copager_lang = { path = "../lang", features = ["derive"] }
 copager_lex_regex = { path = "../lex_regex" }

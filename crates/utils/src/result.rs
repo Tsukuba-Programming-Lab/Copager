@@ -14,7 +14,7 @@ where
 
 impl<T, E> ResultExt<T> for StdResult<T, E>
 where
-    E: StdError + 'static,
+    E: StdError + Send + Sync + 'static,
 {
     fn into_diagnostics(self) -> Result<T> {
         match self {

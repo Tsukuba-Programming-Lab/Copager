@@ -51,6 +51,7 @@ dependencies = [
 name = "copager_core"
 version = "0.3.2"
 dependencies = [
+ "anyhow",
  "copager_core",
  "copager_ir",
  "copager_ir_void",
@@ -68,11 +69,9 @@ dependencies = [
 name = "copager_core_macros"
 version = "0.3.2"
 dependencies = [
- "anyhow",
  "proc-macro2",
  "quote",
  "syn",
- "thiserror",
 ]
 
 [[package]]
@@ -95,6 +94,7 @@ dependencies = [
  "copager_lang",
  "copager_lex_regex",
  "copager_parse_lr_lalr1",
+ "copager_utils",
  "proc-macro2",
  "quote",
  "syn",
@@ -104,6 +104,7 @@ dependencies = [
 name = "copager_ir_sexp"
 version = "0.3.2"
 dependencies = [
+ "anyhow",
  "copager_core",
  "copager_ir",
  "copager_ir_sexp",
@@ -119,6 +120,7 @@ dependencies = [
 name = "copager_ir_tree"
 version = "0.3.2"
 dependencies = [
+ "anyhow",
  "copager_core",
  "copager_ir",
  "copager_ir_tree",
@@ -146,22 +148,18 @@ dependencies = [
 name = "copager_lang"
 version = "0.3.2"
 dependencies = [
- "anyhow",
  "copager_lang_derive",
  "serde",
- "thiserror",
 ]
 
 [[package]]
 name = "copager_lang_derive"
 version = "0.3.2"
 dependencies = [
- "anyhow",
  "copager_lang",
  "proc-macro2",
  "quote",
  "syn",
- "thiserror",
 ]
 
 [[package]]

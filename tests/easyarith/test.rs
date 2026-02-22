@@ -25,5 +25,6 @@ fn parse(input: &str) -> anyhow::Result<()> {
     MyProcessor::new()
         .build()?
         .process::<Void>(input)
+        .map_err(|e| anyhow::anyhow!(e.to_string()))
         .and_then(|_| Ok(()))
 }
