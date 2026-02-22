@@ -5,6 +5,7 @@ use serde::{Serialize, Deserialize};
 
 use copager_lang::token::{Token, TokenTag};
 use copager_lang::rule::{Rule, RuleElem, RuleTag};
+use copager_utils::result::Result as CoResult;
 
 use crate::automaton::Automaton;
 use crate::error::LRError;
@@ -122,7 +123,7 @@ where
         }
     }
 
-    pub fn try_set(&mut self, state: usize, token: Option<T>, action: LRAction<T, R>) -> anyhow::Result<()>{
+    pub fn try_set(&mut self, state: usize, token: Option<T>, action: LRAction<T, R>) -> CoResult<()>{
         if let Some(token) = token {
             if let Some(registered) = self.action_table[state].get(&token) {
                 return Err(LRError::new_conflict(registered, &action).into());

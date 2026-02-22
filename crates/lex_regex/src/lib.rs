@@ -5,6 +5,7 @@ use regex::{Regex, RegexSet};
 use copager_lang::token::{Token, TokenSet, TokenTag};
 use copager_lang::Lang;
 use copager_lex::BaseLexer;
+use copager_utils::result::{Result as CoResult, ResultExt};
 
 #[derive(Debug)]
 pub struct RegexLexer<L: Lang> {
@@ -15,7 +16,7 @@ pub struct RegexLexer<L: Lang> {
 }
 
 impl<L: Lang> BaseLexer<L> for RegexLexer<L> {
-    fn init() -> anyhow::Result<Self> {
+    fn init() -> CoResult<Self> {
         let tokens = L::TokenSet::instantiate();
 
         // Trivia 用正規表現の準備
@@ -24,19 +25,25 @@ impl<L: Lang> BaseLexer<L> for RegexLexer<L> {
         let regex_post_trivia = get_regex_by_opts(&tokens, "post_trivia")?;
 
         // トークンに対応する正規表現集合の準備
-        let regex_set = tokens.iter()
+        let regex_set = tokens
+            .iter()
             .filter(|token| {
                 let opts = token.as_option_list();
                 !opts.contains(&"pre_trivia") && !opts.contains(&"trivia") && !opts.contains(&"post_trivia")
             })
             .map(|token| to_or_regex(token.as_str_list()))
             .collect::<Vec<_>>();
-        let regex_set = RegexSet::new(regex_set)?;
+        let regex_set = RegexSet::new(regex_set).into_diagnostics()?;
 
         // regex_set の結果からの逆引きで使用するためのマップの用意
-        let regex_map = tokens.iter()
-            .map(|token| Ok((Regex::new(&to_or_regex(token.as_str_list()))?, token)))
-            .collect::<anyhow::Result<Vec<_>>>()?;
+        let regex_map = tokens
+            .iter()
+            .map(|token| {
+                let regex = to_or_regex(token.as_str_list());
+                let regex = Regex::new(&regex).into_diagnostics()?;
+                Ok((regex, token))
+            })
+            .collect::<CoResult<Vec<_>>>()?;
 
         Ok(RegexLexer {
             regex_pre_trivia,
@@ -130,7 +137,7 @@ fn to_or_regex<T: AsRef<str>>(str_list: &[T]) -> String {
     format!("^({})", str_list)
 }
 
-fn get_regex_by_opts<Ts: TokenSet>(tokens: &Ts, opt: &str) -> anyhow::Result<Option<Regex>> {
+fn get_regex_by_opts<Ts: TokenSet>(tokens: &Ts, opt: &str) -> CoResult<Option<Regex>> {
     let tokens = tokens.iter()
         .filter(|token| token.as_option_list().contains(&opt))
         .map(|token| token.as_str_list().join("|"))
@@ -138,6 +145,6 @@ fn get_regex_by_opts<Ts: TokenSet>(tokens: &Ts, opt: &str) -> anyhow::Result<Opt
     if tokens.is_empty() {
         Ok(None)
     } else {
-        Ok(Some(Regex::new(&to_or_regex(&tokens))?))
+        Ok(Some(Regex::new(&to_or_regex(&tokens)).into_diagnostics()?))
     }
 }

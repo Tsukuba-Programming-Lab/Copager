@@ -39,6 +39,7 @@ dependencies = [
  "copager_parse_lr_lr0",
  "copager_parse_lr_lr1",
  "copager_parse_lr_slr1",
+ "copager_utils",
  "example_lang_easyarith",
  "example_lang_json",
  "example_lang_pl0",
@@ -63,46 +64,41 @@ dependencies = [
  "copager_utils",
  "serde",
  "serde_cbor",
- "thiserror",
 ]
 
 [[package]]
 name = "copager_core_macros"
 version = "0.3.2"
 dependencies = [
- "anyhow",
  "proc-macro2",
  "quote",
  "syn",
- "thiserror",
 ]
 
 [[package]]
 name = "copager_ir"
 version = "0.3.2"
 dependencies = [
- "anyhow",
  "copager_ir_derive",
  "copager_lang",
  "copager_lex",
  "copager_parse",
- "thiserror",
+ "copager_utils",
 ]
 
 [[package]]
 name = "copager_ir_derive"
 version = "0.3.2"
 dependencies = [
- "anyhow",
  "copager_core",
  "copager_ir",
  "copager_lang",
  "copager_lex_regex",
  "copager_parse_lr_lalr1",
+ "copager_utils",
  "proc-macro2",
  "quote",
  "syn",
- "thiserror",
 ]
 
 [[package]]
@@ -118,7 +114,7 @@ dependencies = [
  "copager_lex_regex",
  "copager_parse",
  "copager_parse_lr_lr1",
- "thiserror",
+ "copager_utils",
 ]
 
 [[package]]
@@ -134,93 +130,79 @@ dependencies = [
  "copager_lex_regex",
  "copager_parse",
  "copager_parse_lr_lr1",
+ "copager_utils",
  "serde",
- "thiserror",
 ]
 
 [[package]]
 name = "copager_ir_void"
 version = "0.3.2"
 dependencies = [
- "anyhow",
  "copager_ir",
  "copager_lang",
  "copager_lex",
  "copager_parse",
- "thiserror",
+ "copager_utils",
 ]
 
 [[package]]
 name = "copager_lang"
 version = "0.3.2"
 dependencies = [
- "anyhow",
  "copager_lang_derive",
  "serde",
- "thiserror",
 ]
 
 [[package]]
 name = "copager_lang_derive"
 version = "0.3.2"
 dependencies = [
- "anyhow",
  "copager_lang",
  "proc-macro2",
  "quote",
  "syn",
- "thiserror",
 ]
 
 [[package]]
 name = "copager_lex"
 version = "0.3.2"
 dependencies = [
- "anyhow",
  "copager_lang",
  "copager_utils",
- "thiserror",
 ]
 
 [[package]]
 name = "copager_lex_regex"
 version = "0.3.2"
 dependencies = [
- "anyhow",
  "copager_lang",
  "copager_lex",
  "copager_lex_regex",
  "copager_utils",
  "regex",
  "regex-macro",
- "thiserror",
 ]
 
 [[package]]
 name = "copager_parse"
 version = "0.3.2"
 dependencies = [
- "anyhow",
  "copager_lang",
  "copager_lex",
  "copager_utils",
- "thiserror",
 ]
 
 [[package]]
 name = "copager_parse_common"
 version = "0.3.2"
 dependencies = [
- "anyhow",
  "copager_lang",
- "thiserror",
 ]
 
 [[package]]
 name = "copager_parse_lr_common"
 version = "0.3.2"
 dependencies = [
- "anyhow",
  "copager_lang",
  "copager_parse",
  "copager_parse_common",
@@ -233,7 +215,6 @@ dependencies = [
 name = "copager_parse_lr_lalr1"
 version = "0.3.2"
 dependencies = [
- "anyhow",
  "copager_core",
  "copager_ir_void",
  "copager_lang",
@@ -244,14 +225,12 @@ dependencies = [
  "copager_parse_lr_common",
  "copager_utils",
  "serde",
- "thiserror",
 ]
 
 [[package]]
 name = "copager_parse_lr_lr0"
 version = "0.3.2"
 dependencies = [
- "anyhow",
  "copager_core",
  "copager_ir_void",
  "copager_lang",
@@ -261,14 +240,12 @@ dependencies = [
  "copager_parse_lr_common",
  "copager_utils",
  "serde",
- "thiserror",
 ]
 
 [[package]]
 name = "copager_parse_lr_lr1"
 version = "0.3.2"
 dependencies = [
- "anyhow",
  "copager_core",
  "copager_ir_void",
  "copager_lang",
@@ -279,14 +256,12 @@ dependencies = [
  "copager_parse_lr_common",
  "copager_utils",
  "serde",
- "thiserror",
 ]
 
 [[package]]
 name = "copager_parse_lr_slr1"
 version = "0.3.2"
 dependencies = [
- "anyhow",
  "copager_core",
  "copager_ir_void",
  "copager_lang",
@@ -297,7 +272,6 @@ dependencies = [
  "copager_parse_lr_common",
  "copager_utils",
  "serde",
- "thiserror",
 ]
 
 [[package]]

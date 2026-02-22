@@ -4,8 +4,6 @@ edition = "2024"
 version.workspace = true
 
 [dependencies]
-anyhow = { workspace = true }
-thiserror = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 copager_lang = { path = "../lang" }
 copager_lex = { path = "../lex" }
@@ -18,5 +16,4 @@ copager_utils = { path = "../utils" }
 copager_core = { path = "../core" }
 copager_lang = { path = "../lang", features = ["derive"] }
 copager_lex_regex = { path = "../lex_regex" }
-copager_parse = { path = "../parse" }
 copager_ir_void = { path = "../ir_void" }

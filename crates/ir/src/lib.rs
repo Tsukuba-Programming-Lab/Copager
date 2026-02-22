@@ -1,5 +1,7 @@
 use copager_lang::token::Token;
 use copager_lang::Lang;
+use copager_utils::result::Result as CoResult;
+
 #[cfg(feature = "derive")]
 pub use copager_ir_derive::{IR, IRBuilder};
 
@@ -11,9 +13,9 @@ pub trait IRBuilder<'input, L: Lang> {
     type Output: IR<'input, L>;
 
     fn new() -> Self;
-    fn on_read(&mut self, token: Token<'input, L::TokenTag>) -> anyhow::Result<()>;
-    fn on_parse(&mut self, rule: L::RuleTag, len: usize) -> anyhow::Result<()>;
-    fn build(self) -> anyhow::Result<Self::Output>;
+    fn on_read(&mut self, token: Token<'input, L::TokenTag>) -> CoResult<()>;
+    fn on_parse(&mut self, rule: L::RuleTag, len: usize) -> CoResult<()>;
+    fn build(self) -> CoResult<Self::Output>;
 }
 
 #[cfg(feature = "derive")]

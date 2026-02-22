@@ -24,12 +24,12 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
                 }
             }
 
-            fn on_read(&mut self, token: Token<'input, L::TokenTag>) -> anyhow::Result<()> {
+            fn on_read(&mut self, token: Token<'input, L::TokenTag>) -> Result<(), DiagnosticError> {
                 self.stack.push(RawIR::Atom(token));
                 Ok(())
             }
 
-            fn on_parse(&mut self, rule: L::RuleTag, len: usize) -> anyhow::Result<()> {
+            fn on_parse(&mut self, rule: L::RuleTag, len: usize) -> Result<(), DiagnosticError> {
                 let elems = self.stack.split_off(self.stack.len() - len);
                 let elems = elems
                     .into_iter()
@@ -42,7 +42,7 @@ pub fn proc_macro_impl(ast: DeriveInput) -> TokenStream {
                 Ok(())
             }
 
-            fn build(mut self) -> anyhow::Result<Self::Output>
+            fn build(mut self) -> Result<Self::Output, DiagnosticError>
             where
                 Self::Output: From<RawIR<'input, L>>,
             {

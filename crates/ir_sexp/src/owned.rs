@@ -4,6 +4,7 @@ use std::fmt::{Debug, Display};
 use copager_lang::token::{Token, TokenTag};
 use copager_lang::Lang;
 use copager_ir::{IR, IRBuilder, RawIR};
+use copager_utils::error::DiagnosticError;
 
 #[derive(Debug, IR, IRBuilder)]
 pub enum SExpOwned<L: Lang> {

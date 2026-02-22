@@ -8,6 +8,7 @@ use copager_lex::BaseLexer;
 use copager_parse::{BaseParser, ParseEvent};
 use copager_ir::{IR, IRBuilder};
 use copager_utils::cache::Cacheable;
+use copager_utils::result::{Result as CoResult, ResultExt};
 
 use crate::generator::GeneratorDesign;
 
@@ -42,26 +43,26 @@ impl<Gen: GeneratorDesign> Processor<Gen> {
         }
     }
 
-    pub fn build(self) -> anyhow::Result<Self> {
+    pub fn build(self) -> CoResult<Self> {
         self.build_lexer()?
             .build_parser()
     }
 
-    pub fn build_lexer(mut self) -> anyhow::Result<Self> {
+    pub fn build_lexer(mut self) -> CoResult<Self> {
         let lexer = Gen::Lexer::init()?;
         self.lexer = Some(lexer);
 
         Ok(self)
     }
 
-    pub fn build_parser(mut self) -> anyhow::Result<Self> {
+    pub fn build_parser(mut self) -> CoResult<Self> {
         let parser = Gen::Parser::init()?;
         self.parser = Some(parser);
 
         Ok(self)
     }
 
-    pub fn process<'input, I>(&self, input: &'input str) -> anyhow::Result<I>
+    pub fn process<'input, I>(&self, input: &'input str) -> CoResult<I>
     where
         I: IR<'input, Gen::Lang>,
     {
@@ -85,9 +86,9 @@ impl<Gen> Processor<Gen>
 where
     Gen: GeneratorDesign<Lexer: Cacheable<()>>,
 {
-    pub fn prebuild_lexer(mut self) -> anyhow::Result<Self> {
+    pub fn prebuild_lexer(mut self) -> CoResult<Self> {
         let cache_lex = Gen::Lexer::cache(())?;
-        self.cache_lex = Some(to_vec_packed(&cache_lex)?);
+        self.cache_lex = Some(to_vec_packed(&cache_lex).into_diagnostics()?);
 
         Ok(self)
     }
@@ -106,9 +107,9 @@ impl<Gen> Processor<Gen>
 where
     Gen: GeneratorDesign< Parser: Cacheable<()>>,
 {
-    pub fn prebuild_parser(mut self) -> anyhow::Result<Self> {
+    pub fn prebuild_parser(mut self) -> CoResult<Self> {
         let cache_parse = Gen::Parser::cache(())?;
-        self.cache_parse = Some(to_vec_packed(&cache_parse)?);
+        self.cache_parse = Some(to_vec_packed(&cache_parse).into_diagnostics()?);
 
         Ok(self)
     }

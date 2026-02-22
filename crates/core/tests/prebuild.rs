@@ -69,14 +69,15 @@ fn prebuild() -> anyhow::Result<()> {
 }
 
 fn build_rs() -> anyhow::Result<MyProcessor> {
-    MyProcessor::new().prebuild_parser()
+    MyProcessor::new()
+        .prebuild_parser()
+        .map_err(|e| anyhow::anyhow!(e.to_string()))
 }
 
-fn main_rs(processor: MyProcessor) -> anyhow::Result<()> {
+fn main_rs(processor: MyProcessor) -> anyhow::Result<Void> {
     processor
         .build_lexer()?
         .restore_parser_by_cache()
-        .process::<Void>("1 + 2 * 3")?;
-
-    Ok(())
+        .process::<Void>("1 + 2 * 3")
+        .map_err(|e| anyhow::anyhow!(e.to_string()))
 }
