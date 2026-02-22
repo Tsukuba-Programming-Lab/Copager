@@ -14,13 +14,14 @@ use copager_parse_lr_common::lalr1::item::LALR1Item;
 use copager_parse_lr_common::lalr1::LALR1DFA;
 use copager_parse_lr_common::{LRDriver, LRAction, LRTable, LRTableBuilder};
 use copager_utils::cache::Cacheable;
+use copager_utils::result::Result as CoResult;
 
 pub struct LALR1<L: Lang> {
     table: LRTable<L::TokenTag, L::RuleTag>,
 }
 
 impl<L: Lang> BaseParser<L> for LALR1<L> {
-    fn init() -> anyhow::Result<Self> {
+    fn init() -> CoResult<Self> {
         Ok(LALR1 {
             table: LALR1Table::<L>::init()?,
         })
@@ -47,7 +48,7 @@ where
 {
     type Cache = LRTable<L::TokenTag, L::RuleTag>;
 
-    fn cache(_: ()) -> anyhow::Result<Self::Cache> {
+    fn cache(_: ()) -> CoResult<Self::Cache> {
         Ok(LALR1Table::<L>::init()?)
     }
 
@@ -61,7 +62,7 @@ pub struct LALR1Table<L: Lang> {
 }
 
 impl<L: Lang> LALR1Table<L> {
-    pub fn init() -> anyhow::Result<LRTable<L::TokenTag, L::RuleTag>> {
+    pub fn init() -> CoResult<LRTable<L::TokenTag, L::RuleTag>> {
         // Rules 準備
         let ruleset = L::RuleSet::instantiate();
 

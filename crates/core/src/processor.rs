@@ -73,7 +73,7 @@ impl<Gen: GeneratorDesign> Processor<Gen> {
             match result {
                 ParseEvent::Read(token) => ir_builder.on_read(token)?,
                 ParseEvent::Parse{ rule,len } => ir_builder.on_parse(rule, len)?,
-                ParseEvent::Err(err) => return Err(err),
+                ParseEvent::Err(err) => return Err(err.into()),
             }
         }
 

@@ -4,8 +4,6 @@ edition = "2021"
 version.workspace = true
 
 [dependencies]
-anyhow = { workspace = true }
-thiserror = { workspace = true }
 copager_lang = { path = "../lang" }
 copager_lex = { path = "../lex" }
 copager_utils = { path = "../utils" }

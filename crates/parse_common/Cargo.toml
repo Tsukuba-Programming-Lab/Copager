@@ -4,8 +4,6 @@ edition = "2024"
 version.workspace = true
 
 [dependencies]
-anyhow = { workspace = true }
-thiserror = { workspace = true }
 copager_lang = { path = "../lang" }
 
 [dev-dependencies]
