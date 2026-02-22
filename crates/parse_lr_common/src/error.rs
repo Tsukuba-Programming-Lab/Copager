@@ -4,7 +4,7 @@ use thiserror::Error;
 
 use copager_lang::token::{TokenTag, Token};
 use copager_lang::rule::RuleTag;
-use copager_utils::error::PrettyError;
+use copager_utils::error::DiagnosticError;
 
 use crate::table::LRAction;
 
@@ -24,27 +24,27 @@ pub enum LRError {
 }
 
 impl LRError {
-    pub fn new_conflict<T, R>(action_a: &LRAction<T, R>, action_b: &LRAction<T, R>) -> PrettyError
+    pub fn new_conflict<T, R>(action_a: &LRAction<T, R>, action_b: &LRAction<T, R>) -> DiagnosticError
     where
         T: TokenTag,
         R: RuleTag<T>,
     {
         let action_a = format!("{}", action_a);
         let action_b = format!("{}", action_b);
-        PrettyError::from(LRError::Conflilct{ action_a, action_b })
+        DiagnosticError::from(LRError::Conflilct{ action_a, action_b })
     }
 
-    pub fn new_unexpected_token<T>(expected: Token<T>) -> PrettyError
+    pub fn new_unexpected_token<T>(expected: Token<T>) -> DiagnosticError
     where
         T: TokenTag,
     {
         let err = LRError::UnexpectedToken {
             actual: format!("{:?}", "TODO") // TODO: expected.kind),
         };
-        PrettyError::from(err).with(expected)
+        DiagnosticError::from(err).with(expected)
     }
 
-    pub fn new_unexpected_eof() -> PrettyError {
-        PrettyError::from(LRError::UnexpectedEOF)
+    pub fn new_unexpected_eof() -> DiagnosticError {
+        DiagnosticError::from(LRError::UnexpectedEOF)
     }
 }

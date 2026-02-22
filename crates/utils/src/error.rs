@@ -7,27 +7,78 @@ use thiserror::Error;
 use copager_lang::token::{TokenTag, Token};
 
 #[derive(Debug, Error)]
-pub struct PrettyError {
-    err: Box<dyn StdError + Send + Sync>,
-    src: Option<String>,
-    pos: Option<(usize, usize)>,
+pub struct DiagnosticError {
+    pub err: Box<dyn StdError + Send + Sync>,
+    pub diagnostics: Option<Diagnostics>,
 }
 
-impl Display for PrettyError {
+impl Display for DiagnosticError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        fn pretty_print(
-            f: &mut std::fmt::Formatter<'_>,
-            input: &str,
-            pos: (usize, usize)
-        ) -> std::fmt::Result {
+        writeln!(f, "{}", self.err)?;
+        if let Some(d) = &self.diagnostics {
+            writeln!(f, "{}", d)?;
+        }
+        Ok(())
+    }
+}
+
+impl DiagnosticError {
+    pub fn from<E>(err: E) -> DiagnosticError
+    where
+        E: StdError + Send + Sync + 'static,
+    {
+        DiagnosticError {
+            err: Box::new(err),
+            diagnostics: None,
+        }
+    }
+
+    pub fn with<'input, T: TokenTag>(self, token: Token<'input, T>) -> DiagnosticError {
+        DiagnosticError {
+            err: self.err,
+            diagnostics: Some(Diagnostics::from(token)),
+        }
+    }
+}
+
+#[derive(Debug, Error)]
+pub struct Diagnostics {
+    pub src: String,
+    pub range: (usize, usize),
+}
+
+impl Display for Diagnostics {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let range_to_pos = |range: (usize, usize)| -> (usize, usize) {
+            let mut sum = 0;
+            let (mut rows, mut cols) = (1, 1);
+            for c in self.src.chars() {
+                if range.0 <= sum {
+                    break;
+                }
+                sum += c.len_utf8();
+
+                match c {
+                    '\n' => {
+                        rows += 1;
+                        cols = 1;
+                    }
+                    _ => {
+                        cols += 1;
+                    }
+                }
+            }
+            (rows, cols)
+        };
+
+        let mut pretty_print = |src: &str, pos: (usize, usize)| {
             writeln!(f, "-----")?;
 
             let (row, col) = (pos.0 as i32 - 1, pos.1 as i32 - 1);
-            let lines = input.split('\n');
+            let lines = src.split('\n');
             let neighbor_lines = lines
                 .skip(max(0, row - 2) as usize)
                 .take(min(row + 1, 3) as usize);
-
             for (idx, line) in neighbor_lines.enumerate() {
                 let row = max(1, row - 1) + (idx as i32);
                 writeln!(f, "{:2}: {}", row, line)?;
@@ -36,54 +87,17 @@ impl Display for PrettyError {
             writeln!(f, "    {}^ here", " ".repeat(col as usize))?;
             writeln!(f, "Found at line {}, column {}.", row + 1, col + 1)?;
             writeln!(f, "-----")
-        }
+        };
 
-        writeln!(f, "{}", self.err)?;
-        match (&self.src, self.pos) {
-            (Some(src), Some(pos)) => pretty_print(f, &src, pos)?,
-            _ => {},
-        }
-
-        Ok(())
+        pretty_print(&self.src, range_to_pos(self.range))
     }
 }
 
-impl PrettyError {
-    pub fn from<E>(err: E) -> PrettyError
-    where
-        E: StdError + Send + Sync + 'static,
-    {
-        PrettyError {
-            err: Box::new(err),
-            src: None,
-            pos: None,
-        }
-    }
-
-    pub fn with<'input, T: TokenTag>(self, token: Token<'input, T>) -> PrettyError {
-        let mut sum = 0;
-        let (mut rows, mut cols) = (1, 1);
-        for c in token.src.chars() {
-            if token.body.0 <= sum {
-                break;
-            }
-            sum += c.len_utf8();
-
-            match c {
-                '\n' => {
-                    rows += 1;
-                    cols = 1;
-                }
-                _ => {
-                    cols += 1;
-                }
-            }
-        }
-
-        PrettyError {
-            err: self.err,
-            src: Some(token.src.to_string()),
-            pos: Some((rows, cols)),
+impl<T: TokenTag> From<Token<'_, T>> for Diagnostics {
+    fn from(token: Token<'_, T>) -> Self {
+        Diagnostics {
+            src: token.src.to_string(),
+            range: (token.body.0, token.body.1),
         }
     }
 }
