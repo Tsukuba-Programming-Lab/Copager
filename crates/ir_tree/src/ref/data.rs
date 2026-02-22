@@ -6,6 +6,7 @@ use serde::{Serialize, Deserialize};
 use copager_lang::token::{Token, TokenTag};
 use copager_lang::Lang;
 use copager_ir::{IR, IRBuilder, RawIR};
+use copager_utils::error::DiagnosticError;
 
 #[derive(Debug, Serialize, Deserialize, IR, IRBuilder)]
 pub enum CSTree<'input, L: Lang> {

@@ -4,12 +4,11 @@ version.workspace = true
 edition = "2021"
 
 [dependencies]
-anyhow = { workspace = true }
-thiserror = { workspace = true }
 copager_lang = { path = "../lang" }
 copager_lex = { path = "../lex" }
 copager_parse = { path = "../parse" }
 copager_ir = { path = "../ir", features = ["derive"] }
+copager_utils = { path = "../utils" }
 
 [dev-dependencies]
 copager_core = { path = "../core" }
