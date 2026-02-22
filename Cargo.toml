@@ -21,6 +21,7 @@ copager_ir = { path = "./crates/ir" }
 copager_ir_void = { path = "./crates/ir_void", optional = true }
 copager_ir_sexp = { path = "./crates/ir_sexp", optional = true }
 copager_ir_tree = { path = "./crates/ir_tree", optional = true }
+copager_utils = { path = "./crates/utils" }
 
 [dev-dependencies]
 anyhow = { workspace = true }

@@ -1,4 +1,6 @@
 pub use copager_core::*;
+pub use copager_utils::error::{DiagnosticError, Diagnostics};
+pub use copager_utils::result::Result;
 
 pub mod lang {
     pub use copager_lang::*;
