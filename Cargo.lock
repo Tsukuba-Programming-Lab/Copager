@@ -176,24 +176,20 @@ dependencies = [
 name = "copager_lex"
 version = "0.3.2"
 dependencies = [
- "anyhow",
  "copager_lang",
  "copager_utils",
- "thiserror",
 ]
 
 [[package]]
 name = "copager_lex_regex"
 version = "0.3.2"
 dependencies = [
- "anyhow",
  "copager_lang",
  "copager_lex",
  "copager_lex_regex",
  "copager_utils",
  "regex",
  "regex-macro",
- "thiserror",
 ]
 
 [[package]]
